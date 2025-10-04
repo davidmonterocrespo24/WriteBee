@@ -125,13 +125,7 @@ const DialogModule = (function() {
       <div class="ai-result-body">
         <div class="ai-preview">${selectedText}</div>
         <div class="ai-answer">${content}</div>
-        <a class="ai-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8L12 3z"/>
-            <path d="M19 17l.8 1.8L22 20l-2.2.9L19 23l-.8-2.1L16 20l2.2-1.2L19 17z"/>
-          </svg>
-          Preguntar a GPT-4o por una mejor respuesta
-        </a>
+        <div class="ai-chat-history" style="display: none;"></div>
       </div>
 
       <div class="ai-actions">
@@ -173,6 +167,12 @@ const DialogModule = (function() {
             <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
           <input type="text" placeholder="Preguntar de seguimiento" />
+          <button class="ai-send-btn" aria-label="Enviar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13"/>
+              <path d="M22 2L15 22L11 13L2 9L22 2z"/>
+            </svg>
+          </button>
         </div>
       </div>
     `;
@@ -500,6 +500,99 @@ const DialogModule = (function() {
         }
       });
     }
+
+    // Sistema de chat de seguimiento
+    const followupInput = dialog.querySelector('.ai-followup input');
+    const sendBtn = dialog.querySelector('.ai-send-btn');
+    const chatHistory = dialog.querySelector('.ai-chat-history');
+    const previewDiv = dialog.querySelector('.ai-preview');
+    const answerDiv = dialog.querySelector('.ai-answer');
+
+    // Historial de conversación
+    let conversationHistory = [
+      { role: 'user', content: selectedText },
+      { role: 'assistant', content: content }
+    ];
+
+    // Función para enviar mensaje
+    const sendMessage = async () => {
+      if (!followupInput.value.trim()) return;
+
+      const userMessage = followupInput.value.trim();
+      followupInput.value = '';
+
+      console.log('💬 Pregunta de seguimiento:', userMessage);
+
+      // Cambiar a modo chat
+      if (previewDiv.style.display !== 'none') {
+        previewDiv.style.display = 'none';
+        answerDiv.style.display = 'none';
+        chatHistory.style.display = 'flex';
+
+        // Agregar mensajes iniciales al historial visual
+        addChatMessage(chatHistory, 'user', selectedText);
+        addChatMessage(chatHistory, 'assistant', content);
+      }
+
+      // Agregar mensaje del usuario
+      conversationHistory.push({ role: 'user', content: userMessage });
+      addChatMessage(chatHistory, 'user', userMessage);
+
+      // Mostrar indicador de carga
+      const loadingMsg = addChatMessage(chatHistory, 'assistant', 'Pensando...');
+
+      try {
+        // Llamar a la API de chat con el historial de conversación
+        const result = await AIModule.aiChat(conversationHistory);
+
+        // Agregar respuesta al historial
+        conversationHistory.push({ role: 'assistant', content: result });
+
+        // Reemplazar mensaje de carga con respuesta real
+        loadingMsg.querySelector('.ai-chat-bubble').textContent = result;
+
+        // Auto-scroll al final
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+      } catch (error) {
+        loadingMsg.querySelector('.ai-chat-bubble').textContent = 'Error: ' + error.message;
+      }
+    };
+
+    // Event listener para Enter
+    if (followupInput) {
+      followupInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+          await sendMessage();
+        }
+      });
+    }
+
+    // Event listener para botón de enviar
+    if (sendBtn) {
+      sendBtn.addEventListener('click', async () => {
+        await sendMessage();
+      });
+    }
+  }
+
+  function addChatMessage(container, role, content) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `ai-chat-message ${role}`;
+
+    const label = document.createElement('div');
+    label.className = 'ai-chat-label';
+    label.textContent = role === 'user' ? 'Tú' : 'Asistente';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'ai-chat-bubble';
+    bubble.textContent = content;
+
+    messageDiv.appendChild(label);
+    messageDiv.appendChild(bubble);
+    container.appendChild(messageDiv);
+
+    return messageDiv;
   }
 
   function getActionTitle(action) {

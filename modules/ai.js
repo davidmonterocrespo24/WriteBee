@@ -1,77 +1,85 @@
 const AIModule = (function() {
-  async function aiSummarize(text) {
-    if (!window.ai || !window.ai.languageModel) {
-      return 'La API de AI de Chrome no está disponible. Asegúrate de usar Chrome Canary con los flags habilitados.';
-    }
+  // Obtener instancia del servicio de AI
+  const getAIService = () => window.AIServiceInstance;
 
-    const session = await window.ai.languageModel.create();
-    const result = await session.prompt(`Resume el siguiente texto de manera concisa:\n\n${text}`);
-    return result;
+  async function aiSummarize(text) {
+    try {
+      const service = getAIService();
+      return await service.summarize(text);
+    } catch (error) {
+      console.error('Error en aiSummarize:', error);
+      return `❌ Error al resumir: ${error.message}`;
+    }
   }
 
   async function aiTranslate(text, targetLang) {
-    if (!window.ai || !window.ai.languageModel) {
-      return 'La API de AI de Chrome no está disponible.';
+    try {
+      const service = getAIService();
+      return await service.translate(text, targetLang);
+    } catch (error) {
+      console.error('Error en aiTranslate:', error);
+      return `❌ Error al traducir: ${error.message}`;
     }
-
-    const langNames = {
-      es: 'español', en: 'inglés', fr: 'francés', de: 'alemán',
-      it: 'italiano', pt: 'portugués', ja: 'japonés', zh: 'chino'
-    };
-
-    const session = await window.ai.languageModel.create();
-    const result = await session.prompt(`Traduce el siguiente texto a ${langNames[targetLang]}:\n\n${text}`);
-    return result;
   }
 
   async function aiExplain(text) {
-    if (!window.ai || !window.ai.languageModel) {
-      return 'La API de AI de Chrome no está disponible.';
+    try {
+      const service = getAIService();
+      return await service.explain(text);
+    } catch (error) {
+      console.error('Error en aiExplain:', error);
+      return `❌ Error al explicar: ${error.message}`;
     }
-
-    const session = await window.ai.languageModel.create();
-    const result = await session.prompt(`Explica detalladamente el siguiente texto:\n\n${text}`);
-    return result;
   }
 
   async function aiGrammar(text) {
-    if (!window.ai || !window.ai.languageModel) {
-      return 'La API de AI de Chrome no está disponible.';
+    try {
+      const service = getAIService();
+      return await service.checkGrammar(text);
+    } catch (error) {
+      console.error('Error en aiGrammar:', error);
+      return `❌ Error al revisar gramática: ${error.message}`;
     }
-
-    const session = await window.ai.languageModel.create();
-    const result = await session.prompt(`Corrige los errores gramaticales y mejora el siguiente texto:\n\n${text}`);
-    return result;
   }
 
   async function aiRewrite(text) {
-    if (!window.ai || !window.ai.languageModel) {
-      return 'La API de AI de Chrome no está disponible.';
+    try {
+      const service = getAIService();
+      return await service.rewrite(text);
+    } catch (error) {
+      console.error('Error en aiRewrite:', error);
+      return `❌ Error al reescribir: ${error.message}`;
     }
-
-    const session = await window.ai.languageModel.create();
-    const result = await session.prompt(`Reescribe el siguiente texto de manera diferente manteniendo el significado:\n\n${text}`);
-    return result;
   }
 
   async function aiExpand(text) {
-    if (!window.ai || !window.ai.languageModel) {
-      return 'La API de AI de Chrome no está disponible.';
+    try {
+      const service = getAIService();
+      return await service.expand(text);
+    } catch (error) {
+      console.error('Error en aiExpand:', error);
+      return `❌ Error al expandir: ${error.message}`;
     }
-
-    const session = await window.ai.languageModel.create();
-    const result = await session.prompt(`Expande y elabora más sobre el siguiente texto:\n\n${text}`);
-    return result;
   }
 
   async function aiAnswer(text) {
-    if (!window.ai || !window.ai.languageModel) {
-      return 'La API de AI de Chrome no está disponible.';
+    try {
+      const service = getAIService();
+      return await service.answer(text);
+    } catch (error) {
+      console.error('Error en aiAnswer:', error);
+      return `❌ Error al responder: ${error.message}`;
     }
+  }
 
-    const session = await window.ai.languageModel.create();
-    const result = await session.prompt(`Responde a la siguiente pregunta:\n\n${text}`);
-    return result;
+  async function aiChat(conversationHistory) {
+    try {
+      const service = getAIService();
+      return await service.chat(conversationHistory);
+    } catch (error) {
+      console.error('Error en aiChat:', error);
+      return `❌ Error en chat: ${error.message}`;
+    }
   }
 
   return {
@@ -81,6 +89,7 @@ const AIModule = (function() {
     aiGrammar,
     aiRewrite,
     aiExpand,
-    aiAnswer
+    aiAnswer,
+    aiChat
   };
 })();

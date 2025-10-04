@@ -12,6 +12,7 @@
     {
       "matches": ["<all_urls>"],
       "js": [
+        "modules/aiService.js",
         "modules/ai.js",
         "modules/dialog.js",
         "modules/actions.js",
