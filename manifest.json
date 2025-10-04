@@ -21,6 +21,7 @@
         "modules/toolbar.js",
         "modules/gmail.js",
         "modules/youtube.js",
+        "modules/google.js",
         "content.js"
       ],
       "css": ["styles.css"]

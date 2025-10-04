@@ -245,19 +245,9 @@ const YoutubeModule = (function() {
         throw new Error('No se pudo obtener el ID del video');
       }
 
-      // Intentar obtener subtítulos desde el player de YouTube
-      const player = document.querySelector('#movie_player');
-      
-      if (!player || !player.getVideoData) {
-        console.log('📝 Intentando método alternativo para obtener subtítulos...');
-        return await getSubtitlesAlternative();
-      }
+      console.log('� Obteniendo subtítulos para video:', videoId);
 
-      // Obtener información del video
-      const videoData = player.getVideoData();
-      console.log('📹 Video data:', videoData);
-
-      // Intentar obtener subtítulos desde la API interna de YouTube
+      // Intentar obtener subtítulos usando los métodos mejorados
       const subtitles = await fetchYoutubeSubtitles(videoId);
       return subtitles;
 
@@ -269,11 +259,32 @@ const YoutubeModule = (function() {
 
   async function fetchYoutubeSubtitles(videoId) {
     try {
-      // Obtener el HTML de la página
+      // Método 1: Usar ytInitialPlayerResponse del DOM
+      const ytInitialPlayerResponse = await extractPlayerResponse();
+      
+      if (ytInitialPlayerResponse) {
+        const subtitles = await parseSubtitlesFromPlayerResponse(ytInitialPlayerResponse);
+        if (subtitles && subtitles.length > 0) {
+          return subtitles;
+        }
+      }
+
+      // Método 2: Fetch HTML y parsear
       const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
       const html = await response.text();
 
-      // Buscar la URL de subtítulos en el HTML
+      // Buscar ytInitialPlayerResponse en el HTML
+      const playerResponseMatch = html.match(/var ytInitialPlayerResponse = ({.+?});/);
+      
+      if (playerResponseMatch) {
+        const playerData = JSON.parse(playerResponseMatch[1]);
+        const subtitles = await parseSubtitlesFromPlayerResponse(playerData);
+        if (subtitles && subtitles.length > 0) {
+          return subtitles;
+        }
+      }
+
+      // Método 3: Buscar captionTracks directamente (método antiguo)
       const captionsRegex = /"captionTracks":(\[.*?\])/;
       const match = html.match(captionsRegex);
 
@@ -287,10 +298,8 @@ const YoutubeModule = (function() {
         throw new Error('No hay pistas de subtítulos disponibles');
       }
 
-      // Preferir subtítulos en español, luego inglés, luego el primero disponible
-      let captionUrl = captionTracks.find(track => track.languageCode === 'es')?.baseUrl ||
-                       captionTracks.find(track => track.languageCode === 'en')?.baseUrl ||
-                       captionTracks[0]?.baseUrl;
+      // Preferir subtítulos manuales primero, luego automáticos
+      let captionUrl = findBestCaptionTrack(captionTracks);
 
       if (!captionUrl) {
         throw new Error('No se pudo obtener la URL de subtítulos');
@@ -316,20 +325,124 @@ const YoutubeModule = (function() {
 
     } catch (error) {
       console.error('Error en fetchYoutubeSubtitles:', error);
-      throw new Error('No se pudieron obtener los subtítulos. Asegúrate de que el video tenga subtítulos disponibles.');
+      throw new Error('No se pudieron obtener los subtítulos. Asegúrate de que el video tenga subtítulos disponibles (manuales o automáticos).');
     }
   }
 
-  async function getSubtitlesAlternative() {
-    // Método alternativo: intentar leer desde el elemento de subtítulos si está activo
-    const captionsContainer = document.querySelector('.ytp-caption-segment');
-    
-    if (!captionsContainer) {
-      throw new Error('No se encontraron subtítulos. Activa los subtítulos en el reproductor de YouTube.');
+  async function extractPlayerResponse() {
+    try {
+      // Buscar ytInitialPlayerResponse en el DOM
+      const scripts = document.querySelectorAll('script');
+      
+      for (const script of scripts) {
+        const content = script.textContent;
+        if (content.includes('ytInitialPlayerResponse')) {
+          const match = content.match(/var ytInitialPlayerResponse = ({.+?});/);
+          if (match) {
+            return JSON.parse(match[1]);
+          }
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error extrayendo player response:', error);
+      return null;
+    }
+  }
+
+  async function parseSubtitlesFromPlayerResponse(playerData) {
+    try {
+      const captions = playerData?.captions?.playerCaptionsTracklistRenderer;
+      
+      if (!captions || !captions.captionTracks) {
+        console.log('No se encontraron captionTracks en playerData');
+        return null;
+      }
+
+      const captionTracks = captions.captionTracks;
+      const captionUrl = findBestCaptionTrack(captionTracks);
+
+      if (!captionUrl) {
+        return null;
+      }
+
+      // Obtener los subtítulos
+      const captionsResponse = await fetch(captionUrl);
+      const captionsXml = await captionsResponse.text();
+
+      // Parsear el XML de subtítulos
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(captionsXml, 'text/xml');
+      const textNodes = xmlDoc.querySelectorAll('text');
+
+      const subtitles = Array.from(textNodes).map(node => ({
+        start: parseFloat(node.getAttribute('start')),
+        duration: parseFloat(node.getAttribute('dur')),
+        text: decodeHTMLEntities(node.textContent)
+      }));
+
+      console.log(`✅ Subtítulos obtenidos desde playerResponse: ${subtitles.length} segmentos`);
+      return subtitles;
+
+    } catch (error) {
+      console.error('Error parseando subtítulos de playerData:', error);
+      return null;
+    }
+  }
+
+  function findBestCaptionTrack(captionTracks) {
+    // Prioridad de selección:
+    // 1. Subtítulos manuales en español
+    // 2. Subtítulos manuales en inglés
+    // 3. Subtítulos automáticos en español (asr)
+    // 4. Subtítulos automáticos en inglés (asr)
+    // 5. Cualquier subtítulo manual disponible
+    // 6. Cualquier subtítulo automático disponible
+
+    // Separar manuales y automáticos
+    const manualTracks = captionTracks.filter(t => !t.kind || t.kind !== 'asr');
+    const autoTracks = captionTracks.filter(t => t.kind === 'asr');
+
+    // Buscar en subtítulos manuales primero
+    let track = manualTracks.find(t => t.languageCode === 'es' || t.languageCode === 'es-419');
+    if (track) {
+      console.log('✅ Usando subtítulos manuales en español');
+      return track.baseUrl;
     }
 
-    // Este es un método de respaldo limitado
-    throw new Error('Por favor, asegúrate de que el video tenga subtítulos disponibles.');
+    track = manualTracks.find(t => t.languageCode === 'en' || t.languageCode.startsWith('en'));
+    if (track) {
+      console.log('✅ Usando subtítulos manuales en inglés');
+      return track.baseUrl;
+    }
+
+    // Si no hay manuales, buscar en automáticos
+    track = autoTracks.find(t => t.languageCode === 'es' || t.languageCode === 'es-419');
+    if (track) {
+      console.log('✅ Usando subtítulos automáticos en español');
+      return track.baseUrl;
+    }
+
+    track = autoTracks.find(t => t.languageCode === 'en' || t.languageCode.startsWith('en'));
+    if (track) {
+      console.log('✅ Usando subtítulos automáticos en inglés');
+      return track.baseUrl;
+    }
+
+    // Si no hay en español o inglés, usar el primero manual disponible
+    if (manualTracks.length > 0) {
+      console.log(`✅ Usando subtítulos manuales en ${manualTracks[0].languageCode}`);
+      return manualTracks[0].baseUrl;
+    }
+
+    // Como último recurso, usar el primero automático disponible
+    if (autoTracks.length > 0) {
+      console.log(`✅ Usando subtítulos automáticos en ${autoTracks[0].languageCode}`);
+      return autoTracks[0].baseUrl;
+    }
+
+    return null;
   }
 
   function decodeHTMLEntities(text) {
