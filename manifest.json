@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "AI Text Assistant",
+  "version": "1.0",
+  "description": "Asistente de texto con IA de Chrome",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "aiLanguageModelOriginTrial"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "modules/ai.js",
+        "modules/dialog.js",
+        "modules/actions.js",
+        "modules/menus.js",
+        "modules/toolbar.js",
+        "content.js"
+      ],
+      "css": ["styles.css"]
+    }
+  ]
+}
