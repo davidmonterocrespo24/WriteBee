@@ -27,10 +27,14 @@ class AIService {
   /**
    * Muestra el progreso de descarga del modelo
    */
-  createMonitor() {
+  createMonitor(onProgress) {
     return (m) => {
       m.addEventListener('downloadprogress', (e) => {
-        console.log(`📥 Descargando modelo: ${Math.round(e.loaded * 100)}%`);
+        const percent = Math.round(e.loaded * 100);
+        console.log(`📥 Descargando modelo: ${percent}%`);
+        if (onProgress) {
+          onProgress(percent);
+        }
       });
     };
   }
@@ -38,7 +42,7 @@ class AIService {
   /**
    * Resume texto usando Summarizer API
    */
-  async summarize(text) {
+  async summarize(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('Summarizer')) {
         throw new Error('La API Summarizer no está disponible en este navegador.');
@@ -48,7 +52,7 @@ class AIService {
         type: 'key-points',
         format: 'markdown',
         length: 'short',
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       const result = await summarizer.summarize(text);
@@ -64,7 +68,7 @@ class AIService {
   /**
    * Traduce texto usando Translator API
    */
-  async translate(text, targetLang) {
+  async translate(text, targetLang, onProgress = null) {
     try {
       if (!await this.checkAvailability('Translator')) {
         throw new Error('La API Translator no está disponible en este navegador.');
@@ -74,7 +78,7 @@ class AIService {
       let sourceLang = 'en';
       if (await this.checkAvailability('LanguageDetector')) {
         const detector = await self.LanguageDetector.create({
-          monitor: this.createMonitor()
+          monitor: this.createMonitor(onProgress)
         });
         const detections = await detector.detect(text);
         if (detections.length > 0) {
@@ -96,7 +100,7 @@ class AIService {
       const translator = await self.Translator.create({
         sourceLanguage: sourceLang,
         targetLanguage: targetLang,
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       const result = await translator.translate(text);
@@ -112,14 +116,14 @@ class AIService {
   /**
    * Explica texto usando Prompt API
    */
-  async explain(text) {
+  async explain(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('LanguageModel')) {
         throw new Error('La Prompt API no está disponible en este navegador.');
       }
 
       const session = await self.LanguageModel.create({
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       const prompt = `Explica de manera clara y concisa el siguiente texto:\n\n${text}`;
@@ -136,7 +140,7 @@ class AIService {
   /**
    * Corrige gramática usando Proofreader API
    */
-  async checkGrammar(text) {
+  async checkGrammar(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('Proofreader')) {
         throw new Error('La API Proofreader no está disponible en este navegador.');
@@ -144,7 +148,7 @@ class AIService {
 
       const proofreader = await self.Proofreader.create({
         expectedInputLanguages: ['en', 'es'],
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       const result = await proofreader.proofread(text);
@@ -171,7 +175,7 @@ class AIService {
   /**
    * Reescribe texto usando Rewriter API
    */
-  async rewrite(text) {
+  async rewrite(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('Rewriter')) {
         throw new Error('La API Rewriter no está disponible en este navegador.');
@@ -180,7 +184,7 @@ class AIService {
       const rewriter = await self.Rewriter.create({
         tone: 'as-is',
         length: 'as-is',
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       const result = await rewriter.rewrite(text);
@@ -196,7 +200,7 @@ class AIService {
   /**
    * Expande texto usando Writer API
    */
-  async expand(text) {
+  async expand(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('Writer')) {
         throw new Error('La API Writer no está disponible en este navegador.');
@@ -205,7 +209,7 @@ class AIService {
       const writer = await self.Writer.create({
         tone: 'neutral',
         length: 'long',
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       const prompt = `Expande el siguiente texto con más detalles y ejemplos:\n\n${text}`;
@@ -222,14 +226,14 @@ class AIService {
   /**
    * Responde preguntas usando Prompt API
    */
-  async answer(text) {
+  async answer(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('LanguageModel')) {
         throw new Error('La Prompt API no está disponible en este navegador.');
       }
 
       const session = await self.LanguageModel.create({
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       const prompt = `Responde la siguiente pregunta de manera clara y precisa:\n\n${text}`;
@@ -246,14 +250,14 @@ class AIService {
   /**
    * Procesa mensajes de chat con contexto
    */
-  async chat(conversationHistory) {
+  async chat(conversationHistory, onProgress = null) {
     try {
       if (!await this.checkAvailability('LanguageModel')) {
         throw new Error('La Prompt API no está disponible en este navegador.');
       }
 
       const session = await self.LanguageModel.create({
-        monitor: this.createMonitor()
+        monitor: this.createMonitor(onProgress)
       });
 
       // Construir el contexto de la conversación

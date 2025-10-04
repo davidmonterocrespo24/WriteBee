@@ -207,6 +207,15 @@ const DialogModule = (function() {
 
     dialog.innerHTML = `<div class="ai-loading">Procesando...</div>`;
     document.body.appendChild(dialog);
+
+    // Método para actualizar el progreso
+    dialog.updateProgress = function(percent) {
+      const loadingDiv = this.querySelector('.ai-loading');
+      if (loadingDiv) {
+        loadingDiv.textContent = `Descargando modelo ${percent}%`;
+      }
+    };
+
     return dialog;
   }
 
@@ -298,31 +307,36 @@ const DialogModule = (function() {
           const answerDiv = dialog.querySelector('.ai-answer');
           answerDiv.textContent = 'Procesando...';
 
+          // Callback de progreso
+          const onProgress = (percent) => {
+            answerDiv.textContent = `Descargando modelo ${percent}%`;
+          };
+
           try {
             let result = '';
             const currentLang = langSelector ? langSelector.value : 'es';
 
             switch (newMode) {
               case 'summarize':
-                result = await AIModule.aiSummarize(selectedText);
+                result = await AIModule.aiSummarize(selectedText, onProgress);
                 break;
               case 'translate':
-                result = await AIModule.aiTranslate(selectedText, currentLang);
+                result = await AIModule.aiTranslate(selectedText, currentLang, onProgress);
                 break;
               case 'explain':
-                result = await AIModule.aiExplain(selectedText);
+                result = await AIModule.aiExplain(selectedText, onProgress);
                 break;
               case 'grammar':
-                result = await AIModule.aiGrammar(selectedText);
+                result = await AIModule.aiGrammar(selectedText, onProgress);
                 break;
               case 'rewrite':
-                result = await AIModule.aiRewrite(selectedText);
+                result = await AIModule.aiRewrite(selectedText, onProgress);
                 break;
               case 'expand':
-                result = await AIModule.aiExpand(selectedText);
+                result = await AIModule.aiExpand(selectedText, onProgress);
                 break;
               case 'answer':
-                result = await AIModule.aiAnswer(selectedText);
+                result = await AIModule.aiAnswer(selectedText, onProgress);
                 break;
             }
 
@@ -376,10 +390,15 @@ const DialogModule = (function() {
         const answerDiv = dialog.querySelector('.ai-answer');
 
         // Mostrar estado de carga
-        answerDiv.textContent = 'Traduciendo...';
+        answerDiv.textContent = 'Procesando...';
+
+        // Callback de progreso
+        const onProgress = (percent) => {
+          answerDiv.textContent = `Descargando modelo ${percent}%`;
+        };
 
         try {
-          const result = await AIModule.aiTranslate(selectedText, newLang);
+          const result = await AIModule.aiTranslate(selectedText, newLang, onProgress);
           answerDiv.textContent = result;
         } catch (error) {
           answerDiv.textContent = 'Error: ' + error.message;
@@ -395,31 +414,36 @@ const DialogModule = (function() {
         const answerDiv = dialog.querySelector('.ai-answer');
         const currentLang = langSelector ? langSelector.value : 'es';
 
-        answerDiv.textContent = 'Regenerando...';
+        answerDiv.textContent = 'Procesando...';
+
+        // Callback de progreso
+        const onProgress = (percent) => {
+          answerDiv.textContent = `Descargando modelo ${percent}%`;
+        };
 
         try {
           let result = '';
           switch (currentAction) {
             case 'summarize':
-              result = await AIModule.aiSummarize(selectedText);
+              result = await AIModule.aiSummarize(selectedText, onProgress);
               break;
             case 'translate':
-              result = await AIModule.aiTranslate(selectedText, currentLang);
+              result = await AIModule.aiTranslate(selectedText, currentLang, onProgress);
               break;
             case 'explain':
-              result = await AIModule.aiExplain(selectedText);
+              result = await AIModule.aiExplain(selectedText, onProgress);
               break;
             case 'grammar':
-              result = await AIModule.aiGrammar(selectedText);
+              result = await AIModule.aiGrammar(selectedText, onProgress);
               break;
             case 'rewrite':
-              result = await AIModule.aiRewrite(selectedText);
+              result = await AIModule.aiRewrite(selectedText, onProgress);
               break;
             case 'expand':
-              result = await AIModule.aiExpand(selectedText);
+              result = await AIModule.aiExpand(selectedText, onProgress);
               break;
             case 'answer':
-              result = await AIModule.aiAnswer(selectedText);
+              result = await AIModule.aiAnswer(selectedText, onProgress);
               break;
           }
           answerDiv.textContent = result;
@@ -539,11 +563,16 @@ const DialogModule = (function() {
       addChatMessage(chatHistory, 'user', userMessage);
 
       // Mostrar indicador de carga
-      const loadingMsg = addChatMessage(chatHistory, 'assistant', 'Pensando...');
+      const loadingMsg = addChatMessage(chatHistory, 'assistant', 'Procesando...');
+
+      // Callback de progreso
+      const onProgress = (percent) => {
+        loadingMsg.querySelector('.ai-chat-bubble').textContent = `Descargando modelo ${percent}%`;
+      };
 
       try {
         // Llamar a la API de chat con el historial de conversación
-        const result = await AIModule.aiChat(conversationHistory);
+        const result = await AIModule.aiChat(conversationHistory, onProgress);
 
         // Agregar respuesta al historial
         conversationHistory.push({ role: 'assistant', content: result });
