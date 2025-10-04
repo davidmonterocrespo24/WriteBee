@@ -20,8 +20,10 @@
         "modules/menus.js",
         "modules/toolbar.js",
         "modules/gmail.js",
+        "modules/outlook.js",
         "modules/youtube.js",
         "modules/google.js",
+        "modules/linkedin.js",
         "content.js"
       ],
       "css": ["styles.css"]

@@ -808,22 +808,23 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #7a5cff 0%, #5b3fd9 100%);
-  color: white;
-  border: none;
+  background: #1a1a1f;
+  color: #8ab4ff;
+  border: 1px solid #2d2d33;
   border-radius: 20px;
   font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(122, 92, 255, 0.3);
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   margin-left: 8px;
 }
 
 .ai-gmail-button:hover {
-  background: linear-gradient(135deg, #8a6cff 0%, #6b4fe9 100%);
-  box-shadow: 0 4px 8px rgba(122, 92, 255, 0.4);
+  background: #242428;
+  border-color: #8ab4ff;
+  box-shadow: 0 4px 8px rgba(138, 180, 255, 0.2);
   transform: translateY(-1px);
 }
 
@@ -837,190 +838,163 @@
   stroke-width: 2;
 }
 
-.ai-gmail-dialog {
-  position: fixed !important;
-  z-index: 999999 !important;
-}
-
-.ai-gmail-dialog .ai-result-body {
-  max-height: 70vh;
+.ai-result-panel .ai-result-body {
+  max-height: calc(80vh - 100px);
   overflow-y: auto;
-  padding: 20px;
 }
 
-.ai-gmail-summary,
-.ai-gmail-compose,
-.ai-gmail-response {
-  margin-bottom: 24px;
+.ai-gmail-section {
+  margin-bottom: 20px;
 }
 
-.ai-gmail-section-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--icon);
-  margin-bottom: 12px;
+.ai-gmail-section-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #eaeaf0;
+  margin-bottom: 12px;
+}
+
+.ai-gmail-section-header svg {
+  width: 18px;
+  height: 18px;
+  color: #8ab4ff;
 }
 
 .ai-gmail-summary-content {
-  background: #252525;
-  border: 1px solid #333;
+  background: #242428;
+  border: 1px solid #3a3a40;
   border-radius: 8px;
-  padding: 16px;
-  color: #ddd;
-  font-size: 14px;
-  line-height: 1.6;
+  padding: 12px;
+  color: #eaeaf0;
+  font-size: 15px;
+  line-height: 1.5;
   min-height: 60px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .ai-gmail-input {
-  width: 100%;
-  min-height: 100px;
-  padding: 12px;
-  background: #252525;
-  border: 2px solid #333;
-  border-radius: 8px;
-  color: #fff;
-  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  resize: vertical;
-  transition: border-color 0.2s ease;
-}
-
-.ai-gmail-input:focus {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  color: #eaeaf0;
   outline: none;
-  border-color: var(--purple);
+  font: inherit;
+  font-size: 14px;
 }
 
 .ai-gmail-input::placeholder {
-  color: #666;
+  color: #a5a7b1;
 }
 
-.ai-gmail-generate-btn {
+.ai-gmail-response-content {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 12px;
+  color: #eaeaf0;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100px;
+  max-height: 250px;
+  overflow-y: auto;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.ai-gmail-response-content:focus {
+  border-color: #8ab4ff;
+}
+
+.ai-gmail-response-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-gmail-insert-btn,
+.ai-gmail-copy-btn,
+.ai-gmail-regenerate-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 10px 20px;
-  background: var(--purple);
-  color: white;
+  gap: 6px;
+  padding: 10px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.ai-gmail-generate-btn:hover {
-  background: #8a6cff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(122, 92, 255, 0.3);
+.ai-gmail-insert-btn {
+  background: #8ab4ff;
+  color: #1e1e1e;
 }
 
-.ai-gmail-generate-btn:active {
-  transform: translateY(0);
+.ai-gmail-insert-btn:hover {
+  background: #7aa4ef;
 }
 
-.ai-gmail-generate-btn:disabled {
+.ai-gmail-copy-btn,
+.ai-gmail-regenerate-btn {
+  background: transparent;
+  color: #ddd;
+  border: 1px solid #3a3a40;
+}
+
+.ai-gmail-copy-btn:hover,
+.ai-gmail-regenerate-btn:hover {
+  background: #35353c;
+}
+
+.ai-gmail-insert-btn:active,
+.ai-gmail-copy-btn:active,
+.ai-gmail-regenerate-btn:active {
+  transform: scale(0.95);
+}
+
+.ai-gmail-insert-btn:disabled,
+.ai-gmail-copy-btn:disabled,
+.ai-gmail-regenerate-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.ai-gmail-generate-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-.ai-gmail-response-content {
-  background: #252525;
-  border: 2px solid #333;
-  border-radius: 8px;
-  padding: 16px;
-  color: #ddd;
-  font-size: 14px;
-  line-height: 1.6;
-  min-height: 150px;
-  max-height: 400px;
-  overflow-y: auto;
-  outline: none;
-}
-
-.ai-gmail-response-content:focus {
-  border-color: var(--purple);
-}
-
-.ai-gmail-response-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.ai-gmail-insert-btn,
-.ai-gmail-copy-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.ai-gmail-insert-btn {
-  background: var(--accent);
-  color: #000;
-}
-
-.ai-gmail-insert-btn:hover {
-  background: #ffdd33;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(255, 212, 0, 0.3);
-}
-
-.ai-gmail-copy-btn {
-  background: #2a2a2a;
-  color: var(--icon);
-}
-
-.ai-gmail-copy-btn:hover {
-  background: #333;
-  transform: translateY(-1px);
-}
-
-.ai-gmail-insert-btn:active,
-.ai-gmail-copy-btn:active {
-  transform: translateY(0);
-}
-
 .ai-gmail-insert-btn svg,
-.ai-gmail-copy-btn svg {
+.ai-gmail-copy-btn svg,
+.ai-gmail-regenerate-btn svg {
   width: 16px;
   height: 16px;
 }
 
-/* Scrollbar para el contenido de respuesta */
+/* Scrollbar para el body del diálogo de Gmail */
+.ai-result-panel .ai-result-body::-webkit-scrollbar,
+.ai-gmail-summary-content::-webkit-scrollbar,
 .ai-gmail-response-content::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
+.ai-result-panel .ai-result-body::-webkit-scrollbar-track,
+.ai-gmail-summary-content::-webkit-scrollbar-track,
 .ai-gmail-response-content::-webkit-scrollbar-track {
-  background: #1a1a1a;
-  border-radius: 4px;
+  background: #1f1f23;
+  border-radius: 3px;
 }
 
+.ai-result-panel .ai-result-body::-webkit-scrollbar-thumb,
+.ai-gmail-summary-content::-webkit-scrollbar-thumb,
 .ai-gmail-response-content::-webkit-scrollbar-thumb {
   background: #3a3a40;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
+.ai-result-panel .ai-result-body::-webkit-scrollbar-thumb:hover,
+.ai-gmail-summary-content::-webkit-scrollbar-thumb:hover,
 .ai-gmail-response-content::-webkit-scrollbar-thumb:hover {
   background: #4a4a50;
 }
@@ -1030,21 +1004,22 @@
    ======================================== */
 
 .ai-youtube-panel {
-  background: #1e1e1e;
-  border: 1px solid #333;
+  background: #2a2a2f;
+  border: 1px solid #3a3a40;
   border-radius: 12px;
   margin-bottom: 16px;
   overflow: hidden;
   font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 .ai-youtube-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
-  background: linear-gradient(135deg, #7a5cff 0%, #5b3fd9 100%);
+  padding: 10px 14px;
+  background: linear-gradient(to bottom, #2d2d33, #2a2a2f);
+  border-bottom: 1px solid #3a3a40;
   cursor: pointer;
   user-select: none;
 }
@@ -1053,17 +1028,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.2);
+  width: 32px;
+  height: 32px;
+  background: var(--purple);
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: inset 0 0 0 2px #ffffff22;
 }
 
 .ai-youtube-icon svg {
-  width: 22px;
-  height: 22px;
-  stroke: white;
+  width: 18px;
+  height: 18px;
+  stroke: #2b2461;
   stroke-width: 2;
 }
 
@@ -1075,13 +1051,13 @@
 }
 
 .ai-youtube-title strong {
-  color: white;
-  font-size: 15px;
+  color: #eaeaf0;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .ai-youtube-title span {
-  color: rgba(255, 255, 255, 0.85);
+  color: #a5a7b1;
   font-size: 13px;
 }
 
@@ -1089,37 +1065,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.15);
+  width: 28px;
+  height: 28px;
+  background: transparent;
   border: none;
-  border-radius: 50%;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  color: #ddd;
 }
 
 .ai-youtube-toggle:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #35353c;
 }
 
 .ai-youtube-toggle svg {
   width: 18px;
   height: 18px;
-  stroke: white;
+  stroke: currentColor;
   transition: transform 0.3s ease;
 }
 
 .ai-youtube-content {
-  padding: 16px;
-  background: #1e1e1e;
+  padding: 14px;
+  background: #2a2a2f;
 }
 
 .ai-youtube-info {
-  padding: 12px;
-  background: #252525;
-  border-left: 3px solid var(--purple);
-  border-radius: 6px;
-  color: #ccc;
+  padding: 10px 12px;
+  background: #1f1f23;
+  border: 1px dashed #3a3a40;
+  border-radius: 8px;
+  color: #a5a7b1;
   font-size: 13px;
   line-height: 1.5;
   margin-bottom: 16px;
@@ -1136,7 +1113,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #ddd;
+  color: #eaeaf0;
   font-size: 14px;
   cursor: pointer;
   user-select: none;
@@ -1146,7 +1123,7 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: var(--purple);
+  accent-color: #8ab4ff;
 }
 
 .ai-youtube-summarize-btn {
@@ -1156,25 +1133,22 @@
   justify-content: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #7a5cff 0%, #5b3fd9 100%);
-  color: white;
+  background: #8ab4ff;
+  color: #1e1e1e;
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(122, 92, 255, 0.3);
+  transition: all 0.15s ease;
 }
 
 .ai-youtube-summarize-btn:hover {
-  background: linear-gradient(135deg, #8a6cff 0%, #6b4fe9 100%);
-  box-shadow: 0 4px 10px rgba(122, 92, 255, 0.4);
-  transform: translateY(-1px);
+  background: #7aa4ef;
 }
 
 .ai-youtube-summarize-btn:active {
-  transform: translateY(0);
+  transform: scale(0.95);
 }
 
 .ai-youtube-summarize-btn:disabled {
@@ -1190,9 +1164,9 @@
 
 .ai-youtube-result {
   margin-top: 16px;
-  padding: 16px;
-  background: #252525;
-  border: 1px solid #333;
+  padding: 12px;
+  background: #242428;
+  border: 1px solid #3a3a40;
   border-radius: 8px;
 }
 
@@ -1202,18 +1176,18 @@
   justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #3a3a40;
 }
 
 .ai-youtube-result-header span {
-  color: #fff;
+  color: #eaeaf0;
   font-size: 14px;
   font-weight: 600;
 }
 
 .ai-youtube-result-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ai-youtube-copy-btn,
@@ -1221,50 +1195,49 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  color: #ddd;
 }
 
 .ai-youtube-copy-btn:hover,
 .ai-youtube-regenerate-btn:hover {
-  background: #333;
-  border-color: #444;
-  transform: translateY(-1px);
+  background: #35353c;
 }
 
 .ai-youtube-copy-btn svg,
 .ai-youtube-regenerate-btn svg {
-  width: 16px;
-  height: 16px;
-  stroke: #ddd;
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
 }
 
 .ai-youtube-result-content {
-  color: #ddd;
-  font-size: 14px;
-  line-height: 1.7;
+  color: #eaeaf0;
+  font-size: 15px;
+  line-height: 1.5;
   max-height: 500px;
   overflow-y: auto;
 }
 
 /* Scrollbar para el resultado */
 .ai-youtube-result-content::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .ai-youtube-result-content::-webkit-scrollbar-track {
-  background: #1a1a1a;
-  border-radius: 4px;
+  background: #1f1f23;
+  border-radius: 3px;
 }
 
 .ai-youtube-result-content::-webkit-scrollbar-thumb {
   background: #3a3a40;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .ai-youtube-result-content::-webkit-scrollbar-thumb:hover {
@@ -1275,47 +1248,614 @@
 .ai-youtube-result-content h1,
 .ai-youtube-result-content h2,
 .ai-youtube-result-content h3 {
-  color: #fff;
+  color: #eaeaf0;
   margin-top: 16px;
   margin-bottom: 8px;
 }
 
 .ai-youtube-result-content h1 {
-  font-size: 18px;
+  font-size: 1.5em;
+  font-weight: bold;
 }
 
 .ai-youtube-result-content h2 {
-  font-size: 16px;
+  font-size: 1.3em;
+  font-weight: bold;
 }
 
 .ai-youtube-result-content h3 {
-  font-size: 14px;
+  font-size: 1.1em;
+  font-weight: bold;
 }
 
 .ai-youtube-result-content ul,
 .ai-youtube-result-content ol {
-  margin-left: 20px;
-  margin-bottom: 12px;
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
 }
 
 .ai-youtube-result-content li {
-  margin-bottom: 6px;
+  margin: 0.3em 0;
 }
 
 .ai-youtube-result-content p {
   margin-bottom: 12px;
 }
 
-.ai-youtube-result-content code {
-  background: #1a1a1a;
+.ai-youtube-result-content code,
+.ai-youtube-result-content .inline-code {
+  background: #2d2d33;
+  color: #ff9e64;
   padding: 2px 6px;
   border-radius: 3px;
-  font-size: 13px;
-  color: var(--accent);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid #3a3a40;
 }
 
 .ai-youtube-result-content strong {
+  font-weight: 600;
   color: #fff;
+}
+
+.ai-youtube-result-content em {
+  font-style: italic;
+  color: #d4d4d8;
+}
+
+.ai-youtube-result-content a {
+  color: #8ab4ff;
+  text-decoration: underline;
+}
+
+.ai-youtube-result-content a:hover {
+  color: #a5c7ff;
+}
+
+.ai-youtube-result-content blockquote {
+  border-left: 3px solid #8ab4ff;
+  padding-left: 1em;
+  margin: 0.8em 0;
+  color: #b4b4ba;
+  font-style: italic;
+}
+
+.ai-youtube-result-content hr {
+  border: none;
+  border-top: 1px solid #3a3a40;
+  margin: 1em 0;
+}
+
+/* ========================================
+   LINKEDIN MODULE STYLES
+   ======================================== */
+
+/* Botones de LinkedIn */
+.ai-linkedin-btn-comment,
+.ai-linkedin-btn-post {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  background: #1a1a1f !important;
+  color: #8ab4ff !important;
+  border: 1px solid #2d2d33 !important;
+  border-radius: 20px !important;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  margin-left: 8px !important;
+}
+
+.ai-linkedin-btn-comment:hover,
+.ai-linkedin-btn-post:hover {
+  background: #242428 !important;
+  border-color: #8ab4ff !important;
+  box-shadow: 0 4px 8px rgba(138, 180, 255, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ai-linkedin-btn-comment:active,
+.ai-linkedin-btn-post:active {
+  transform: translateY(0) !important;
+}
+
+.ai-linkedin-btn-comment svg,
+.ai-linkedin-btn-post svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 2 !important;
+}
+
+/* Diálogo de LinkedIn */
+.ai-linkedin-dialog {
+  z-index: 999999 !important;
+}
+
+/* Contexto del post */
+.ai-linkedin-context {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #1f1f23;
+  border: 1px dashed #3a3a40;
+  border-radius: 8px;
+}
+
+.ai-linkedin-context-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a5a7b1;
+  margin-bottom: 8px;
+}
+
+.ai-linkedin-context-content {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d4d4d8;
+}
+
+/* Input section */
+.ai-linkedin-input-section {
+  margin-bottom: 14px;
+}
+
+.ai-linkedin-textarea {
+  width: 100%;
+  min-height: 120px;
+  background: #0f1420 !important;
+  border: 1px solid #2a3042 !important;
+  border-radius: 10px;
+  color: #eaeaf0 !important;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: vertical;
+  outline: none;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+.ai-linkedin-post-textarea {
+  min-height: 140px;
+}
+
+.ai-linkedin-textarea::placeholder {
+  color: #7f8aa3;
+}
+
+.ai-linkedin-textarea:focus {
+  border-color: #8ab4ff;
+}
+
+/* Actions - chips */
+.ai-linkedin-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.ai-linkedin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid #2a3042;
+  background: #242b3b;
+  color: #d7dbea;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.ai-linkedin-chip:hover {
+  background: #2c3447;
+  border-color: #3a4052;
+}
+
+.ai-linkedin-chip.active {
+  background: #8ab4ff;
+  color: #0f1117;
+  border-color: #8ab4ff;
+}
+
+.ai-linkedin-chip .emoji {
+  font-size: 16px;
+}
+
+.ai-linkedin-actions .spacer {
+  flex: 1;
+}
+
+/* Language selector */
+.ai-linkedin-lang {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid #2a3042;
+  background: #242b3b;
+  color: #d7dbea;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-linkedin-lang:hover {
+  background: #2c3447;
+  border-color: #3a4052;
+}
+
+.ai-linkedin-lang-select {
+  background: #242b3b !important;
+  border: none;
+  color: #d7dbea !important;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.ai-linkedin-lang-select option {
+  background: #242b3b !important;
+  color: #d7dbea !important;
+}
+
+/* Toolbar para publicaciones */
+.ai-linkedin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #242a3a;
+  background: #141925;
+}
+
+.ai-linkedin-dropdown {
+  position: relative;
+}
+
+.ai-linkedin-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1b2232;
+  border: 1px solid #242a3a;
+  color: #dfe5f6;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-linkedin-dropdown-trigger:hover {
+  background: #1f2636;
+}
+
+.ai-linkedin-dropdown-trigger svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.9;
+  transition: transform 0.2s ease;
+}
+
+.ai-linkedin-dropdown.open .ai-linkedin-dropdown-trigger svg {
+  transform: rotate(180deg);
+}
+
+.ai-linkedin-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  background: #101625;
+  border: 1px solid #242a3a;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  width: max-content;
+  max-width: 420px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 1000;
+}
+
+.ai-linkedin-dropdown.open .ai-linkedin-dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.ai-linkedin-template-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #e7eaf2;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.ai-linkedin-template-item:hover {
+  background: #151c2b;
+  border-color: #263048;
+}
+
+.ai-linkedin-template-item.active {
+  background: #1f2636;
+  border-color: #8ab4ff;
+}
+
+.ai-linkedin-template-item .template-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #1b2234;
+  border: 1px solid #263048;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.ai-linkedin-template-item .template-name {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 300px;
+  font-size: 14px;
+}
+
+/* Response section */
+.ai-linkedin-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #eaeaf0;
+  margin-bottom: 12px;
+}
+
+.ai-linkedin-section-header svg {
+  width: 18px;
+  height: 18px;
+  color: #8ab4ff;
+}
+
+.ai-linkedin-response {
+  margin-top: 16px;
+}
+
+.ai-linkedin-response-content {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 12px;
+  color: #eaeaf0 !important;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100px;
+  max-height: 300px;
+  overflow-y: auto;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.ai-linkedin-response-content:focus {
+  border-color: #8ab4ff;
+}
+
+/* Estilos para markdown dentro del contenido de respuesta */
+.ai-linkedin-response-content h1,
+.ai-linkedin-response-content h2,
+.ai-linkedin-response-content h3,
+.ai-linkedin-response-content h4,
+.ai-linkedin-response-content h5,
+.ai-linkedin-response-content h6 {
+  color: #eaeaf0 !important;
+  font-weight: 600;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.ai-linkedin-response-content p {
+  color: #eaeaf0 !important;
+  margin-bottom: 0.8em;
+}
+
+.ai-linkedin-response-content blockquote {
+  color: #d4d4d8 !important;
+  border-left: 3px solid #8ab4ff;
+  padding-left: 12px;
+  margin: 1em 0;
+  font-style: italic;
+}
+
+.ai-linkedin-response-content ul,
+.ai-linkedin-response-content ol {
+  color: #eaeaf0 !important;
+  margin-left: 1.5em;
+  margin-bottom: 0.8em;
+}
+
+.ai-linkedin-response-content li {
+  color: #eaeaf0 !important;
+  margin-bottom: 0.3em;
+}
+
+.ai-linkedin-response-content strong,
+.ai-linkedin-response-content b {
+  color: #eaeaf0 !important;
+  font-weight: 600;
+}
+
+.ai-linkedin-response-content em,
+.ai-linkedin-response-content i {
+  color: #eaeaf0 !important;
+}
+
+.ai-linkedin-response-content code {
+  color: #8ab4ff !important;
+  background: #1a1a1f;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.ai-linkedin-response-content pre {
+  background: #1a1a1f;
+  border: 1px solid #2d2d33;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.ai-linkedin-response-content pre code {
+  color: #eaeaf0 !important;
+  background: transparent;
+  padding: 0;
+}
+
+.ai-linkedin-response-content a {
+  color: #8ab4ff !important;
+  text-decoration: underline;
+}
+
+.ai-linkedin-response-content a:hover {
+  color: #a8c5ff !important;
+}
+
+.ai-linkedin-response-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-linkedin-insert-btn,
+.ai-linkedin-copy-btn,
+.ai-linkedin-regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  background: transparent;
+  color: #ddd;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-linkedin-insert-btn {
+  background: #0a66c2;
+  border-color: #0a66c2;
+  color: white;
+}
+
+.ai-linkedin-insert-btn:hover {
+  background: #004182;
+  border-color: #004182;
+}
+
+.ai-linkedin-copy-btn:hover,
+.ai-linkedin-regenerate-btn:hover {
+  background: #35353c;
+}
+
+.ai-linkedin-insert-btn svg,
+.ai-linkedin-copy-btn svg,
+.ai-linkedin-regenerate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Footer */
+.ai-linkedin-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid #242a3a;
+  background: #141925;
+}
+
+.ai-linkedin-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #6d6fff;
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(109, 111, 255, 0.35);
+  transition: all 0.15s ease;
+}
+
+.ai-linkedin-generate-btn:hover {
+  filter: saturate(1.1) brightness(1.05);
+}
+
+.ai-linkedin-generate-btn:disabled {
+  opacity: 0.7;
+  filter: grayscale(0.2);
+  cursor: not-allowed;
+}
+
+.ai-linkedin-generate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Scrollbars */
+.ai-linkedin-dropdown-menu::-webkit-scrollbar,
+.ai-linkedin-response-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ai-linkedin-dropdown-menu::-webkit-scrollbar-track,
+.ai-linkedin-response-content::-webkit-scrollbar-track {
+  background: #1f1f23;
+  border-radius: 3px;
+}
+
+.ai-linkedin-dropdown-menu::-webkit-scrollbar-thumb,
+.ai-linkedin-response-content::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 3px;
+}
+
+.ai-linkedin-dropdown-menu::-webkit-scrollbar-thumb:hover,
+.ai-linkedin-response-content::-webkit-scrollbar-thumb:hover {
+  background: #4a4a50;
 }
 
 /* ========================================
@@ -1323,12 +1863,12 @@
    ======================================== */
 
 .ai-google-panel {
-  background: #fff;
-  border: 1px solid #dadce0;
+  background: #2a2a2f;
+  border: 1px solid #3a3a40;
   border-radius: 8px;
   overflow: hidden;
   font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
-  box-shadow: 0 2px 8px rgba(32, 33, 36, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 .ai-google-panel-fixed {
@@ -1359,8 +1899,9 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(135deg, #7a5cff 0%, #5b3fd9 100%);
-  color: white;
+  background: #1e1e23;
+  border-bottom: 1px solid #3a3a40;
+  color: #eaeaf0;
 }
 
 .ai-google-icon {
@@ -1369,7 +1910,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.2);
+  background: #8ab4ff;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -1377,7 +1918,7 @@
 .ai-google-icon svg {
   width: 20px;
   height: 20px;
-  stroke: white;
+  stroke: #1e1e1e;
   stroke-width: 2;
 }
 
@@ -1391,24 +1932,25 @@
 .ai-google-title strong {
   font-size: 15px;
   font-weight: 600;
+  color: #eaeaf0;
 }
 
 .ai-google-title span {
   font-size: 12px;
-  opacity: 0.9;
+  color: #a5a7b1;
 }
 
 .ai-google-content {
   padding: 16px;
-  background: #fff;
+  background: #2a2a2f;
 }
 
 .ai-google-info {
   padding: 10px;
-  background: #f8f9fa;
-  border-left: 3px solid var(--purple);
+  background: #1e1e23;
+  border-left: 3px solid #8ab4ff;
   border-radius: 4px;
-  color: #5f6368;
+  color: #a5a7b1;
   font-size: 13px;
   margin-bottom: 16px;
 }
@@ -1425,8 +1967,8 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: #fff;
-  border: 1px solid #dadce0;
+  background: #242428;
+  border: 1px solid #3a3a40;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1434,9 +1976,9 @@
 }
 
 .ai-google-action-btn:hover {
-  background: #f8f9fa;
-  border-color: var(--purple);
-  box-shadow: 0 1px 4px rgba(122, 92, 255, 0.2);
+  background: #2e2e33;
+  border-color: #8ab4ff;
+  box-shadow: 0 1px 4px rgba(138, 180, 255, 0.3);
   transform: translateY(-1px);
 }
 
@@ -1464,21 +2006,21 @@
 }
 
 .ai-google-btn-content strong {
-  color: #202124;
+  color: #eaeaf0;
   font-size: 14px;
   font-weight: 500;
 }
 
 .ai-google-btn-content span {
-  color: #5f6368;
+  color: #a5a7b1;
   font-size: 12px;
 }
 
 .ai-google-result {
   margin-top: 16px;
   padding: 14px;
-  background: #f8f9fa;
-  border: 1px solid #dadce0;
+  background: #242428;
+  border: 1px solid #3a3a40;
   border-radius: 8px;
 }
 
@@ -1488,11 +2030,11 @@
   justify-content: space-between;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #dadce0;
+  border-bottom: 1px solid #3a3a40;
 }
 
 .ai-google-result-title {
-  color: #202124;
+  color: #eaeaf0;
   font-size: 14px;
   font-weight: 600;
 }
@@ -1509,8 +2051,8 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  background: #fff;
-  border: 1px solid #dadce0;
+  background: #2e2e33;
+  border: 1px solid #3a3a40;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1518,28 +2060,29 @@
 
 .ai-google-copy-btn:hover,
 .ai-google-close-result-btn:hover {
-  background: #f1f3f4;
-  border-color: #5f6368;
+  background: #3a3a40;
+  border-color: #8ab4ff;
 }
 
 .ai-google-copy-btn svg,
 .ai-google-close-result-btn svg {
   width: 14px;
   height: 14px;
-  stroke: #5f6368;
+  stroke: #a5a7b1;
 }
 
 .ai-google-source-info {
   margin-bottom: 12px;
+  color: #a5a7b1;
 }
 
 .ai-google-result-content {
-  color: #202124;
+  color: #eaeaf0;
   font-size: 14px;
   line-height: 1.6;
   max-height: 400px;
   overflow-y: auto;
-  background: #fff;
+  background: #1e1e23;
   padding: 12px;
   border-radius: 6px;
 }
@@ -1550,26 +2093,27 @@
 }
 
 .ai-google-result-content::-webkit-scrollbar-track {
-  background: #f1f3f4;
+  background: #2a2a2f;
   border-radius: 4px;
 }
 
 .ai-google-result-content::-webkit-scrollbar-thumb {
-  background: #dadce0;
+  background: #3a3a40;
   border-radius: 4px;
 }
 
 .ai-google-result-content::-webkit-scrollbar-thumb:hover {
-  background: #bdc1c6;
+  background: #8ab4ff;
 }
 
 /* Estilos para markdown en el resultado */
 .ai-google-result-content h1,
 .ai-google-result-content h2,
 .ai-google-result-content h3 {
-  color: #202124;
+  color: #eaeaf0 !important;
   margin-top: 14px;
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .ai-google-result-content h1 {
@@ -1588,36 +2132,276 @@
 .ai-google-result-content ol {
   margin-left: 20px;
   margin-bottom: 12px;
+  color: #eaeaf0 !important;
 }
 
 .ai-google-result-content li {
   margin-bottom: 6px;
+  color: #eaeaf0 !important;
 }
 
 .ai-google-result-content p {
   margin-bottom: 10px;
+  color: #eaeaf0 !important;
 }
 
 .ai-google-result-content code {
-  background: #f1f3f4;
+  background: #242428;
+  color: #8ab4ff !important;
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 13px;
-  color: #d93025;
 }
 
 .ai-google-result-content strong {
-  color: #202124;
+  color: #eaeaf0 !important;
   font-weight: 600;
 }
 
 .ai-google-result-content a {
-  color: #1a73e8;
+  color: #8ab4ff !important;
   text-decoration: none;
 }
 
 .ai-google-result-content a:hover {
   text-decoration: underline;
 }
+
+/* ========================================
+   OUTLOOK MODULE STYLES
+   ======================================== */
+
+.ai-outlook-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #1a1a1f;
+  color: #8ab4ff;
+  border: 1px solid #2d2d33;
+  border-radius: 20px;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin-left: 8px;
+}
+
+.ai-outlook-button:hover {
+  background: #242428;
+  border-color: #8ab4ff;
+  box-shadow: 0 4px 8px rgba(138, 180, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.ai-outlook-button:active {
+  transform: translateY(0);
+}
+
+.ai-outlook-button svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+/* Botón flotante para Outlook cuando no hay toolbar */
+.ai-outlook-floating-button {
+  position: sticky;
+  top: 10px;
+  z-index: 1000;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.ai-outlook-button-float {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 10px 18px !important;
+  background: #1a1a1f !important;
+  color: #8ab4ff !important;
+  border: 1px solid #2d2d33 !important;
+  border-radius: 20px !important;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ai-outlook-button-float:hover {
+  background: #242428 !important;
+  border-color: #8ab4ff !important;
+  box-shadow: 0 6px 16px rgba(138, 180, 255, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.ai-outlook-button-float:active {
+  transform: translateY(0) !important;
+}
+
+.ai-outlook-button-float svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 2 !important;
+}
+
+.ai-outlook-section {
+  margin-bottom: 20px;
+}
+
+.ai-outlook-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #eaeaf0;
+  margin-bottom: 12px;
+}
+
+.ai-outlook-section-header svg {
+  width: 18px;
+  height: 18px;
+  color: #8ab4ff;
+}
+
+.ai-outlook-summary-content {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 12px;
+  color: #eaeaf0;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 60px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ai-outlook-input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  color: #eaeaf0;
+  outline: none;
+  font: inherit;
+  font-size: 14px;
+}
+
+.ai-outlook-input::placeholder {
+  color: #a5a7b1;
+}
+
+.ai-outlook-response-content {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 12px;
+  color: #eaeaf0;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100px;
+  max-height: 250px;
+  overflow-y: auto;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.ai-outlook-response-content:focus {
+  border-color: #8ab4ff;
+}
+
+.ai-outlook-response-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-outlook-insert-btn,
+.ai-outlook-copy-btn,
+.ai-outlook-regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-outlook-insert-btn {
+  background: #8ab4ff;
+  color: #1e1e1e;
+}
+
+.ai-outlook-insert-btn:hover {
+  background: #7aa4ef;
+}
+
+.ai-outlook-copy-btn,
+.ai-outlook-regenerate-btn {
+  background: transparent;
+  color: #ddd;
+  border: 1px solid #3a3a40;
+}
+
+.ai-outlook-copy-btn:hover,
+.ai-outlook-regenerate-btn:hover {
+  background: #35353c;
+}
+
+.ai-outlook-insert-btn:active,
+.ai-outlook-copy-btn:active,
+.ai-outlook-regenerate-btn:active {
+  transform: scale(0.95);
+}
+
+.ai-outlook-insert-btn:disabled,
+.ai-outlook-copy-btn:disabled,
+.ai-outlook-regenerate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-outlook-insert-btn svg,
+.ai-outlook-copy-btn svg,
+.ai-outlook-regenerate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Scrollbar para el body del diálogo de Outlook */
+.ai-outlook-summary-content::-webkit-scrollbar,
+.ai-outlook-response-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ai-outlook-summary-content::-webkit-scrollbar-track,
+.ai-outlook-response-content::-webkit-scrollbar-track {
+  background: #1f1f23;
+  border-radius: 3px;
+}
+
+.ai-outlook-summary-content::-webkit-scrollbar-thumb,
+.ai-outlook-response-content::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 3px;
+}
+
+.ai-outlook-summary-content::-webkit-scrollbar-thumb:hover,
+.ai-outlook-response-content::-webkit-scrollbar-thumb:hover {
+  background: #4a4a50;
+}
+
 
 
