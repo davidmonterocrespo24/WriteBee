@@ -12,12 +12,15 @@
     {
       "matches": ["<all_urls>"],
       "js": [
+        "modules/markdown.js",
         "modules/aiService.js",
         "modules/ai.js",
         "modules/dialog.js",
         "modules/actions.js",
         "modules/menus.js",
         "modules/toolbar.js",
+        "modules/gmail.js",
+        "modules/youtube.js",
         "content.js"
       ],
       "css": ["styles.css"]

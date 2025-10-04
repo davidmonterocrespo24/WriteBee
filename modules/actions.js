@@ -3,12 +3,24 @@ const ActionsModule = (function() {
     console.log('⚙️ executeAction - acción:', action, 'param:', param);
     MenusModule.hideMenus();
 
-    const loadingDialog = DialogModule.showLoadingDialog(rect);
+    // Crear el diálogo inmediatamente con mensaje "Procesando..."
+    console.log('📊 Creando diálogo con mensaje de procesando');
+    const dialog = DialogModule.createDialog(action, 'Procesando...', selectedText, rect);
+    document.body.appendChild(dialog);
+    console.log('✅ Diálogo agregado al DOM');
+
+    // Ajustar posición después de agregar al DOM
+    if (dialog.adjustPosition) {
+      setTimeout(() => dialog.adjustPosition(), 0);
+    }
+
+    // Obtener el div de respuesta para actualizarlo
+    const answerDiv = dialog.querySelector('.ai-answer');
 
     // Callback para actualizar el progreso de descarga
     const onProgress = (percent) => {
-      if (loadingDialog && loadingDialog.updateProgress) {
-        loadingDialog.updateProgress(percent);
+      if (answerDiv) {
+        answerDiv.textContent = `Procesando ${percent}%`;
       }
     };
 
@@ -39,22 +51,14 @@ const ActionsModule = (function() {
           break;
       }
 
-      loadingDialog.remove();
-      console.log('📊 Creando diálogo con resultado');
-      const dialog = DialogModule.createDialog(action, result, selectedText, rect);
-      document.body.appendChild(dialog);
-      console.log('✅ Diálogo agregado al DOM');
-      // Ajustar posición después de agregar al DOM
-      if (dialog.adjustPosition) {
-        setTimeout(() => dialog.adjustPosition(), 0);
+      // Actualizar el contenido del diálogo con el resultado (renderizado en Markdown)
+      if (answerDiv) {
+        MarkdownRenderer.renderToElement(answerDiv, result);
       }
     } catch (error) {
-      loadingDialog.remove();
-      const dialog = DialogModule.createDialog(action, 'Error: ' + error.message, selectedText, rect);
-      document.body.appendChild(dialog);
-      // Ajustar posición después de agregar al DOM
-      if (dialog.adjustPosition) {
-        setTimeout(() => dialog.adjustPosition(), 0);
+      // Actualizar el contenido del diálogo con el error
+      if (answerDiv) {
+        answerDiv.textContent = 'Error: ' + error.message;
       }
     }
   }

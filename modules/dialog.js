@@ -212,7 +212,7 @@ const DialogModule = (function() {
     dialog.updateProgress = function(percent) {
       const loadingDiv = this.querySelector('.ai-loading');
       if (loadingDiv) {
-        loadingDiv.textContent = `Descargando modelo ${percent}%`;
+        loadingDiv.textContent = `Procesando  ${percent}%`;
       }
     };
 
@@ -309,7 +309,7 @@ const DialogModule = (function() {
 
           // Callback de progreso
           const onProgress = (percent) => {
-            answerDiv.textContent = `Descargando modelo ${percent}%`;
+            answerDiv.textContent = `Procesando ${percent}%`;
           };
 
           try {
@@ -340,7 +340,7 @@ const DialogModule = (function() {
                 break;
             }
 
-            answerDiv.textContent = result;
+            MarkdownRenderer.renderToElement(answerDiv, result);
           } catch (error) {
             answerDiv.textContent = 'Error: ' + error.message;
           }
@@ -394,12 +394,12 @@ const DialogModule = (function() {
 
         // Callback de progreso
         const onProgress = (percent) => {
-          answerDiv.textContent = `Descargando modelo ${percent}%`;
+          answerDiv.textContent = `Procesando  ${percent}%`;
         };
 
         try {
           const result = await AIModule.aiTranslate(selectedText, newLang, onProgress);
-          answerDiv.textContent = result;
+          MarkdownRenderer.renderToElement(answerDiv, result);
         } catch (error) {
           answerDiv.textContent = 'Error: ' + error.message;
         }
@@ -418,7 +418,7 @@ const DialogModule = (function() {
 
         // Callback de progreso
         const onProgress = (percent) => {
-          answerDiv.textContent = `Descargando modelo ${percent}%`;
+          answerDiv.textContent = `Procesando modelo ${percent}%`;
         };
 
         try {
@@ -446,7 +446,7 @@ const DialogModule = (function() {
               result = await AIModule.aiAnswer(selectedText, onProgress);
               break;
           }
-          answerDiv.textContent = result;
+          MarkdownRenderer.renderToElement(answerDiv, result);
         } catch (error) {
           answerDiv.textContent = 'Error: ' + error.message;
         }
@@ -567,7 +567,7 @@ const DialogModule = (function() {
 
       // Callback de progreso
       const onProgress = (percent) => {
-        loadingMsg.querySelector('.ai-chat-bubble').textContent = `Descargando modelo ${percent}%`;
+        loadingMsg.querySelector('.ai-chat-bubble').textContent = `Procesando${percent}%`;
       };
 
       try {
@@ -577,8 +577,9 @@ const DialogModule = (function() {
         // Agregar respuesta al historial
         conversationHistory.push({ role: 'assistant', content: result });
 
-        // Reemplazar mensaje de carga con respuesta real
-        loadingMsg.querySelector('.ai-chat-bubble').textContent = result;
+        // Reemplazar mensaje de carga con respuesta real (renderizado en Markdown)
+        const chatBubble = loadingMsg.querySelector('.ai-chat-bubble');
+        MarkdownRenderer.renderToElement(chatBubble, result);
 
         // Auto-scroll al final
         chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -615,7 +616,13 @@ const DialogModule = (function() {
 
     const bubble = document.createElement('div');
     bubble.className = 'ai-chat-bubble';
-    bubble.textContent = content;
+
+    // Renderizar markdown solo para mensajes del asistente
+    if (role === 'assistant') {
+      MarkdownRenderer.renderToElement(bubble, content);
+    } else {
+      bubble.textContent = content;
+    }
 
     messageDiv.appendChild(label);
     messageDiv.appendChild(bubble);

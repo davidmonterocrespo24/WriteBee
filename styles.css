@@ -514,3 +514,808 @@
 .ai-chat-history::-webkit-scrollbar-thumb:hover {
   background: #4a4a50;
 }
+
+/* Markdown Styles */
+.ai-answer h1,
+.ai-chat-bubble h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.8em 0 0.4em 0;
+  color: #eaeaf0;
+}
+
+.ai-answer h2,
+.ai-chat-bubble h2 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin: 0.7em 0 0.3em 0;
+  color: #eaeaf0;
+}
+
+.ai-answer h3,
+.ai-chat-bubble h3 {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 0.6em 0 0.3em 0;
+  color: #eaeaf0;
+}
+
+.ai-answer strong,
+.ai-chat-bubble strong {
+  font-weight: 600;
+  color: #fff;
+}
+
+.ai-answer em,
+.ai-chat-bubble em {
+  font-style: italic;
+  color: #d4d4d8;
+}
+
+.ai-answer a,
+.ai-chat-bubble a {
+  color: #8ab4ff;
+  text-decoration: underline;
+}
+
+.ai-answer a:hover,
+.ai-chat-bubble a:hover {
+  color: #a5c7ff;
+}
+
+.ai-answer ul,
+.ai-chat-bubble ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ai-answer ol,
+.ai-chat-bubble ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ai-answer li,
+.ai-chat-bubble li {
+  margin: 0.3em 0;
+}
+
+.ai-answer blockquote,
+.ai-chat-bubble blockquote {
+  border-left: 3px solid #8ab4ff;
+  padding-left: 1em;
+  margin: 0.8em 0;
+  color: #b4b4ba;
+  font-style: italic;
+}
+
+.ai-answer hr,
+.ai-chat-bubble hr {
+  border: none;
+  border-top: 1px solid #3a3a40;
+  margin: 1em 0;
+}
+
+.ai-answer img,
+.ai-chat-bubble img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 0.5em 0;
+}
+
+/* Code Inline */
+.ai-answer .inline-code,
+.ai-chat-bubble .inline-code {
+  background: #2d2d33;
+  color: #ff9e64;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid #3a3a40;
+}
+
+/* Code Block */
+.ai-answer .code-block,
+.ai-chat-bubble .code-block {
+  background: #1a1a1f;
+  border: 1px solid #2d2d33;
+  border-radius: 8px;
+  margin: 1em 0;
+  overflow: hidden;
+}
+
+.ai-answer .code-header,
+.ai-chat-bubble .code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #252530;
+  border-bottom: 1px solid #2d2d33;
+}
+
+.ai-answer .code-language,
+.ai-chat-bubble .code-language {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #8ab4ff;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.ai-answer .code-copy-btn,
+.ai-chat-bubble .code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid #3a3a40;
+  color: #b4b4ba;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-answer .code-copy-btn:hover,
+.ai-chat-bubble .code-copy-btn:hover {
+  background: #2d2d33;
+  border-color: #8ab4ff;
+  color: #8ab4ff;
+}
+
+.ai-answer .code-copy-btn svg,
+.ai-chat-bubble .code-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ai-answer .code-block pre,
+.ai-chat-bubble .code-block pre {
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  background: #1a1a1f;
+}
+
+.ai-answer .code-block code,
+.ai-chat-bubble .code-block code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.85em;
+  line-height: 1.6;
+  color: #c9d1d9;
+  display: block;
+}
+
+/* Syntax Highlighting */
+.ai-answer .keyword,
+.ai-chat-bubble .keyword {
+  color: #bb9af7;
+  font-weight: 500;
+}
+
+.ai-answer .string,
+.ai-chat-bubble .string {
+  color: #9ece6a;
+}
+
+.ai-answer .comment,
+.ai-chat-bubble .comment {
+  color: #565f89;
+  font-style: italic;
+}
+
+.ai-answer .number,
+.ai-chat-bubble .number {
+  color: #ff9e64;
+}
+
+/* Tables */
+.ai-answer .markdown-table,
+.ai-chat-bubble .markdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  background: #1a1a1f;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #2d2d33;
+}
+
+.ai-answer .markdown-table th,
+.ai-chat-bubble .markdown-table th {
+  background: #252530;
+  color: #eaeaf0;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid #3a3a40;
+}
+
+.ai-answer .markdown-table td,
+.ai-chat-bubble .markdown-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #2d2d33;
+  color: #c9d1d9;
+}
+
+.ai-answer .markdown-table tr:last-child td,
+.ai-chat-bubble .markdown-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ai-answer .markdown-table tr:hover,
+.ai-chat-bubble .markdown-table tr:hover {
+  background: #1e1e24;
+}
+
+/* Math */
+.ai-answer .math-inline,
+.ai-chat-bubble .math-inline {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  color: #ff9e64;
+  padding: 0 4px;
+}
+
+.ai-answer .math-block,
+.ai-chat-bubble .math-block {
+  display: block;
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  color: #ff9e64;
+  text-align: center;
+  margin: 1em 0;
+  padding: 0.8em;
+  background: #1a1a1f;
+  border-radius: 6px;
+  border: 1px solid #2d2d33;
+}
+
+/* Scrollbar para bloques de código */
+.ai-answer .code-block pre::-webkit-scrollbar,
+.ai-chat-bubble .code-block pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.ai-answer .code-block pre::-webkit-scrollbar-track,
+.ai-chat-bubble .code-block pre::-webkit-scrollbar-track {
+  background: #1a1a1f;
+}
+
+.ai-answer .code-block pre::-webkit-scrollbar-thumb,
+.ai-chat-bubble .code-block pre::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 4px;
+}
+
+.ai-answer .code-block pre::-webkit-scrollbar-thumb:hover,
+.ai-chat-bubble .code-block pre::-webkit-scrollbar-thumb:hover {
+  background: #4a4a50;
+}
+
+/* ========================================
+   GMAIL MODULE STYLES
+   ======================================== */
+
+.ai-gmail-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #7a5cff 0%, #5b3fd9 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(122, 92, 255, 0.3);
+  margin-left: 8px;
+}
+
+.ai-gmail-button:hover {
+  background: linear-gradient(135deg, #8a6cff 0%, #6b4fe9 100%);
+  box-shadow: 0 4px 8px rgba(122, 92, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.ai-gmail-button:active {
+  transform: translateY(0);
+}
+
+.ai-gmail-button svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.ai-gmail-dialog {
+  position: fixed !important;
+  z-index: 999999 !important;
+}
+
+.ai-gmail-dialog .ai-result-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.ai-gmail-summary,
+.ai-gmail-compose,
+.ai-gmail-response {
+  margin-bottom: 24px;
+}
+
+.ai-gmail-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--icon);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-gmail-summary-content {
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 60px;
+}
+
+.ai-gmail-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  background: #252525;
+  border: 2px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.ai-gmail-input:focus {
+  outline: none;
+  border-color: var(--purple);
+}
+
+.ai-gmail-input::placeholder {
+  color: #666;
+}
+
+.ai-gmail-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: var(--purple);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-gmail-generate-btn:hover {
+  background: #8a6cff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(122, 92, 255, 0.3);
+}
+
+.ai-gmail-generate-btn:active {
+  transform: translateY(0);
+}
+
+.ai-gmail-generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-gmail-generate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ai-gmail-response-content {
+  background: #252525;
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 150px;
+  max-height: 400px;
+  overflow-y: auto;
+  outline: none;
+}
+
+.ai-gmail-response-content:focus {
+  border-color: var(--purple);
+}
+
+.ai-gmail-response-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.ai-gmail-insert-btn,
+.ai-gmail-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-gmail-insert-btn {
+  background: var(--accent);
+  color: #000;
+}
+
+.ai-gmail-insert-btn:hover {
+  background: #ffdd33;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 212, 0, 0.3);
+}
+
+.ai-gmail-copy-btn {
+  background: #2a2a2a;
+  color: var(--icon);
+}
+
+.ai-gmail-copy-btn:hover {
+  background: #333;
+  transform: translateY(-1px);
+}
+
+.ai-gmail-insert-btn:active,
+.ai-gmail-copy-btn:active {
+  transform: translateY(0);
+}
+
+.ai-gmail-insert-btn svg,
+.ai-gmail-copy-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Scrollbar para el contenido de respuesta */
+.ai-gmail-response-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ai-gmail-response-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+.ai-gmail-response-content::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 4px;
+}
+
+.ai-gmail-response-content::-webkit-scrollbar-thumb:hover {
+  background: #4a4a50;
+}
+
+/* ========================================
+   YOUTUBE MODULE STYLES
+   ======================================== */
+
+.ai-youtube-panel {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.ai-youtube-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #7a5cff 0%, #5b3fd9 100%);
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-youtube-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ai-youtube-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: white;
+  stroke-width: 2;
+}
+
+.ai-youtube-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-youtube-title strong {
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ai-youtube-title span {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+}
+
+.ai-youtube-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-youtube-toggle:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.ai-youtube-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+  transition: transform 0.3s ease;
+}
+
+.ai-youtube-content {
+  padding: 16px;
+  background: #1e1e1e;
+}
+
+.ai-youtube-info {
+  padding: 12px;
+  background: #252525;
+  border-left: 3px solid var(--purple);
+  border-radius: 6px;
+  color: #ccc;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.ai-youtube-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ai-youtube-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ddd;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-youtube-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--purple);
+}
+
+.ai-youtube-summarize-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #7a5cff 0%, #5b3fd9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(122, 92, 255, 0.3);
+}
+
+.ai-youtube-summarize-btn:hover {
+  background: linear-gradient(135deg, #8a6cff 0%, #6b4fe9 100%);
+  box-shadow: 0 4px 10px rgba(122, 92, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.ai-youtube-summarize-btn:active {
+  transform: translateY(0);
+}
+
+.ai-youtube-summarize-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-youtube-summarize-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ai-youtube-result {
+  margin-top: 16px;
+  padding: 16px;
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+.ai-youtube-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.ai-youtube-result-header span {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ai-youtube-result-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-youtube-copy-btn,
+.ai-youtube-regenerate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-youtube-copy-btn:hover,
+.ai-youtube-regenerate-btn:hover {
+  background: #333;
+  border-color: #444;
+  transform: translateY(-1px);
+}
+
+.ai-youtube-copy-btn svg,
+.ai-youtube-regenerate-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: #ddd;
+}
+
+.ai-youtube-result-content {
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.7;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Scrollbar para el resultado */
+.ai-youtube-result-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ai-youtube-result-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+.ai-youtube-result-content::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 4px;
+}
+
+.ai-youtube-result-content::-webkit-scrollbar-thumb:hover {
+  background: #4a4a50;
+}
+
+/* Estilos para el contenido markdown dentro del resultado */
+.ai-youtube-result-content h1,
+.ai-youtube-result-content h2,
+.ai-youtube-result-content h3 {
+  color: #fff;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.ai-youtube-result-content h1 {
+  font-size: 18px;
+}
+
+.ai-youtube-result-content h2 {
+  font-size: 16px;
+}
+
+.ai-youtube-result-content h3 {
+  font-size: 14px;
+}
+
+.ai-youtube-result-content ul,
+.ai-youtube-result-content ol {
+  margin-left: 20px;
+  margin-bottom: 12px;
+}
+
+.ai-youtube-result-content li {
+  margin-bottom: 6px;
+}
+
+.ai-youtube-result-content p {
+  margin-bottom: 12px;
+}
+
+.ai-youtube-result-content code {
+  background: #1a1a1a;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.ai-youtube-result-content strong {
+  color: #fff;
+}
+
+
