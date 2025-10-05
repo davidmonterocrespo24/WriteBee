@@ -410,31 +410,61 @@ const ChatPanelModule = (function() {
           </div>
         `;
       } else {
-        messageDiv.innerHTML = `
-          <div class="ai-message-avatar">
-            <div class="ai-avatar-small">
-              <div class="eyes"><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="ai-message-content">
-            <div class="ai-message-text">${msg.content}</div>
-            <div class="ai-message-actions">
-              <button class="ai-message-action-btn copy-message-btn" data-index="${index}" title="Copiar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2"/>
-                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-                </svg>
-              </button>
-              <span class="ai-message-time">${formatTime(msg.timestamp)}</span>
-            </div>
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'ai-message-content';
+
+        // Crear elementos
+        const avatar = document.createElement('div');
+        avatar.className = 'ai-message-avatar';
+        avatar.innerHTML = `
+          <div class="ai-avatar-small">
+            <div class="eyes"><span></span><span></span></div>
           </div>
         `;
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'ai-message-text';
+
+        // Renderizar con Markdown
+        if (typeof MarkdownRenderer !== 'undefined') {
+          MarkdownRenderer.renderToElement(textDiv, msg.content);
+        } else {
+          textDiv.textContent = msg.content;
+        }
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'ai-message-actions';
+        actionsDiv.innerHTML = `
+          <button class="ai-message-action-btn copy-message-btn" data-index="${index}" title="Copiar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+          </button>
+          <button class="ai-message-action-btn regenerate-message-btn" data-index="${index}" title="Regenerar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+          </button>
+          <button class="ai-message-action-btn speak-message-btn" data-index="${index}" title="Escuchar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+          </button>
+          <span class="ai-message-time">${formatTime(msg.timestamp)}</span>
+        `;
+
+        messageDiv.appendChild(avatar);
+        contentDiv.appendChild(textDiv);
+        contentDiv.appendChild(actionsDiv);
+        messageDiv.appendChild(contentDiv);
       }
 
       messagesContainer.appendChild(messageDiv);
     });
 
-    // Setup copy buttons
+    // Setup action buttons
     const copyBtns = messagesContainer.querySelectorAll('.copy-message-btn');
     copyBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -450,6 +480,51 @@ const ChatPanelModule = (function() {
             </svg>
           `;
         }, 2000);
+      });
+    });
+
+    const regenerateBtns = messagesContainer.querySelectorAll('.regenerate-message-btn');
+    regenerateBtns.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const index = parseInt(btn.dataset.index);
+        if (index > 0) {
+          const userMessage = conversationHistory[index - 1];
+          // Eliminar el mensaje AI actual y regenerar
+          conversationHistory.splice(index, 1);
+          renderChatHistory();
+          await processMessage(userMessage.content, null, userMessage.imageFile);
+        }
+      });
+    });
+
+    const speakBtns = messagesContainer.querySelectorAll('.speak-message-btn');
+    speakBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const index = parseInt(btn.dataset.index);
+        const message = conversationHistory[index];
+
+        if ('speechSynthesis' in window) {
+          // Detener si ya está hablando
+          if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            btn.style.color = '';
+            return;
+          }
+
+          const utterance = new SpeechSynthesisUtterance(message.content);
+          utterance.lang = 'es-ES';
+          utterance.rate = 1;
+          utterance.pitch = 1;
+
+          utterance.onend = () => {
+            btn.style.color = '';
+          };
+
+          window.speechSynthesis.speak(utterance);
+          btn.style.color = '#667eea';
+        } else {
+          alert('Tu navegador no soporta síntesis de voz');
+        }
       });
     });
 

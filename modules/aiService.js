@@ -66,6 +66,40 @@ class AIService {
   }
 
   /**
+   * Resume texto con streaming
+   */
+  async summarizeStream(text, onChunk, signal = null) {
+    try {
+      if (!await this.checkAvailability('Summarizer')) {
+        throw new Error('La API Summarizer no está disponible en este navegador.');
+      }
+
+      const summarizer = await self.Summarizer.create({
+        type: 'key-points',
+        format: 'markdown',
+        length: 'short'
+      });
+
+      const stream = summarizer.summarizeStreaming(text, signal ? { signal } : {});
+      let fullText = '';
+
+      for await (const chunk of stream) {
+        fullText = chunk;
+        if (onChunk) onChunk(fullText);
+      }
+
+      summarizer.destroy();
+      return fullText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw new Error('Streaming cancelado');
+      }
+      console.error('Error en summarizeStream:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Traduce texto usando Translator API
    */
   async translate(text, targetLang, onProgress = null) {
@@ -308,6 +342,202 @@ class AIService {
       session.destroy();
     } catch (error) {
       console.error('Error en streamResponse:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Traduce con streaming
+   */
+  async translateStream(text, targetLang, onChunk, signal = null) {
+    try {
+      if (!await this.checkAvailability('Translator')) {
+        throw new Error('La API Translator no está disponible en este navegador.');
+      }
+
+      // Detectar idioma de origen
+      let sourceLang = 'en';
+      if (await this.checkAvailability('LanguageDetector')) {
+        const detector = await self.LanguageDetector.create();
+        const detections = await detector.detect(text);
+        if (detections.length > 0) {
+          sourceLang = detections[0].detectedLanguage;
+        }
+        detector.destroy();
+      }
+
+      const translator = await self.Translator.create({
+        sourceLanguage: sourceLang,
+        targetLanguage: targetLang
+      });
+
+      const stream = translator.translateStreaming(text, signal ? { signal } : {});
+      let fullText = '';
+
+      for await (const chunk of stream) {
+        fullText = chunk;
+        if (onChunk) onChunk(fullText);
+      }
+
+      translator.destroy();
+      return fullText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw new Error('Streaming cancelado');
+      }
+      console.error('Error en translateStream:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Explica texto usando Prompt API con streaming
+   */
+  async explainStream(text, onChunk, signal = null) {
+    try {
+      if (!('LanguageModel' in self)) {
+        throw new Error('La API Prompt no está disponible en este navegador.');
+      }
+
+      const session = await self.LanguageModel.create();
+      const prompt = `Explica el siguiente texto de forma clara y concisa en 3 puntos clave:\n\n${text}`;
+      const stream = session.promptStreaming(prompt, signal ? { signal } : {});
+      let fullText = '';
+
+      for await (const chunk of stream) {
+        fullText += chunk;
+        if (onChunk) onChunk(fullText);
+      }
+
+      session.destroy();
+      return fullText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw new Error('Streaming cancelado');
+      }
+      console.error('Error en explainStream:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Expande texto usando Writer API con streaming
+   */
+  async expandStream(text, onChunk, signal = null) {
+    try {
+      if (!await this.checkAvailability('Writer')) {
+        throw new Error('La API Writer no está disponible en este navegador.');
+      }
+
+      const writer = await self.Writer.create({
+        tone: 'neutral',
+        length: 'long'
+      });
+
+      const prompt = `Amplía el siguiente texto con más detalles y ejemplos:\n\n${text}`;
+      const stream = writer.writeStreaming(prompt, signal ? { signal } : {});
+      let fullText = '';
+
+      for await (const chunk of stream) {
+        fullText = chunk;
+        if (onChunk) onChunk(fullText);
+      }
+
+      writer.destroy();
+      return fullText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw new Error('Streaming cancelado');
+      }
+      console.error('Error en expandStream:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Responde preguntas usando Prompt API con streaming
+   */
+  async answerStream(text, onChunk, signal = null) {
+    try {
+      if (!('LanguageModel' in self)) {
+        throw new Error('La API Prompt no está disponible en este navegador.');
+      }
+
+      const session = await self.LanguageModel.create();
+      const prompt = `Responde de forma breve y precisa a la siguiente pregunta:\n\n${text}`;
+      const stream = session.promptStreaming(prompt, signal ? { signal } : {});
+      let fullText = '';
+
+      for await (const chunk of stream) {
+        fullText += chunk;
+        if (onChunk) onChunk(fullText);
+      }
+
+      session.destroy();
+      return fullText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw new Error('Streaming cancelado');
+      }
+      console.error('Error en answerStream:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reescribe texto con streaming
+   */
+  async rewriteStream(text, onChunk, signal = null) {
+    try {
+      if (!await this.checkAvailability('Rewriter')) {
+        throw new Error('La API Rewriter no está disponible en este navegador.');
+      }
+
+      const rewriter = await self.Rewriter.create();
+      const stream = rewriter.rewriteStreaming(text, signal ? { signal } : {});
+      let fullText = '';
+
+      for await (const chunk of stream) {
+        fullText = chunk;
+        if (onChunk) onChunk(fullText);
+      }
+
+      rewriter.destroy();
+      return fullText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw new Error('Streaming cancelado');
+      }
+      console.error('Error en rewriteStream:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Writer API con streaming
+   */
+  async writeStream(prompt, onChunk, signal = null) {
+    try {
+      if (!await this.checkAvailability('Writer')) {
+        throw new Error('La API Writer no está disponible en este navegador.');
+      }
+
+      const writer = await self.Writer.create();
+      const stream = writer.writeStreaming(prompt, signal ? { signal } : {});
+      let fullText = '';
+
+      for await (const chunk of stream) {
+        fullText = chunk;
+        if (onChunk) onChunk(fullText);
+      }
+
+      writer.destroy();
+      return fullText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw new Error('Streaming cancelado');
+      }
+      console.error('Error en writeStream:', error);
       throw error;
     }
   }
