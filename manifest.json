@@ -24,6 +24,7 @@
         "modules/youtube.js",
         "modules/google.js",
         "modules/linkedin.js",
+        "modules/twitter.js",
         "content.js"
       ],
       "css": ["styles.css"]

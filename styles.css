@@ -2403,5 +2403,355 @@
   background: #4a4a50;
 }
 
+/* ========================================
+   TWITTER/X MODULE STYLES
+   ======================================== */
+
+/* Botones de Twitter */
+.ai-twitter-btn-tweet,
+.ai-twitter-btn-reply {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+  background: #1a1a1f !important;
+  color: #1d9bf0 !important;
+  border: 1px solid #2d2d33 !important;
+  border-radius: 16px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  margin-left: 8px !important;
+}
+
+.ai-twitter-btn-tweet:hover,
+.ai-twitter-btn-reply:hover {
+  background: #242428 !important;
+  border-color: #1d9bf0 !important;
+  box-shadow: 0 4px 8px rgba(29, 155, 240, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ai-twitter-btn-tweet:active,
+.ai-twitter-btn-reply:active {
+  transform: translateY(0) !important;
+}
+
+.ai-twitter-btn-tweet svg,
+.ai-twitter-btn-reply svg {
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 2 !important;
+}
+
+/* Diálogo de Twitter */
+.ai-twitter-dialog {
+  z-index: 999999 !important;
+}
+
+/* Contexto del tweet */
+.ai-twitter-context {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #1f1f23;
+  border: 1px dashed #3a3a40;
+  border-radius: 12px;
+}
+
+.ai-twitter-context-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a5a7b1;
+  margin-bottom: 8px;
+}
+
+.ai-twitter-context-content {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d4d4d8;
+}
+
+/* Input section */
+.ai-twitter-input-section {
+  margin-bottom: 14px;
+}
+
+.ai-twitter-textarea {
+  width: 100%;
+  min-height: 100px;
+  background: #0f1420 !important;
+  border: 1px solid #2a3042 !important;
+  border-radius: 12px;
+  color: #eaeaf0 !important;
+  padding: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  resize: vertical;
+  outline: none;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+.ai-twitter-textarea::placeholder {
+  color: #7f8aa3;
+}
+
+.ai-twitter-textarea:focus {
+  border-color: #1d9bf0;
+}
+
+/* Actions - chips */
+.ai-twitter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.ai-twitter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid #2a3042;
+  background: #242b3b;
+  color: #d7dbea;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ai-twitter-chip:hover {
+  background: #2c3447;
+  border-color: #1d9bf0;
+}
+
+.ai-twitter-chip.active {
+  background: #1d9bf0;
+  color: #ffffff;
+  border-color: #1d9bf0;
+}
+
+.ai-twitter-chip .emoji {
+  font-size: 14px;
+}
+
+.ai-twitter-actions .spacer {
+  flex: 1;
+}
+
+/* Language selector */
+.ai-twitter-lang {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid #2a3042;
+  background: #242b3b;
+  color: #d7dbea;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-twitter-lang:hover {
+  background: #2c3447;
+  border-color: #3a4052;
+}
+
+.ai-twitter-lang-select {
+  background: #242b3b !important;
+  border: none;
+  color: #d7dbea !important;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.ai-twitter-lang-select option {
+  background: #242b3b !important;
+  color: #d7dbea !important;
+}
+
+/* Response section */
+.ai-twitter-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #eaeaf0;
+  margin-bottom: 12px;
+}
+
+.ai-twitter-section-header svg {
+  width: 18px;
+  height: 18px;
+  color: #1d9bf0;
+}
+
+.ai-twitter-response {
+  margin-top: 16px;
+}
+
+.ai-twitter-response-content {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 12px;
+  padding: 12px;
+  color: #eaeaf0 !important;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 80px;
+  max-height: 200px;
+  overflow-y: auto;
+  outline: none;
+  margin-bottom: 8px;
+}
+
+.ai-twitter-response-content:focus {
+  border-color: #1d9bf0;
+}
+
+/* Contador de caracteres */
+.ai-twitter-char-count {
+  text-align: right;
+  font-size: 13px;
+  color: #a5a7b1;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.ai-twitter-chars {
+  font-weight: 700;
+}
+
+/* Response actions */
+.ai-twitter-response-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-twitter-insert-btn,
+.ai-twitter-copy-btn,
+.ai-twitter-regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid #3a3a40;
+  border-radius: 16px;
+  background: transparent;
+  color: #ddd;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-twitter-insert-btn {
+  background: #1d9bf0;
+  border-color: #1d9bf0;
+  color: white;
+}
+
+.ai-twitter-insert-btn:hover {
+  background: #1a8cd8;
+  border-color: #1a8cd8;
+}
+
+.ai-twitter-copy-btn:hover,
+.ai-twitter-regenerate-btn:hover {
+  background: #35353c;
+  border-color: #1d9bf0;
+}
+
+.ai-twitter-insert-btn svg,
+.ai-twitter-copy-btn svg,
+.ai-twitter-regenerate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Footer */
+.ai-twitter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid #242a3a;
+  background: #141925;
+}
+
+.ai-twitter-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1d9bf0;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(29, 155, 240, 0.35);
+  transition: all 0.15s ease;
+}
+
+.ai-twitter-generate-btn:hover {
+  background: #1a8cd8;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(29, 155, 240, 0.45);
+}
+
+.ai-twitter-generate-btn:active {
+  transform: translateY(0);
+}
+
+.ai-twitter-generate-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-twitter-generate-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Scrollbars */
+.ai-twitter-response-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ai-twitter-response-content::-webkit-scrollbar-track {
+  background: #1f1f23;
+  border-radius: 3px;
+}
+
+.ai-twitter-response-content::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 3px;
+}
+
+.ai-twitter-response-content::-webkit-scrollbar-thumb:hover {
+  background: #1d9bf0;
+}
+
 
 
