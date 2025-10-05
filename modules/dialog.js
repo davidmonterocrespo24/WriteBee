@@ -155,6 +155,12 @@ const DialogModule = (function() {
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
             </svg>
           </button>
+          <button class="ai-iconbtn open-chat-btn" aria-label="Continuar en el chat" title="Continuar en el chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <path d="M9 10h6M9 14h6"/>
+            </svg>
+          </button>
           <div class="ai-avatar" title="Perfil">
             <div class="eyes"><span></span><span></span></div>
           </div>
@@ -523,6 +529,38 @@ const DialogModule = (function() {
           speakBtn.style.color = '';
         }
       });
+    }
+
+    // Botón "Continuar en el chat"
+    const openChatBtn = dialog.querySelector('.open-chat-btn');
+    console.log('🔍 Buscando botón open-chat-btn:', openChatBtn);
+
+    if (openChatBtn) {
+      console.log('✅ Botón de chat encontrado, agregando evento');
+      openChatBtn.addEventListener('click', (e) => {
+        console.log('💬 Click en botón de chat');
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Obtener el contenido actual del diálogo
+        const answerDiv = dialog.querySelector('.ai-answer');
+        const currentContent = answerDiv.textContent;
+        const currentAction = dialog.dataset.action;
+
+        console.log('📝 Contexto:', { selectedText, currentAction });
+
+        // Abrir el panel de chat con el contexto actual
+        if (typeof ChatPanelModule !== 'undefined') {
+          console.log('✅ ChatPanelModule disponible, abriendo chat');
+          ChatPanelModule.openChatPanel(selectedText, currentAction);
+        } else {
+          console.error('❌ ChatPanelModule no está disponible');
+          console.log('📦 Módulos disponibles:', Object.keys(window).filter(k => k.includes('Module')));
+          alert('El módulo de chat no está cargado. Recarga la extensión.');
+        }
+      });
+    } else {
+      console.warn('⚠️ No se encontró el botón .open-chat-btn en el diálogo');
     }
 
     // Sistema de chat de seguimiento

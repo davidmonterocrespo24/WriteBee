@@ -19,6 +19,7 @@
         "modules/aiService.js",
         "modules/ai.js",
         "modules/multimodal.js",
+        "modules/chatPanel.js",
         "modules/dialog.js",
         "modules/actions.js",
         "modules/menus.js",
