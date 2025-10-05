@@ -33,91 +33,80 @@ const TwitterModule = (function() {
   }
 
   function checkForTweetComposer() {
-    // Buscar el área de composición de tweets principal
-    const tweetComposer = document.querySelector('[data-testid="tweetTextarea_0"]');
+    // Buscar todas las toolbars (incluyendo el compositor principal de tweets)
+    const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
 
-    if (!tweetComposer) {
-      console.log('🐦 Twitter: No se encontró compositor de tweet');
-      return;
-    }
+    console.log('🐦 Twitter: Buscando toolbars para compositor...', toolbars.length);
 
-    console.log('🐦 Twitter: Compositor encontrado');
-
-    // Buscar la toolbar
-    const textboxContainer = tweetComposer.closest('[role="textbox"]');
-    if (!textboxContainer) {
-      console.log('🐦 Twitter: No se encontró textbox container');
-      return;
-    }
-
-    // Navegar hasta encontrar el contenedor con la toolbar
-    let current = textboxContainer;
-    let toolbar = null;
-
-    for (let i = 0; i < 5; i++) {
-      current = current.parentElement;
-      if (!current) break;
-
-      toolbar = current.querySelector('[role="group"]');
-      if (toolbar && !toolbar.querySelector('.ai-twitter-btn-tweet')) {
-        console.log('🐦 Twitter: Toolbar encontrada, insertando botón');
-        insertTweetButton(toolbar, tweetComposer);
-        break;
-      }
-    }
-
-    if (!toolbar) {
-      console.log('🐦 Twitter: No se encontró toolbar');
-    }
-  }
-
-  function checkForReplyBoxes() {
-    // Buscar todas las cajas de texto
-    const textareas = document.querySelectorAll('[data-testid^="tweetTextarea"]');
-
-    console.log('🐦 Twitter: Buscando cajas de respuesta...', textareas.length);
-
-    textareas.forEach(textarea => {
-      // Saltar si es el compositor principal (tweetTextarea_0 en la página principal)
-      const testId = textarea.getAttribute('data-testid');
-      if (testId === 'tweetTextarea_0') {
-        const isInModal = textarea.closest('[role="dialog"]');
-        if (!isInModal) {
-          // Es el compositor principal del timeline, no una respuesta
-          return;
-        }
+    toolbars.forEach(toolbar => {
+      // Verificar si ya tiene el botón AI de tweet
+      if (toolbar.querySelector('.ai-twitter-btn-tweet')) {
+        return;
       }
 
-      // Buscar la toolbar
-      const textboxContainer = textarea.closest('[role="textbox"]');
-      if (!textboxContainer) return;
+      // Buscar si esta toolbar tiene el compositor principal (tweetTextarea_0)
+      const mainComposer = toolbar.closest('div')?.querySelector('[data-testid="tweetTextarea_0"]');
 
-      let current = textboxContainer;
-      let toolbar = null;
+      // Solo insertar en el compositor principal del home (no en respuestas)
+      if (mainComposer) {
+        const isInMainTimeline = !toolbar.closest('[role="dialog"]');
 
-      for (let i = 0; i < 5; i++) {
-        current = current.parentElement;
-        if (!current) break;
+        if (isInMainTimeline) {
+          const buttonList = toolbar.querySelector('[data-testid="ScrollSnap-List"]');
 
-        toolbar = current.querySelector('[role="group"]');
-        if (toolbar && !toolbar.querySelector('.ai-twitter-btn-reply')) {
-          console.log('🐦 Twitter: Insertando botón en respuesta');
-          insertReplyButton(toolbar, textarea);
-          break;
+          if (buttonList && !buttonList.querySelector('.ai-twitter-btn-tweet')) {
+            console.log('🐦 Twitter: Insertando botón en compositor principal');
+            insertTweetButton(buttonList, toolbar);
+          }
         }
       }
     });
   }
 
-  function insertTweetButton(toolbar, composer) {
+  function checkForReplyBoxes() {
+    // Buscar todas las toolbars
+    const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
+
+    console.log('🐦 Twitter: Buscando toolbars...', toolbars.length);
+
+    toolbars.forEach(toolbar => {
+      // Verificar si ya tiene el botón AI
+      if (toolbar.querySelector('.ai-twitter-btn-reply')) {
+        return;
+      }
+
+      // Buscar la lista de botones dentro de la toolbar
+      const buttonList = toolbar.querySelector('[data-testid="ScrollSnap-List"]');
+
+      if (buttonList) {
+        console.log('🐦 Twitter: Insertando botón en toolbar');
+        insertReplyButton(buttonList, toolbar);
+      }
+    });
+  }
+
+  function insertTweetButton(buttonList, toolbar) {
     console.log('🐦 Twitter: Creando botón de tweet...');
 
+    // Crear contenedor con la misma estructura que los otros botones
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.setAttribute('role', 'presentation');
+    buttonWrapper.className = 'css-175oi2r r-14tvyh0 r-cpa5s6';
+
     const btn = document.createElement('button');
-    btn.className = 'ai-twitter-btn-tweet';
+    btn.className = 'ai-twitter-btn-tweet css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l';
     btn.setAttribute('aria-label', 'Generar con AI');
+    btn.setAttribute('role', 'button');
     btn.setAttribute('type', 'button');
+    btn.style.cssText = 'background-color: rgba(0, 0, 0, 0); border-color: rgba(0, 0, 0, 0);';
+
     btn.innerHTML = `
-      <span>Generar con AI</span>
+      <div dir="ltr" class="css-146c3p1 r-bcqeeo r-qvutc0 r-37j5jr r-q4m81j r-a023e6 r-rjixqe r-b88u0q r-1awozwy r-6koalj r-18u37iz r-16y2uox r-1777fci" style="color: rgb(29, 155, 240);">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="r-4qtqp9 r-yyyyoo r-dnmrzs r-bnwqim r-lrvibr r-m6rgpd r-z80fyv r-19wmn03" style="color: rgb(29, 155, 240);">
+          <g><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z M12 8v6M8 11h8" fill="none" stroke="currentColor" stroke-width="2"/></g>
+        </svg>
+        <span class="css-1jxf684 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3 r-a023e6 r-rjixqe"></span>
+      </div>
     `;
 
     btn.addEventListener('click', (e) => {
@@ -131,23 +120,41 @@ const TwitterModule = (function() {
       }
 
       console.log('🐦 Twitter: Click en botón de tweet');
-      handleCreateTweet(composer, btn);
+      // Buscar el textarea asociado
+      const textarea = toolbar.closest('[data-testid="toolBar"]')?.parentElement?.parentElement?.querySelector('[data-testid="tweetTextarea_0"]');
+      if (textarea) {
+        handleCreateTweet(textarea, btn);
+      }
     });
 
-    toolbar.appendChild(btn);
+    buttonWrapper.appendChild(btn);
+    buttonList.appendChild(buttonWrapper);
     twitterButtons.add(btn);
     console.log('🐦 Twitter: Botón insertado correctamente');
   }
 
-  function insertReplyButton(toolbar, replyBox) {
+  function insertReplyButton(buttonList, toolbar) {
     console.log('🐦 Twitter: Creando botón de respuesta...');
 
+    // Crear contenedor con la misma estructura que los otros botones
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.setAttribute('role', 'presentation');
+    buttonWrapper.className = 'css-175oi2r r-14tvyh0 r-cpa5s6';
+
     const btn = document.createElement('button');
-    btn.className = 'ai-twitter-btn-reply';
+    btn.className = 'ai-twitter-btn-reply css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l';
     btn.setAttribute('aria-label', 'Respuesta AI');
+    btn.setAttribute('role', 'button');
     btn.setAttribute('type', 'button');
+    btn.style.cssText = 'background-color: rgba(0, 0, 0, 0); border-color: rgba(0, 0, 0, 0);';
+
     btn.innerHTML = `
-      <span>Respuesta AI</span>
+      <div dir="ltr" class="css-146c3p1 r-bcqeeo r-qvutc0 r-37j5jr r-q4m81j r-a023e6 r-rjixqe r-b88u0q r-1awozwy r-6koalj r-18u37iz r-16y2uox r-1777fci" style="color: rgb(29, 155, 240);">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="r-4qtqp9 r-yyyyoo r-dnmrzs r-bnwqim r-lrvibr r-m6rgpd r-z80fyv r-19wmn03" style="color: rgb(29, 155, 240);">
+          <g><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z M8 10h8M8 14h4" fill="none" stroke="currentColor" stroke-width="2"/></g>
+        </svg>
+        <span class="css-1jxf684 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3 r-a023e6 r-rjixqe"></span>
+      </div>
     `;
 
     btn.addEventListener('click', (e) => {
@@ -161,10 +168,46 @@ const TwitterModule = (function() {
       }
 
       console.log('🐦 Twitter: Click en botón de respuesta');
-      handleReplyToTweet(replyBox, btn);
+
+      // Buscar el contenido del tweet para dar contexto
+      const toolbarElement = toolbar.closest('[data-testid="toolBar"]');
+
+      // Intentar extraer contexto del tweet
+      let tweetContext = null;
+      try {
+        // Buscar el tweet container más cercano
+        const tweetArticle = toolbarElement?.closest('article');
+        console.log('🐦 Twitter: Article encontrado:', tweetArticle);
+
+        if (tweetArticle) {
+          const tweetText = tweetArticle.querySelector('[data-testid="tweetText"]');
+          console.log('🐦 Twitter: TweetText encontrado:', tweetText);
+
+          if (tweetText) {
+            tweetContext = tweetText.innerText || tweetText.textContent;
+            console.log('🐦 Twitter: Contexto extraído:', tweetContext);
+          }
+        }
+      } catch (err) {
+        console.log('⚠️ Error extrayendo contexto:', err);
+      }
+
+      // Crear diálogo directamente
+      console.log('🐦 Twitter: Creando diálogo de respuesta...');
+      const dialog = createTweetDialog(tweetContext, btn);
+      console.log('🐦 Twitter: Diálogo creado:', dialog);
+      document.body.appendChild(dialog);
+      console.log('🐦 Twitter: Diálogo añadido al body');
+
+      // Verificar que está en el DOM
+      setTimeout(() => {
+        const dialogInDom = document.querySelector('.ai-twitter-dialog');
+        console.log('🐦 Twitter: Diálogo en DOM después de 100ms:', dialogInDom);
+      }, 100);
     });
 
-    toolbar.appendChild(btn);
+    buttonWrapper.appendChild(btn);
+    buttonList.appendChild(buttonWrapper);
     twitterButtons.add(btn);
     console.log('🐦 Twitter: Botón insertado correctamente');
   }
@@ -179,6 +222,8 @@ const TwitterModule = (function() {
 
   async function handleReplyToTweet(replyBox, buttonElement) {
     console.log('💬 Generando respuesta a tweet...');
+    console.log('💬 ReplyBox recibido:', replyBox);
+    console.log('💬 ButtonElement recibido:', buttonElement);
 
     // Extraer el contexto del tweet original
     const tweetContent = extractTweetContent(replyBox);
@@ -186,13 +231,16 @@ const TwitterModule = (function() {
 
     if (!tweetContent) {
       console.log('❌ No se pudo extraer contenido del tweet');
-      alert('No se pudo extraer el contenido del tweet');
-      return;
+      // No mostrar alert, crear diálogo vacío
+      console.log('💬 Creando diálogo sin contexto...');
     }
 
     // Crear diálogo para responder
+    console.log('💬 Llamando a createTweetDialog...');
     const dialog = createTweetDialog(tweetContent, buttonElement);
+    console.log('💬 Diálogo creado:', dialog);
     document.body.appendChild(dialog);
+    console.log('💬 Diálogo añadido al body');
   }
 
   function extractTweetContent(replyBox) {

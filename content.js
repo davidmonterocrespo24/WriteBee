@@ -19,8 +19,8 @@ function handleTextSelection(e) {
 
     console.log('📝 Texto seleccionado:', text);
 
-    // Verificar si la selección está dentro de un diálogo
-    const allDialogs = document.querySelectorAll('.ai-result-panel');
+    // Verificar si la selección está dentro de un diálogo (incluyendo módulos específicos)
+    const allDialogs = document.querySelectorAll('.ai-result-panel, .ai-twitter-dialog, .ai-linkedin-dialog');
     let isInsideDialog = false;
     allDialogs.forEach(dialog => {
       if (dialog.contains(e.target)) {
@@ -39,9 +39,16 @@ function handleTextSelection(e) {
     console.log('🔧 Menu existe:', !!menu, '- Click dentro:', isInsideMenu);
     console.log('🔧 Toolbar existe:', !!toolbar, '- Click dentro:', isInsideToolbar);
 
-    // Si la selección está dentro de un diálogo, menú o toolbar, no hacer nada
-    if (isInsideDialog || isInsideMenu || isInsideToolbar) {
-      console.log('⏸️ Saliendo - click dentro de UI');
+    // Verificar si el click fue en un botón de Twitter o LinkedIn
+    const isTwitterButton = e.target.closest('.ai-twitter-btn-tweet, .ai-twitter-btn-reply');
+    const isLinkedInButton = e.target.closest('.ai-linkedin-btn-post, .ai-linkedin-btn-comment');
+
+    console.log('🐦 Click en botón Twitter:', !!isTwitterButton);
+    console.log('💼 Click en botón LinkedIn:', !!isLinkedInButton);
+
+    // Si la selección está dentro de un diálogo, menú, toolbar o botón de módulo, no hacer nada
+    if (isInsideDialog || isInsideMenu || isInsideToolbar || isTwitterButton || isLinkedInButton) {
+      console.log('⏸️ Saliendo - click dentro de UI o botón de módulo');
       return;
     }
 
@@ -67,8 +74,8 @@ function handleClickOutside(e) {
   const menu = MenusModule.getMenu();
   const translateMenu = MenusModule.getTranslateMenu();
 
-  // Verificar si el click fue en algún diálogo (pinned o no pinned)
-  const allDialogs = document.querySelectorAll('.ai-result-panel');
+  // Verificar si el click fue en algún diálogo (incluyendo módulos específicos)
+  const allDialogs = document.querySelectorAll('.ai-result-panel, .ai-twitter-dialog, .ai-linkedin-dialog');
   let clickedInsideDialog = false;
   allDialogs.forEach(dialog => {
     if (dialog.contains(e.target)) {
@@ -76,8 +83,12 @@ function handleClickOutside(e) {
     }
   });
 
-  // Si el click fue dentro de algún diálogo, no hacer nada
-  if (clickedInsideDialog) {
+  // Verificar si el click fue en un botón de Twitter o LinkedIn
+  const isTwitterButton = e.target.closest('.ai-twitter-btn-tweet, .ai-twitter-btn-reply');
+  const isLinkedInButton = e.target.closest('.ai-linkedin-btn-post, .ai-linkedin-btn-comment');
+
+  // Si el click fue dentro de algún diálogo o en un botón de módulo, no hacer nada
+  if (clickedInsideDialog || isTwitterButton || isLinkedInButton) {
     return;
   }
 
