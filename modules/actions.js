@@ -70,24 +70,21 @@ const ActionsModule = (function() {
           result = await AIModule.aiRewriteStream(selectedText, onChunk, abortController.signal);
           break;
         case 'translate':
-          result = await AIModule.aiTranslate(selectedText, param || 'es');
-          if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
+          result = await AIModule.aiTranslateStream(selectedText, param || 'es', onChunk, abortController.signal);
           break;
         case 'explain':
-          result = await AIModule.aiExplain(selectedText);
-          if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
+          result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
           break;
         case 'grammar':
+          // No streaming disponible - usar implementación existente
           result = await AIModule.aiGrammar(selectedText);
           if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
           break;
         case 'expand':
-          result = await AIModule.aiExpand(selectedText);
-          if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
+          result = await AIModule.aiExpandStream(selectedText, onChunk, abortController.signal);
           break;
         case 'answer':
-          result = await AIModule.aiAnswer(selectedText);
-          if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
+          result = await AIModule.aiAnswerStream(selectedText, onChunk, abortController.signal);
           break;
       }
 

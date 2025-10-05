@@ -226,7 +226,12 @@ const MarkdownRenderer = (function() {
    */
   function renderToElement(element, markdown) {
     if (!element) return;
-    element.innerHTML = render(markdown);
+    // Almacenar el markdown anterior para evitar re-renders innecesarios
+    const prevMarkdown = element.dataset.markdown || '';
+    if (prevMarkdown !== markdown) {
+      element.dataset.markdown = markdown;
+      element.innerHTML = render(markdown);
+    }
   }
 
   return {

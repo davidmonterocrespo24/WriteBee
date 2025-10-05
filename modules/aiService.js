@@ -84,7 +84,8 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText = chunk;
+        // Acumular manualmente porque la API devuelve deltas
+        fullText += chunk;
         if (onChunk) onChunk(fullText);
       }
 
@@ -375,7 +376,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText = chunk;
+        fullText += chunk; // Acumular deltas
         if (onChunk) onChunk(fullText);
       }
 
@@ -439,7 +440,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText = chunk;
+        fullText += chunk; // Acumular deltas
         if (onChunk) onChunk(fullText);
       }
 
@@ -498,7 +499,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText = chunk;
+        fullText += chunk; // Acumular deltas
         if (onChunk) onChunk(fullText);
       }
 
@@ -527,7 +528,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText = chunk;
+        fullText += chunk; // Acumular deltas
         if (onChunk) onChunk(fullText);
       }
 

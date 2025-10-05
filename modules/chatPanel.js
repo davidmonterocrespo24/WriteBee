@@ -12,7 +12,9 @@ const ChatPanelModule = (function() {
   function openChatPanel(initialContext = null, initialAction = null) {
     // Si ya existe, solo mostrarlo
     if (chatPanel) {
-      chatPanel.style.display = 'flex';
+      chatPanel.classList.add('active');
+      document.body.classList.add('ai-chat-open');
+      localStorage.setItem('aiChatPanelOpen', 'true');
       if (initialContext) {
         addMessageToHistory('user', initialContext);
         if (initialAction) {
@@ -38,6 +40,9 @@ const ChatPanelModule = (function() {
         processMessage(initialContext, initialAction);
       }
     }
+
+    // Guardar estado
+    localStorage.setItem('aiChatPanelOpen', 'true');
   }
 
   /**
@@ -47,8 +52,6 @@ const ChatPanelModule = (function() {
     chatPanel = document.createElement('div');
     chatPanel.className = 'ai-chat-panel';
     chatPanel.innerHTML = `
-      <div class="ai-chat-panel-overlay"></div>
-      <div class="ai-chat-panel-container">
         <header class="ai-chat-header">
           <div class="ai-chat-header-left">
             <div class="ai-avatar" title="AI Assistant">
@@ -140,23 +143,26 @@ const ChatPanelModule = (function() {
             </button>
           </div>
         </div>
-      </div>
     `;
 
     document.body.appendChild(chatPanel);
+    
+    // Cargar historial guardado
+    loadSavedHistory();
+    
     setupChatEvents();
 
     // Mostrar con animación
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       chatPanel.classList.add('active');
-    }, 10);
+      document.body.classList.add('ai-chat-open');
+    });
   }
 
   /**
    * Configurar eventos del chat
    */
   function setupChatEvents() {
-    const overlay = chatPanel.querySelector('.ai-chat-panel-overlay');
     const closeBtn = chatPanel.querySelector('.close-chat-btn');
     const newChatBtn = chatPanel.querySelector('.new-chat-btn');
     const input = chatPanel.querySelector('#chatInput');
@@ -166,7 +172,6 @@ const ChatPanelModule = (function() {
     const imageInput = chatPanel.querySelector('#chatImageInput');
 
     // Cerrar panel
-    overlay.addEventListener('click', closeChatPanel);
     closeBtn.addEventListener('click', closeChatPanel);
 
     // Nueva conversación
@@ -362,6 +367,7 @@ const ChatPanelModule = (function() {
 
       conversationHistory.push(aiMessage);
       renderChatHistory();
+      saveHistory();
 
     } catch (error) {
       console.error('Error al procesar mensaje:', error);
@@ -375,6 +381,7 @@ const ChatPanelModule = (function() {
 
       conversationHistory.push(errorMessage);
       renderChatHistory();
+      saveHistory();
     }
   }
 
@@ -651,6 +658,7 @@ const ChatPanelModule = (function() {
     conversationHistory = [];
     currentSession = null;
     attachedImageFile = null; // Limpiar archivo adjunto
+    saveHistory(); // Guardar historial vacío
 
     const messagesContainer = chatPanel.querySelector('#chatMessages');
     messagesContainer.innerHTML = `
@@ -675,9 +683,8 @@ const ChatPanelModule = (function() {
   function closeChatPanel() {
     if (chatPanel) {
       chatPanel.classList.remove('active');
-      setTimeout(() => {
-        chatPanel.style.display = 'none';
-      }, 300);
+      document.body.classList.remove('ai-chat-open');
+      localStorage.setItem('aiChatPanelOpen', 'false');
     }
   }
 
@@ -707,6 +714,39 @@ const ChatPanelModule = (function() {
   }
 
   /**
+   * Cargar historial guardado
+   */
+  function loadSavedHistory() {
+    try {
+      const saved = localStorage.getItem('aiChatHistory');
+      if (saved) {
+        conversationHistory = JSON.parse(saved);
+        renderChatHistory();
+      }
+    } catch (error) {
+      console.error('Error al cargar historial:', error);
+    }
+  }
+
+  /**
+   * Guardar historial
+   */
+  function saveHistory() {
+    try {
+      // Guardar solo los últimos 50 mensajes para no exceder límite de localStorage
+      const historyToSave = conversationHistory.slice(-50).map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp
+        // No guardamos las imágenes en localStorage por tamaño
+      }));
+      localStorage.setItem('aiChatHistory', JSON.stringify(historyToSave));
+    } catch (error) {
+      console.error('Error al guardar historial:', error);
+    }
+  }
+
+  /**
    * Obtener historial de conversación
    */
   function getConversationHistory() {
@@ -720,13 +760,35 @@ const ChatPanelModule = (function() {
     return chatPanel && chatPanel.classList.contains('active');
   }
 
+  /**
+   * Inicializar al cargar la página
+   */
+  function init() {
+    // Verificar si el panel estaba abierto
+    const wasOpen = localStorage.getItem('aiChatPanelOpen') === 'true';
+    if (wasOpen) {
+      // Esperar un poco para que la página cargue
+      setTimeout(() => {
+        openChatPanel();
+      }, 500);
+    }
+  }
+
   return {
     openChatPanel,
     closeChatPanel,
     getConversationHistory,
-    isOpen
+    isOpen,
+    init
   };
 })();
 
 // Exponer globalmente
 window.ChatPanelModule = ChatPanelModule;
+
+// Inicializar al cargar
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => ChatPanelModule.init());
+} else {
+  ChatPanelModule.init();
+}

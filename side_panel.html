@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chat Assistant</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #26262c;
+      color: #eaeaf0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .chat-header {
+      background: linear-gradient(to bottom, #2d2d33, #2a2a2f);
+      color: #eaeaf0;
+      padding: 16px;
+      border-bottom: 1px solid #3a3a40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .chat-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .header-btn {
+      background: transparent;
+      border: none;
+      color: #a0a0aa;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background: #3a3a40;
+      color: #eaeaf0;
+    }
+
+    /* Messages Area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #1e1e23;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: #1e1e23;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #3a3a40;
+      border-radius: 4px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+      background: #4a4a50;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .user-message .message-avatar {
+      background: linear-gradient(135deg, #8ab4ff 0%, #667eea 100%);
+      color: #ffffff;
+    }
+
+    .assistant-message .message-avatar {
+      background: linear-gradient(135deg, #8ab4ff 0%, #667eea 100%);
+      color: #ffffff;
+    }
+
+    .message-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .message-role {
+      font-weight: 600;
+      font-size: 14px;
+      color: #eaeaf0;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: #808089;
+    }
+
+    .message-content {
+      background: #35353c;
+      border: 1px solid #3a3a40;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-left: 40px;
+      color: #eaeaf0;
+      line-height: 1.5;
+    }
+
+    .user-message .message-content {
+      background: #8ab4ff;
+      border-color: #8ab4ff;
+      color: #ffffff;
+    }
+
+    .message-image {
+      max-width: 300px;
+      border-radius: 8px;
+      margin-top: 8px;
+      margin-left: 40px;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: 40px;
+      margin-top: 4px;
+    }
+
+    .message-action-btn {
+      background: transparent;
+      border: 1px solid #3a3a40;
+      color: #a0a0aa;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .message-action-btn:hover {
+      background: #3a3a40;
+      color: #eaeaf0;
+      border-color: #8ab4ff;
+    }
+
+    /* Input Area */
+    .chat-input-area {
+      background: #26262c;
+      border-top: 1px solid #3a3a40;
+      padding: 16px;
+      flex-shrink: 0;
+    }
+
+    .chat-attachments {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chat-attachment {
+      position: relative;
+      display: inline-block;
+    }
+
+    .chat-attachment img {
+      max-width: 80px;
+      max-height: 80px;
+      border-radius: 8px;
+      border: 2px solid #3a3a40;
+    }
+
+    .remove-attachment {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .chat-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .chat-input {
+      width: 100%;
+      background: #35353c;
+      border: 1px solid #3a3a40;
+      border-radius: 12px;
+      padding: 12px 48px 12px 16px;
+      color: #eaeaf0;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      line-height: 1.5;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: #8ab4ff;
+    }
+
+    .chat-input::placeholder {
+      color: #808089;
+    }
+
+    .input-actions {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .input-btn {
+      background: transparent;
+      border: none;
+      color: #a0a0aa;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .input-btn:hover {
+      background: #3a3a40;
+      color: #eaeaf0;
+    }
+
+    .input-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .send-btn {
+      background: #8ab4ff;
+      border: none;
+      color: #ffffff;
+      cursor: pointer;
+      padding: 12px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover {
+      background: #667eea;
+      transform: scale(1.05);
+    }
+
+    .send-btn:disabled {
+      background: #3a3a40;
+      color: #808089;
+      cursor: not-allowed;
+      transform: scale(1);
+    }
+
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #808089;
+      text-align: center;
+      padding: 32px;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #eaeaf0;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      max-width: 300px;
+    }
+
+    /* Recording Indicator */
+    .recording-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #dc2626;
+      font-size: 13px;
+      padding: 8px 12px;
+      background: rgba(220, 38, 38, 0.1);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .recording-dot {
+      width: 8px;
+      height: 8px;
+      background: #dc2626;
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* Markdown Styles */
+    .message-content h1,
+    .message-content h2,
+    .message-content h3 {
+      margin-top: 16px;
+      margin-bottom: 8px;
+      color: #eaeaf0;
+    }
+
+    .message-content h1 { font-size: 24px; }
+    .message-content h2 { font-size: 20px; }
+    .message-content h3 { font-size: 16px; }
+
+    .message-content p {
+      margin-bottom: 12px;
+    }
+
+    .message-content ul,
+    .message-content ol {
+      margin-left: 24px;
+      margin-bottom: 12px;
+    }
+
+    .message-content li {
+      margin-bottom: 4px;
+    }
+
+    .message-content pre {
+      background: #1e1e23;
+      border: 1px solid #3a3a40;
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    .message-content code {
+      background: #1e1e23;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .message-content pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    .message-content a {
+      color: #8ab4ff;
+      text-decoration: none;
+    }
+
+    .message-content a:hover {
+      text-decoration: underline;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 6px;
+      padding: 12px 0;
+    }
+
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: #8ab4ff;
+      border-radius: 50%;
+      animation: typing-bounce 1.4s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing-bounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+      }
+      30% {
+        transform: translateY(-10px);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-header">
+    <h1>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      AI Chat
+    </h1>
+    <div class="chat-header-actions">
+      <button class="header-btn" id="newChatBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nueva conversación
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="empty-state">
+      <div class="empty-state-icon">💬</div>
+      <h2>Comienza una conversación</h2>
+      <p>Escribe un mensaje o usa el botón "Continuar en el chat" desde cualquier diálogo AI</p>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <div class="chat-attachments" id="chatAttachments"></div>
+    <div id="recordingIndicator" style="display: none;" class="recording-indicator">
+      <span class="recording-dot"></span>
+      Grabando audio...
+    </div>
+    <div class="chat-input-container">
+      <div class="chat-input-wrapper">
+        <textarea
+          id="chatInput"
+          class="chat-input"
+          placeholder="Escribe tu mensaje..."
+          rows="1"
+        ></textarea>
+        <div class="input-actions">
+          <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          <button class="input-btn" id="attachImageBtn" title="Adjuntar imagen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+          </button>
+          <button class="input-btn" id="voiceBtn" title="Grabar audio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="send-btn" id="sendBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script src="modules/markdown.js"></script>
+  <script src="modules/aiService.js"></script>
+  <script src="modules/ai.js"></script>
+  <script src="modules/multimodal.js"></script>
+  <script src="side_panel.js"></script>
+</body>
+</html>

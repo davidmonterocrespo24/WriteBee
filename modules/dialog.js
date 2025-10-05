@@ -291,6 +291,12 @@ const DialogModule = (function() {
 
           console.log('🔄 Cambiando modo a:', newMode);
 
+          // Cancelar streaming anterior si existe
+          if (dialog._currentAbortController) {
+            console.log('🛑 Cancelando streaming anterior');
+            dialog._currentAbortController.abort();
+          }
+
           // Actualizar UI
           dropdown.classList.remove('show');
           dropdown.querySelectorAll('.ai-mode-dropdown-item').forEach(i => i.classList.remove('active'));
@@ -309,46 +315,96 @@ const DialogModule = (function() {
             langSelector.style.display = newMode === 'translate' ? 'block' : 'none';
           }
 
-          // Ejecutar nueva acción
+          // Ejecutar nueva acción con streaming
           const answerDiv = dialog.querySelector('.ai-answer');
-          answerDiv.textContent = 'Procesando...';
 
-          // Callback de progreso
-          const onProgress = (percent) => {
-            answerDiv.textContent = `Procesando ${percent}%`;
-          };
+          // Crear typing indicator
+          answerDiv.innerHTML = `
+            <div class="ai-typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
+          `;
+
+          // Crear botón detener
+          const header = dialog.querySelector('.ai-result-header');
+          let stopBtn = header.querySelector('.ai-stop-btn');
+
+          // Remover botón anterior si existe
+          if (stopBtn) {
+            stopBtn.remove();
+          }
+
+          stopBtn = document.createElement('button');
+          stopBtn.className = 'ai-stop-btn';
+          stopBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <rect x="6" y="6" width="12" height="12" rx="2"/>
+            </svg>
+            Detener
+          `;
+
+          const spacer = header.querySelector('.spacer');
+          if (spacer) {
+            spacer.insertAdjacentElement('afterend', stopBtn);
+          }
+
+          // AbortController para cancelar streaming
+          const abortController = new AbortController();
+          dialog._currentAbortController = abortController;
+
+          stopBtn.addEventListener('click', () => {
+            abortController.abort();
+            stopBtn.disabled = true;
+            stopBtn.textContent = 'Detenido';
+            dialog._currentAbortController = null;
+          });
 
           try {
             let result = '';
             const currentLang = langSelector ? langSelector.value : 'es';
 
+            // Función de callback para streaming
+            const onChunk = (chunk) => {
+              if (answerDiv) {
+                MarkdownRenderer.renderToElement(answerDiv, chunk);
+              }
+            };
+
             switch (newMode) {
               case 'summarize':
-                result = await AIModule.aiSummarize(selectedText, onProgress);
+                result = await AIModule.aiSummarizeStream(selectedText, onChunk, abortController.signal);
                 break;
               case 'translate':
-                result = await AIModule.aiTranslate(selectedText, currentLang, onProgress);
+                result = await AIModule.aiTranslateStream(selectedText, currentLang, onChunk, abortController.signal);
                 break;
               case 'explain':
-                result = await AIModule.aiExplain(selectedText, onProgress);
+                result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
                 break;
               case 'grammar':
-                result = await AIModule.aiGrammar(selectedText, onProgress);
+                // No streaming disponible - usar implementación existente
+                result = await AIModule.aiGrammar(selectedText);
+                if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
                 break;
               case 'rewrite':
-                result = await AIModule.aiRewrite(selectedText, onProgress);
+                result = await AIModule.aiRewriteStream(selectedText, onChunk, abortController.signal);
                 break;
               case 'expand':
-                result = await AIModule.aiExpand(selectedText, onProgress);
+                result = await AIModule.aiExpandStream(selectedText, onChunk, abortController.signal);
                 break;
               case 'answer':
-                result = await AIModule.aiAnswer(selectedText, onProgress);
+                result = await AIModule.aiAnswerStream(selectedText, onChunk, abortController.signal);
                 break;
             }
 
-            MarkdownRenderer.renderToElement(answerDiv, result);
+            // Remover botón detener y limpiar AbortController
+            stopBtn.remove();
+            dialog._currentAbortController = null;
           } catch (error) {
-            answerDiv.textContent = 'Error: ' + error.message;
+            answerDiv.textContent = error.message.includes('cancelado')
+              ? 'Streaming detenido por el usuario'
+              : 'Error: ' + error.message;
+            stopBtn.remove();
+            dialog._currentAbortController = null;
           }
         });
       });
@@ -538,26 +594,52 @@ const DialogModule = (function() {
     if (openChatBtn) {
       console.log('✅ Botón de chat encontrado, agregando evento');
       openChatBtn.addEventListener('click', (e) => {
-        console.log('💬 Click en botón de chat');
+        console.log('💬 Click en botón de chat - abriendo side panel');
         e.preventDefault();
         e.stopPropagation();
 
-        // Obtener el contenido actual del diálogo
+        // Obtener la respuesta actual del diálogo
         const answerDiv = dialog.querySelector('.ai-answer');
-        const currentContent = answerDiv.textContent;
+        let currentAnswer = '';
+
+        if (answerDiv) {
+          // Primero intentar obtener el markdown original
+          if (answerDiv.dataset.markdown) {
+            currentAnswer = answerDiv.dataset.markdown;
+          }
+          // Si no, obtener el texto (excluyendo typing indicator)
+          else {
+            const typingIndicator = answerDiv.querySelector('.ai-typing-indicator');
+            if (typingIndicator) {
+              typingIndicator.remove();
+            }
+            currentAnswer = answerDiv.textContent.trim();
+          }
+        }
+
         const currentAction = dialog.dataset.action;
 
-        console.log('📝 Contexto:', { selectedText, currentAction });
+        console.log('💬 Abriendo chat con contexto:', {
+          selectedText: selectedText?.substring(0, 50) + '...',
+          currentAnswer: currentAnswer?.substring(0, 50) + '...',
+          currentAction
+        });
 
-        // Abrir el panel de chat con el contexto actual
-        if (typeof ChatPanelModule !== 'undefined') {
-          console.log('✅ ChatPanelModule disponible, abriendo chat');
-          ChatPanelModule.openChatPanel(selectedText, currentAction);
-        } else {
-          console.error('❌ ChatPanelModule no está disponible');
-          console.log('📦 Módulos disponibles:', Object.keys(window).filter(k => k.includes('Module')));
-          alert('El módulo de chat no está cargado. Recarga la extensión.');
-        }
+        // Abrir side panel y enviar datos completos
+        chrome.runtime.sendMessage({
+          action: 'openSidePanel',
+          data: {
+            selectedText: selectedText,
+            currentAnswer: currentAnswer,
+            action: currentAction
+          }
+        }, (response) => {
+          if (response && response.success) {
+            console.log('✅ Side panel abierto correctamente');
+          } else {
+            console.error('❌ Error abriendo side panel:', response?.error);
+          }
+        });
       });
     } else {
       console.warn('⚠️ No se encontró el botón .open-chat-btn en el diálogo');

@@ -6,11 +6,21 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "aiLanguageModelOriginTrial"
+    "aiLanguageModelOriginTrial",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://web.whatsapp.com/*"
   ],
+  "side_panel": {
+    "default_path": "side_panel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "AI Chat Assistant"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -19,7 +29,6 @@
         "modules/aiService.js",
         "modules/ai.js",
         "modules/multimodal.js",
-        "modules/chatPanel.js",
         "modules/dialog.js",
         "modules/actions.js",
         "modules/menus.js",

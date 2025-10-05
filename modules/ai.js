@@ -113,6 +113,46 @@ const AIModule = (function() {
     }
   }
 
+  async function aiTranslateStream(text, targetLang, onChunk, signal = null) {
+    try {
+      const service = getAIService();
+      return await service.translateStream(text, targetLang, onChunk, signal);
+    } catch (error) {
+      console.error('Error en aiTranslateStream:', error);
+      throw error;
+    }
+  }
+
+  async function aiExplainStream(text, onChunk, signal = null) {
+    try {
+      const service = getAIService();
+      return await service.explainStream(text, onChunk, signal);
+    } catch (error) {
+      console.error('Error en aiExplainStream:', error);
+      throw error;
+    }
+  }
+
+  async function aiExpandStream(text, onChunk, signal = null) {
+    try {
+      const service = getAIService();
+      return await service.expandStream(text, onChunk, signal);
+    } catch (error) {
+      console.error('Error en aiExpandStream:', error);
+      throw error;
+    }
+  }
+
+  async function aiAnswerStream(text, onChunk, signal = null) {
+    try {
+      const service = getAIService();
+      return await service.answerStream(text, onChunk, signal);
+    } catch (error) {
+      console.error('Error en aiAnswerStream:', error);
+      throw error;
+    }
+  }
+
   return {
     aiSummarize,
     aiTranslate,
@@ -125,6 +165,10 @@ const AIModule = (function() {
     // Streaming
     aiSummarizeStream,
     aiRewriteStream,
-    aiWriteStream
+    aiWriteStream,
+    aiTranslateStream,
+    aiExplainStream,
+    aiExpandStream,
+    aiAnswerStream
   };
 })();
