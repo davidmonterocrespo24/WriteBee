@@ -661,10 +661,137 @@ const DialogModule = (function() {
     }
   }
 
+  /**
+   * Crear diálogo para procesar imagen
+   */
+  function createImageDialog(imageFile, action = 'describe', toolbarRect = null) {
+    const dialog = document.createElement('div');
+    dialog.className = 'ai-result-panel ai-image-dialog';
+    dialog.dataset.pinned = 'true';
+    dialog.dataset.action = action;
+
+    let initialLeft, initialTop;
+
+    if (toolbarRect) {
+      initialLeft = toolbarRect.left;
+      initialTop = toolbarRect.bottom + 10;
+      dialog.style.left = initialLeft + 'px';
+      dialog.style.top = initialTop + 'px';
+    } else {
+      dialog.style.left = '50%';
+      dialog.style.top = '50%';
+      dialog.style.transform = 'translate(-50%, -50%)';
+    }
+
+    const actionTitles = {
+      describe: '🖼️ Descripción de Imagen',
+      summarize: '📄 Resumir Imagen',
+      translate: '🌐 Traducir Texto en Imagen',
+      explain: '💡 Explicar Imagen',
+      alttext: '🏷️ Generar Alt Text'
+    };
+
+    const title = actionTitles[action] || '🖼️ Procesar Imagen';
+
+    dialog.innerHTML = `
+      <header class="ai-result-header ai-draggable">
+        <div class="ai-avatar" title="AI Multimodal">
+          <div class="eyes"><span></span><span></span></div>
+        </div>
+        <div class="title">${title}</div>
+        <div class="spacer"></div>
+        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </header>
+
+      <div class="ai-result-body">
+        <div class="ai-image-preview" style="margin-bottom: 1rem; text-align: center;">
+          <img src="${URL.createObjectURL(imageFile)}" alt="Imagen a procesar" style="max-width: 100%; max-height: 300px; border-radius: 8px;" />
+        </div>
+        <div class="ai-answer" style="min-height: 100px;">Procesando imagen...</div>
+      </div>
+
+      <div class="ai-actions">
+        <div class="left">Imagen procesada</div>
+        <div class="right">
+          <button class="ai-iconbtn copy-btn" aria-label="Copiar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <rect x="9" y="9" width="10" height="10" rx="2"></rect>
+              <rect x="5" y="5" width="10" height="10" rx="2"></rect>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    makeDraggable(dialog);
+    setupImageDialogEvents(dialog, imageFile, action);
+
+    return dialog;
+  }
+
+  /**
+   * Configurar eventos para diálogo de imagen
+   */
+  function setupImageDialogEvents(dialog, imageFile, action) {
+    const answerDiv = dialog.querySelector('.ai-answer');
+    const copyBtn = dialog.querySelector('.copy-btn');
+    const closeBtn = dialog.querySelector('.close-panel');
+
+    // Procesar imagen automáticamente
+    (async () => {
+      try {
+        const result = await MultimodalModule.processImageWithAction(
+          imageFile,
+          action,
+          '',
+          (progress) => {
+            answerDiv.textContent = progress;
+          }
+        );
+        answerDiv.textContent = result;
+      } catch (error) {
+        console.error('Error al procesar imagen:', error);
+        answerDiv.textContent = `❌ Error: ${error.message}`;
+      }
+    })();
+
+    // Copiar
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(answerDiv.textContent);
+      copyBtn.innerHTML = `<span style="font-size: 0.9rem;">✓</span>`;
+      setTimeout(() => {
+        copyBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <rect x="9" y="9" width="10" height="10" rx="2"></rect>
+            <rect x="5" y="5" width="10" height="10" rx="2"></rect>
+          </svg>
+        `;
+      }, 2000);
+    });
+
+    // Cerrar
+    closeBtn.addEventListener('click', () => {
+      dialog.remove();
+    });
+  }
+
+  /**
+   * Función auxiliar para hacer un diálogo draggable (exponer públicamente)
+   */
+  function enableDrag(dialog) {
+    makeDraggable(dialog);
+  }
+
   return {
     createDialog,
     showLoadingDialog,
     getCurrentDialog,
-    removeCurrentDialog
+    removeCurrentDialog,
+    createImageDialog,
+    enableDrag
   };
 })();
