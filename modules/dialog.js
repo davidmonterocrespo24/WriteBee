@@ -521,39 +521,47 @@ const DialogModule = (function() {
         const answerDiv = dialog.querySelector('.ai-answer');
         const currentLang = langSelector ? langSelector.value : 'es';
 
-        answerDiv.textContent = 'Procesando...';
+        // Mostrar typing indicator
+        answerDiv.innerHTML = `
+          <div class="ai-typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        `;
 
-        // Callback de progreso
-        const onProgress = (percent) => {
-          answerDiv.textContent = `Procesando modelo ${percent}%`;
+        // Callback para streaming
+        const onChunk = (chunk) => {
+          if (answerDiv) {
+            MarkdownRenderer.renderToElement(answerDiv, chunk);
+          }
         };
 
         try {
           let result = '';
           switch (currentAction) {
             case 'summarize':
-              result = await AIModule.aiSummarize(selectedText, onProgress);
+              result = await AIModule.aiSummarizeStream(selectedText, onChunk);
               break;
             case 'translate':
-              result = await AIModule.aiTranslate(selectedText, currentLang, onProgress);
+              result = await AIModule.aiTranslateStream(selectedText, currentLang, onChunk);
               break;
             case 'explain':
-              result = await AIModule.aiExplain(selectedText, onProgress);
+              result = await AIModule.aiExplainStream(selectedText, onChunk);
               break;
             case 'grammar':
-              result = await AIModule.aiGrammar(selectedText, onProgress);
+              // Gramática no tiene streaming
+              result = await AIModule.aiGrammar(selectedText);
+              MarkdownRenderer.renderToElement(answerDiv, result);
               break;
             case 'rewrite':
-              result = await AIModule.aiRewrite(selectedText, onProgress);
+              result = await AIModule.aiRewriteStream(selectedText, onChunk);
               break;
             case 'expand':
-              result = await AIModule.aiExpand(selectedText, onProgress);
+              result = await AIModule.aiExpandStream(selectedText, onChunk);
               break;
             case 'answer':
-              result = await AIModule.aiAnswer(selectedText, onProgress);
+              result = await AIModule.aiAnswerStream(selectedText, onChunk);
               break;
           }
-          MarkdownRenderer.renderToElement(answerDiv, result);
         } catch (error) {
           answerDiv.textContent = 'Error: ' + error.message;
         }
@@ -688,6 +696,8 @@ const DialogModule = (function() {
 
             if (response && response.success) {
               console.log('✅ Side panel abierto correctamente');
+              // Cerrar el diálogo después de abrir el side panel
+              dialog.remove();
             } else {
               console.error('❌ Error abriendo side panel:', response?.error);
             }
@@ -718,7 +728,7 @@ const DialogModule = (function() {
       { role: 'assistant', content: content }
     ];
 
-    // Función para enviar mensaje
+    // Función para enviar mensaje - Ahora abre el side panel
     const sendMessage = async () => {
       if (!followupInput.value.trim()) return;
 
@@ -727,45 +737,54 @@ const DialogModule = (function() {
 
       console.log('💬 Pregunta de seguimiento:', userMessage);
 
-      // Cambiar a modo chat
-      if (previewDiv.style.display !== 'none') {
-        previewDiv.style.display = 'none';
-        answerDiv.style.display = 'none';
-        chatHistory.style.display = 'flex';
-
-        // Agregar mensajes iniciales al historial visual
-        addChatMessage(chatHistory, 'user', selectedText);
-        addChatMessage(chatHistory, 'assistant', content);
+      // Obtener la respuesta actual del diálogo
+      let currentAnswer = '';
+      if (answerDiv) {
+        if (answerDiv.dataset.markdown) {
+          currentAnswer = answerDiv.dataset.markdown;
+        } else {
+          const typingIndicator = answerDiv.querySelector('.ai-typing-indicator');
+          if (typingIndicator) {
+            typingIndicator.remove();
+          }
+          currentAnswer = answerDiv.textContent.trim();
+        }
       }
 
-      // Agregar mensaje del usuario
-      conversationHistory.push({ role: 'user', content: userMessage });
-      addChatMessage(chatHistory, 'user', userMessage);
+      const currentAction = dialog.dataset.action;
 
-      // Mostrar indicador de carga
-      const loadingMsg = addChatMessage(chatHistory, 'assistant', 'Procesando...');
-
-      // Callback de progreso
-      const onProgress = (percent) => {
-        loadingMsg.querySelector('.ai-chat-bubble').textContent = `Procesando${percent}%`;
-      };
-
+      // Abrir side panel con el contexto del diálogo + la pregunta de seguimiento
       try {
-        // Llamar a la API de chat con el historial de conversación
-        const result = await AIModule.aiChat(conversationHistory, onProgress);
+        chrome.runtime.sendMessage({
+          action: 'openSidePanel',
+          data: {
+            selectedText: selectedText,
+            currentAnswer: currentAnswer,
+            action: currentAction,
+            followupQuestion: userMessage  // Nueva pregunta del usuario
+          }
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('❌ Error de runtime:', chrome.runtime.lastError);
+            alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+            return;
+          }
 
-        // Agregar respuesta al historial
-        conversationHistory.push({ role: 'assistant', content: result });
-
-        // Reemplazar mensaje de carga con respuesta real (renderizado en Markdown)
-        const chatBubble = loadingMsg.querySelector('.ai-chat-bubble');
-        MarkdownRenderer.renderToElement(chatBubble, result);
-
-        // Auto-scroll al final
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-
+          if (response && response.success) {
+            console.log('✅ Side panel abierto correctamente con pregunta de seguimiento');
+            // Cerrar el diálogo después de abrir el side panel
+            dialog.remove();
+          } else {
+            console.error('❌ Error abriendo side panel:', response?.error);
+          }
+        });
       } catch (error) {
-        loadingMsg.querySelector('.ai-chat-bubble').textContent = 'Error: ' + error.message;
+        console.error('❌ Error fatal al abrir side panel:', error);
+        if (error.message.includes('Extension context invalidated')) {
+          alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+        } else {
+          alert('Error al abrir chat: ' + error.message);
+        }
       }
     };
 

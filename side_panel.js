@@ -121,12 +121,13 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
     console.log('📨 Mensaje recibido en side panel:', request.action);
 
     if (request.action === 'chatData' && request.data) {
-      const { selectedText, currentAnswer, action } = request.data;
+      const { selectedText, currentAnswer, action, followupQuestion } = request.data;
 
       console.log('📥 Datos del diálogo recibidos:', {
         selectedText: selectedText?.substring(0, 50) + '...',
         currentAnswer: currentAnswer?.substring(0, 50) + '...',
-        action
+        action,
+        followupQuestion: followupQuestion?.substring(0, 50) + '...'
       });
 
       // 🆕 NUEVA CONVERSACIÓN: Limpiar historial existente antes de agregar nuevo contexto
@@ -153,9 +154,29 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
         console.log('✅ Respuesta del asistente agregada');
       }
 
-      // Renderizar el historial actualizado
-      renderChatHistory();
-      saveHistory();
+      // Si hay pregunta de seguimiento, agregarla y procesarla automáticamente
+      if (followupQuestion && followupQuestion.trim()) {
+        console.log('💬 Procesando pregunta de seguimiento:', followupQuestion);
+
+        conversationHistory.push({
+          role: 'user',
+          content: followupQuestion,
+          timestamp: Date.now()
+        });
+
+        // Renderizar el historial con la pregunta
+        renderChatHistory();
+        saveHistory();
+
+        // Procesar la pregunta automáticamente
+        setTimeout(() => {
+          processMessage(followupQuestion);
+        }, 100);
+      } else {
+        // Solo renderizar si no hay pregunta de seguimiento
+        renderChatHistory();
+        saveHistory();
+      }
 
       // Hacer scroll al final
       setTimeout(() => {
