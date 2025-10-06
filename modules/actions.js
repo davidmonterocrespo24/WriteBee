@@ -1,17 +1,29 @@
 const ActionsModule = (function() {
   async function executeAction(action, param = null, rect = null, selectedText = '') {
+    console.log('⚙️⚙️⚙️ executeAction LLAMADO ⚙️⚙️⚙️');
     console.log('⚙️ executeAction - acción:', action, 'param:', param);
+    console.log('⚙️ executeAction - rect recibido:', rect);
     MenusModule.hideMenus();
 
     // Crear el diálogo inmediatamente con typing indicator
     console.log('📊 Creando diálogo con typing indicator');
     const dialog = DialogModule.createDialog(action, '', selectedText, rect);
+    console.log('📊 Dialog creado, agregándolo al DOM...');
     document.body.appendChild(dialog);
     console.log('✅ Diálogo agregado al DOM');
+    console.log('📊 Posición del diálogo después de agregar al DOM:', {
+      left: dialog.style.left,
+      top: dialog.style.top,
+      boundingRect: dialog.getBoundingClientRect()
+    });
 
     // Ajustar posición después de agregar al DOM
     if (dialog.adjustPosition) {
-      setTimeout(() => dialog.adjustPosition(), 0);
+      console.log('🔄 Llamando a dialog.adjustPosition()...');
+      setTimeout(() => {
+        console.log('⏰ setTimeout ejecutado, llamando adjustPosition ahora');
+        dialog.adjustPosition();
+      }, 0);
     }
 
     // Obtener el div de respuesta para actualizarlo

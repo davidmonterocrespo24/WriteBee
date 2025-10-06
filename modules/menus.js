@@ -8,8 +8,14 @@ const MenusModule = (function() {
     const rect = button.getBoundingClientRect();
     menu = document.createElement('div');
     menu.className = 'ai-menu';
-    menu.style.left = rect.left + 'px';
-    menu.style.top = (rect.bottom + 5) + 'px';
+    // Convertir coordenadas del viewport a absolutas
+    menu.style.left = (rect.left + window.scrollX) + 'px';
+    menu.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+    console.log('📍 Menú posicionado en:', {
+      viewport: { left: rect.left, bottom: rect.bottom },
+      scroll: { scrollX: window.scrollX, scrollY: window.scrollY },
+      absolute: { left: rect.left + window.scrollX, top: rect.bottom + window.scrollY + 5 }
+    });
 
     menu.innerHTML = `
       <div class="ai-menu-item" data-action="summarize">
@@ -62,8 +68,19 @@ const MenusModule = (function() {
 
         const action = item.dataset.action;
         const toolbar = ToolbarModule.getToolbar();
-        const rect = toolbar ? toolbar.getBoundingClientRect() : null;
-        if (toolbar) toolbar.style.display = 'none';
+
+        // Usar la posición inicial guardada del toolbar, no la actual
+        let rect = null;
+        if (toolbar) {
+          const currentRect = toolbar.getBoundingClientRect();
+          rect = {
+            left: parseFloat(toolbar.dataset.initialLeft) || currentRect.left,
+            top: parseFloat(toolbar.dataset.initialTop) || currentRect.top,
+            bottom: parseFloat(toolbar.dataset.initialBottom) || currentRect.bottom
+          };
+          console.log('🎯 Rect para diálogo desde menú:', rect);
+          toolbar.style.display = 'none';
+        }
 
         // Para traducir, usar idioma por defecto (español), el usuario puede cambiar desde el selector
         const param = action === 'translate' ? 'es' : null;
@@ -78,8 +95,9 @@ const MenusModule = (function() {
     const rect = button.getBoundingClientRect();
     translateMenu = document.createElement('div');
     translateMenu.className = 'ai-translate-menu';
-    translateMenu.style.left = rect.right + 5 + 'px';
-    translateMenu.style.top = rect.top + 'px';
+    // Convertir coordenadas del viewport a absolutas
+    translateMenu.style.left = (rect.right + window.scrollX + 5) + 'px';
+    translateMenu.style.top = (rect.top + window.scrollY) + 'px';
 
     const languages = [
       { code: 'es', name: 'Español' },
@@ -102,8 +120,19 @@ const MenusModule = (function() {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         const toolbar = ToolbarModule.getToolbar();
-        const rect = toolbar ? toolbar.getBoundingClientRect() : null;
-        if (toolbar) toolbar.style.display = 'none';
+
+        // Usar la posición inicial guardada del toolbar, no la actual
+        let rect = null;
+        if (toolbar) {
+          const currentRect = toolbar.getBoundingClientRect();
+          rect = {
+            left: parseFloat(toolbar.dataset.initialLeft) || currentRect.left,
+            top: parseFloat(toolbar.dataset.initialTop) || currentRect.top,
+            bottom: parseFloat(toolbar.dataset.initialBottom) || currentRect.bottom
+          };
+          toolbar.style.display = 'none';
+        }
+
         ActionsModule.executeAction('translate', item.dataset.lang, rect, ToolbarModule.getSelectedText());
       });
     });

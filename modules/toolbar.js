@@ -67,6 +67,15 @@ const ToolbarModule = (function() {
 
     document.body.appendChild(toolbar);
 
+    // Guardar la posición del toolbar inmediatamente después de agregarlo al DOM
+    setTimeout(() => {
+      const initialRect = toolbar.getBoundingClientRect();
+      toolbar.dataset.initialLeft = initialRect.left;
+      toolbar.dataset.initialTop = initialRect.top;
+      toolbar.dataset.initialBottom = initialRect.bottom;
+      console.log('📍 Posición inicial del toolbar guardada - left:', initialRect.left, 'top:', initialRect.top, 'bottom:', initialRect.bottom);
+    }, 0);
+
     toolbar.querySelectorAll('[data-action]').forEach(btn => {
       // Activar la bandera en mousedown (antes del mouseup)
       btn.addEventListener('mousedown', () => {
@@ -87,9 +96,32 @@ const ToolbarModule = (function() {
         if (action === 'more') {
           MenusModule.showMoreMenu(btn);
         } else {
-          const rect = toolbar.getBoundingClientRect();
-          // No usar selectionY guardado, usar directamente la posición del toolbar
-          console.log('🎯 Enviando rect al diálogo - left:', rect.left, 'top:', rect.top, 'bottom:', rect.bottom);
+          console.log('🔵 Click en acción:', action);
+
+          // Log de datos guardados
+          console.log('📦 Datos guardados en toolbar:', {
+            initialLeft: toolbar.dataset.initialLeft,
+            initialTop: toolbar.dataset.initialTop,
+            initialBottom: toolbar.dataset.initialBottom
+          });
+
+          // Log de posición actual del toolbar
+          const currentRect = toolbar.getBoundingClientRect();
+          console.log('📍 Posición ACTUAL del toolbar:', {
+            left: currentRect.left,
+            top: currentRect.top,
+            bottom: currentRect.bottom
+          });
+
+          // Usar la posición inicial guardada, no la actual
+          const rect = {
+            left: parseFloat(toolbar.dataset.initialLeft) || currentRect.left,
+            top: parseFloat(toolbar.dataset.initialTop) || currentRect.top,
+            bottom: parseFloat(toolbar.dataset.initialBottom) || currentRect.bottom
+          };
+          console.log('🎯 Rect que se enviará al diálogo:', rect);
+          console.log('📏 Viewport actual - scrollY:', window.scrollY, 'clientHeight:', window.innerHeight);
+
           toolbar.style.display = 'none';
 
           // Para traducir, usar idioma por defecto (español), el usuario puede cambiar desde el selector

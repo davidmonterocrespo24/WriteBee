@@ -2,44 +2,66 @@ const DialogModule = (function() {
   const pinnedDialogs = [];
 
   function adjustDialogPosition(dialog, initialLeft, initialTop) {
+    console.log('🔧🔧🔧 adjustDialogPosition LLAMADO 🔧🔧🔧');
     const rect = dialog.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    // initialLeft/initialTop son coordenadas ABSOLUTAS de página
+    // rect.left/rect.top son coordenadas del VIEWPORT
+    // Para comparar, necesitamos convertir todo a coordenadas del viewport
 
     let left = initialLeft;
     let top = initialTop;
 
-    console.log('🔧 adjustDialogPosition - Posición inicial:', { left: initialLeft, top: initialTop });
+    console.log('🔧 adjustDialogPosition - Posición inicial (absoluta):', { left: initialLeft, top: initialTop });
+    console.log('🔧 adjustDialogPosition - Posición actual del dialog (viewport):', {
+      left: rect.left,
+      top: rect.top,
+      bottom: rect.bottom
+    });
+    console.log('🔧 adjustDialogPosition - Scroll:', { scrollX, scrollY });
     console.log('🔧 adjustDialogPosition - Viewport:', { width: viewportWidth, height: viewportHeight });
     console.log('🔧 adjustDialogPosition - Dialog size:', { width: rect.width, height: rect.height });
 
+    // Convertir posición inicial absoluta a viewport para hacer las comparaciones
+    const leftInViewport = initialLeft - scrollX;
+    const topInViewport = initialTop - scrollY;
+
+    console.log('🔧 Posición en viewport:', { left: leftInViewport, top: topInViewport });
+
+    let adjustedLeft = initialLeft;
+    let adjustedTop = initialTop;
+
     // Ajustar si se sale por la derecha
-    if (left + rect.width > viewportWidth) {
-      left = viewportWidth - rect.width - 10;
-      console.log('🔧 Ajustado por derecha, nuevo left:', left);
+    if (leftInViewport + rect.width > viewportWidth) {
+      adjustedLeft = viewportWidth - rect.width - 10 + scrollX;
+      console.log('🔧 Ajustado por derecha, nuevo left:', adjustedLeft);
     }
 
     // Ajustar si se sale por la izquierda
-    if (left < 10) {
-      left = 10;
-      console.log('🔧 Ajustado por izquierda, nuevo left:', left);
+    if (leftInViewport < 10) {
+      adjustedLeft = 10 + scrollX;
+      console.log('🔧 Ajustado por izquierda, nuevo left:', adjustedLeft);
     }
 
     // Ajustar si se sale por abajo
-    if (top + rect.height > viewportHeight) {
-      top = viewportHeight - rect.height - 10;
-      console.log('🔧 Ajustado por abajo, nuevo top:', top);
+    if (topInViewport + rect.height > viewportHeight) {
+      adjustedTop = viewportHeight - rect.height - 10 + scrollY;
+      console.log('🔧 Ajustado por abajo, nuevo top:', adjustedTop);
     }
 
     // Ajustar si se sale por arriba
-    if (top < 10) {
-      top = 10;
-      console.log('🔧 Ajustado por arriba, nuevo top:', top);
+    if (topInViewport < 10) {
+      adjustedTop = 10 + scrollY;
+      console.log('🔧 Ajustado por arriba, nuevo top:', adjustedTop);
     }
 
-    console.log('🔧 adjustDialogPosition - Posición final:', { left, top });
-    dialog.style.left = left + 'px';
-    dialog.style.top = top + 'px';
+    console.log('🔧 adjustDialogPosition - Posición final (absoluta):', { left: adjustedLeft, top: adjustedTop });
+    dialog.style.left = adjustedLeft + 'px';
+    dialog.style.top = adjustedTop + 'px';
   }
 
   function createDialog(action, content, selectedText, toolbarRect) {
@@ -50,13 +72,24 @@ const DialogModule = (function() {
 
     let initialLeft, initialTop;
 
+    console.log('🟢 createDialog llamado con toolbarRect:', toolbarRect);
+    console.log('🟢 Scroll actual - scrollX:', window.scrollX, 'scrollY:', window.scrollY);
+
     if (toolbarRect) {
-      // Posicionar el diálogo justo debajo del toolbar
-      initialLeft = toolbarRect.left;
-      initialTop = toolbarRect.bottom + 10;
-      console.log('🎯 Posicionando diálogo en - left:', initialLeft, 'top:', initialTop, 'toolbar bottom:', toolbarRect.bottom);
+      // El toolbarRect viene con coordenadas del viewport (relativas a la ventana visible)
+      // Como el diálogo usa position: absolute, necesitamos coordenadas absolutas de página
+      // Sumamos el scroll para convertir viewport → página
+      initialLeft = toolbarRect.left + window.scrollX;
+      initialTop = toolbarRect.bottom + window.scrollY + 10;
+
+      console.log('🎯 Posicionando diálogo:');
+      console.log('  - Toolbar bottom (viewport):', toolbarRect.bottom);
+      console.log('  - scrollY:', window.scrollY);
+      console.log('  - Posición final (absoluta):', { left: initialLeft, top: initialTop });
+
       dialog.style.left = initialLeft + 'px';
       dialog.style.top = initialTop + 'px';
+      console.log('📏 Style asignado - left:', dialog.style.left, 'top:', dialog.style.top);
     } else {
       dialog.style.left = '50%';
       dialog.style.top = '50%';
@@ -214,9 +247,9 @@ const DialogModule = (function() {
     dialog.dataset.pinned = 'false';
 
     if (toolbarRect) {
-      dialog.style.left = toolbarRect.left + 'px';
-      // Posicionar justo debajo del toolbar
-      dialog.style.top = (toolbarRect.bottom + 10) + 'px';
+      // Convertir coordenadas del viewport a coordenadas absolutas de página
+      dialog.style.left = (toolbarRect.left + window.scrollX) + 'px';
+      dialog.style.top = (toolbarRect.bottom + window.scrollY + 10) + 'px';
     } else {
       dialog.style.left = '50%';
       dialog.style.top = '50%';
