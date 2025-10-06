@@ -1,5 +1,20 @@
 // Side Panel Chat - Lógica del chat en el panel lateral
-(function() {
+console.log('📜 side_panel.js cargado - empezando ejecución');
+
+(function initSidePanel() {
+  try {
+    console.log('🚀 Inicializando Side Panel Chat');
+    console.log('⏰ Timestamp:', Date.now());
+    console.log('📄 Document ready state:', document.readyState);
+
+    // Verificar módulos disponibles
+    console.log('📦 Módulos disponibles:', {
+      AIModule: typeof AIModule !== 'undefined',
+      MultimodalModule: typeof MultimodalModule !== 'undefined',
+      MarkdownRenderer: typeof MarkdownRenderer !== 'undefined',
+      AIServiceInstance: typeof window.AIServiceInstance !== 'undefined'
+    });
+
   let conversationHistory = [];
   let isRecording = false;
   let mediaRecorder = null;
@@ -16,72 +31,141 @@
   const chatAttachments = document.getElementById('chatAttachments');
   const recordingIndicator = document.getElementById('recordingIndicator');
 
+  console.log('✅ Elementos DOM cargados:', {
+    chatMessages: !!chatMessages,
+    chatInput: !!chatInput,
+    sendBtn: !!sendBtn,
+    imageInput: !!imageInput,
+    voiceBtn: !!voiceBtn,
+    attachImageBtn: !!attachImageBtn
+  });
+
   // Cargar historial guardado
   loadHistory();
 
-  // Solicitar datos pendientes al abrir
-  requestPendingData();
+  // Setup suggestion chips
+  setupSuggestionChips();
 
   // Event listeners
-  chatInput.addEventListener('input', handleInputChange);
-  chatInput.addEventListener('keydown', handleKeyDown);
-  sendBtn.addEventListener('click', sendMessage);
-  newChatBtn.addEventListener('click', newConversation);
-  voiceBtn.addEventListener('click', toggleVoiceRecording);
-  attachImageBtn.addEventListener('click', () => imageInput.click());
-  imageInput.addEventListener('change', handleImageSelect);
+  if (chatInput) {
+    chatInput.addEventListener('input', handleInputChange);
+    chatInput.addEventListener('keydown', handleKeyDown);
+    console.log('✅ Event listeners agregados a chatInput');
+  } else {
+    console.error('❌ chatInput no encontrado');
+  }
+
+  if (sendBtn) {
+    sendBtn.addEventListener('click', () => {
+      console.log('🔵 Click en sendBtn detectado');
+      sendMessage();
+    });
+    console.log('✅ Event listener agregado a sendBtn');
+  } else {
+    console.error('❌ sendBtn no encontrado');
+  }
+
+  if (newChatBtn) {
+    newChatBtn.addEventListener('click', newConversation);
+    console.log('✅ Event listener agregado a newChatBtn');
+  } else {
+    console.error('❌ newChatBtn no encontrado');
+  }
+
+  if (voiceBtn) {
+    voiceBtn.addEventListener('click', () => {
+      console.log('🔵 Click en voiceBtn detectado');
+      toggleVoiceRecording();
+    });
+    console.log('✅ Event listener agregado a voiceBtn');
+  } else {
+    console.error('❌ voiceBtn no encontrado');
+  }
+
+  if (attachImageBtn) {
+    attachImageBtn.addEventListener('click', () => {
+      console.log('🔵 Click en attachImageBtn detectado');
+      imageInput.click();
+    });
+    console.log('✅ Event listener agregado a attachImageBtn');
+  } else {
+    console.error('❌ attachImageBtn no encontrado');
+  }
+
+  if (imageInput) {
+    imageInput.addEventListener('change', handleImageSelect);
+    console.log('✅ Event listener agregado a imageInput');
+  } else {
+    console.error('❌ imageInput no encontrado');
+  }
 
   /**
-   * Solicitar datos pendientes del background
+   * Setup suggestion chips
    */
-  function requestPendingData() {
-    console.log('🔍 Solicitando datos pendientes...');
-
-    chrome.runtime.sendMessage({ action: 'getChatData' }, (response) => {
-      console.log('📬 Respuesta del background:', response);
-
-      if (response && response.data) {
-        const { selectedText, currentAnswer, action } = response.data;
-
-        console.log('📥 Datos recibidos del diálogo:', {
-          selectedText: selectedText?.substring(0, 50) + '...',
-          currentAnswer: currentAnswer?.substring(0, 50) + '...',
-          action
-        });
-
-        // Agregar el texto seleccionado como mensaje del usuario
-        if (selectedText && selectedText.trim()) {
-          conversationHistory.push({
-            role: 'user',
-            content: selectedText,
-            timestamp: Date.now()
-          });
-          console.log('✅ Mensaje del usuario agregado');
-        }
-
-        // Agregar la respuesta del asistente si existe
-        if (currentAnswer && currentAnswer.trim()) {
-          conversationHistory.push({
-            role: 'assistant',
-            content: currentAnswer,
-            timestamp: Date.now()
-          });
-          console.log('✅ Respuesta del asistente agregada');
-        }
-
-        // Renderizar el historial actualizado
-        renderChatHistory();
-        saveHistory();
-
-        // Hacer scroll al final
-        setTimeout(() => {
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 100);
-      } else {
-        console.log('ℹ️ No hay datos pendientes del diálogo');
-      }
+  function setupSuggestionChips() {
+    const chips = document.querySelectorAll('.suggestion-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const suggestion = chip.dataset.suggestion;
+        chatInput.value = suggestion;
+        chatInput.focus();
+        handleInputChange();
+        // Opcionalmente enviar automáticamente
+        // sendMessage();
+      });
     });
   }
+
+  // Listener para recibir datos del diálogo
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('📨 Mensaje recibido en side panel:', request.action);
+
+    if (request.action === 'chatData' && request.data) {
+      const { selectedText, currentAnswer, action } = request.data;
+
+      console.log('📥 Datos del diálogo recibidos:', {
+        selectedText: selectedText?.substring(0, 50) + '...',
+        currentAnswer: currentAnswer?.substring(0, 50) + '...',
+        action
+      });
+
+      // 🆕 NUEVA CONVERSACIÓN: Limpiar historial existente antes de agregar nuevo contexto
+      console.log('🆕 Iniciando nueva conversación con contexto del diálogo');
+      conversationHistory = [];
+
+      // Agregar el texto seleccionado como mensaje del usuario
+      if (selectedText && selectedText.trim()) {
+        conversationHistory.push({
+          role: 'user',
+          content: selectedText,
+          timestamp: Date.now()
+        });
+        console.log('✅ Mensaje del usuario agregado');
+      }
+
+      // Agregar la respuesta del asistente si existe
+      if (currentAnswer && currentAnswer.trim()) {
+        conversationHistory.push({
+          role: 'assistant',
+          content: currentAnswer,
+          timestamp: Date.now()
+        });
+        console.log('✅ Respuesta del asistente agregada');
+      }
+
+      // Renderizar el historial actualizado
+      renderChatHistory();
+      saveHistory();
+
+      // Hacer scroll al final
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 100);
+
+      sendResponse({ success: true });
+    }
+    return true;
+  });
 
   /**
    * Manejar cambios en el input
@@ -111,17 +195,31 @@
    * Enviar mensaje
    */
   async function sendMessage() {
+    console.log('📤 sendMessage llamado');
     const text = chatInput.value.trim();
 
-    if (!text && !attachedImageFile) return;
+    if (!text && !attachedImageFile) {
+      console.log('⚠️ No hay texto ni imagen adjunta');
+      return;
+    }
+
+    console.log('📝 Enviando mensaje:', { text: text.substring(0, 50), hasImage: !!attachedImageFile });
+
+    // Obtener acción seleccionada para imagen si existe
+    let imageAction = null;
+    if (attachedImageFile) {
+      const imageActionSelect = document.getElementById('imageActionSelect');
+      imageAction = imageActionSelect ? imageActionSelect.value : 'describe';
+    }
 
     // Agregar mensaje del usuario
     const userMessage = {
       role: 'user',
-      content: text || 'Imagen adjunta',
+      content: text || `Imagen adjunta (${imageAction})`,
       timestamp: Date.now(),
       image: attachedImageFile ? URL.createObjectURL(attachedImageFile) : null,
-      imageFile: attachedImageFile
+      imageFile: attachedImageFile,
+      imageAction: imageAction
     };
 
     conversationHistory.push(userMessage);
@@ -133,6 +231,10 @@
     chatInput.style.height = 'auto';
     sendBtn.disabled = true;
 
+    // Guardar referencias antes de limpiar
+    const imageFile = attachedImageFile;
+    const action = imageAction;
+
     // Limpiar imagen adjunta
     if (attachedImageFile) {
       attachedImageFile = null;
@@ -141,7 +243,7 @@
     }
 
     // Procesar mensaje con IA
-    await processMessage(text, null, userMessage.imageFile);
+    await processMessage(text, action, imageFile);
   }
 
   /**
@@ -169,11 +271,17 @@
         renderChatHistory();
       };
 
-      // Si hay imagen, procesarla con multimodal
+      // Si hay imagen, procesarla con multimodal según la acción
       if (imageFile) {
-        console.log('🖼️ Procesando imagen con MultimodalModule');
+        console.log('🖼️ Procesando imagen con acción:', action);
         if (typeof MultimodalModule !== 'undefined') {
-          result = await MultimodalModule.describeImage(imageFile, text || 'Describe esta imagen en detalle', onChunk);
+          if (action && action !== 'describe') {
+            // Usar processImageWithAction para acciones específicas
+            result = await MultimodalModule.processImageWithAction(imageFile, action, text, onChunk);
+          } else {
+            // Usar describeImage para descripción general
+            result = await MultimodalModule.describeImage(imageFile, text || 'Describe esta imagen en detalle', onChunk);
+          }
         } else {
           throw new Error('MultimodalModule no está disponible');
         }
@@ -235,14 +343,30 @@
     chatMessages.innerHTML = '';
 
     if (conversationHistory.length === 0) {
-      // Mostrar estado vacío
+      // Mostrar estado vacío con suggestion chips
       chatMessages.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">💬</div>
           <h2>Comienza una conversación</h2>
           <p>Escribe un mensaje o usa el botón "Continuar en el chat" desde cualquier diálogo AI</p>
+          <div class="suggestion-chips">
+            <button class="suggestion-chip" data-suggestion="Ayúdame a escribir un correo profesional">
+              ✉️ Escribir correo
+            </button>
+            <button class="suggestion-chip" data-suggestion="Resume este texto en 3 puntos clave">
+              📝 Resumir texto
+            </button>
+            <button class="suggestion-chip" data-suggestion="Traduce este texto al inglés">
+              🌐 Traducir
+            </button>
+            <button class="suggestion-chip" data-suggestion="Explícame este concepto de forma simple">
+              💡 Explicar
+            </button>
+          </div>
         </div>
       `;
+      // Re-setup suggestion chips después de renderizar
+      setupSuggestionChips();
       return;
     }
 
@@ -375,16 +499,30 @@
    * Manejar selección de imagen
    */
   function handleImageSelect(e) {
+    console.log('🖼️ handleImageSelect llamado');
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      console.log('⚠️ No se seleccionó ningún archivo');
+      return;
+    }
 
+    console.log('✅ Archivo seleccionado:', file.name, file.type);
     attachedImageFile = file;
     const imageUrl = URL.createObjectURL(file);
 
     chatAttachments.innerHTML = `
       <div class="chat-attachment">
-        <img src="${imageUrl}" alt="Imagen adjunta">
-        <button class="remove-attachment">×</button>
+        <div style="position: relative;">
+          <img src="${imageUrl}" alt="Imagen adjunta">
+          <button class="remove-attachment">×</button>
+        </div>
+        <select class="image-action-select" id="imageActionSelect">
+          <option value="describe">Describir imagen</option>
+          <option value="summarize">Resumir contenido</option>
+          <option value="translate">Traducir texto</option>
+          <option value="explain">Explicar imagen</option>
+          <option value="alttext">Generar alt text</option>
+        </select>
       </div>
     `;
     chatAttachments.style.display = 'flex';
@@ -404,9 +542,23 @@
    * Toggle grabación de voz
    */
   async function toggleVoiceRecording() {
+    console.log('🎤 toggleVoiceRecording llamado, isRecording:', isRecording);
     if (!isRecording) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Verificar si getUserMedia está disponible
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Tu navegador no soporta grabación de audio');
+        }
+
+        console.log('🎙️ Solicitando acceso al micrófono...');
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100
+          }
+        });
+        console.log('✅ Acceso al micrófono concedido');
         mediaRecorder = new MediaRecorder(stream);
         const chunks = [];
 
@@ -454,8 +606,33 @@
         recordingIndicator.style.display = 'flex';
         voiceBtn.style.color = '#dc2626';
       } catch (error) {
-        console.error('Error accediendo al micrófono:', error);
-        alert('No se pudo acceder al micrófono');
+        console.error('❌ Error accediendo al micrófono:', error);
+        console.error('Tipo de error:', error.name);
+        console.error('Mensaje:', error.message);
+
+        let errorMessage = 'No se pudo acceder al micrófono.\n\n';
+
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          errorMessage += '❌ Permiso denegado.\n\n' +
+                         'Para habilitar el micrófono:\n' +
+                         '1. Haz clic en el ícono 🔒 en la barra de direcciones\n' +
+                         '2. Busca "Micrófono" y cambia a "Permitir"\n' +
+                         '3. Recarga el side panel';
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          errorMessage += '❌ No se encontró ningún micrófono.\n\n' +
+                         'Verifica que tengas un micrófono conectado.';
+        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+          errorMessage += '❌ El micrófono está siendo usado por otra aplicación.\n\n' +
+                         'Cierra otras aplicaciones que puedan estar usando el micrófono.';
+        } else {
+          errorMessage += 'Error: ' + error.message + '\n\n' +
+                         'Intenta:\n' +
+                         '• Verificar permisos del navegador\n' +
+                         '• Recargar la página\n' +
+                         '• Usar otro navegador';
+        }
+
+        alert(errorMessage);
       }
     } else {
       mediaRecorder.stop();
@@ -507,4 +684,14 @@
     renderChatHistory();
     saveHistory();
   }
+
+  console.log('✅ Side Panel Chat inicializado completamente');
+
+  } catch (error) {
+    console.error('❌ ERROR FATAL inicializando Side Panel:', error);
+    console.error('📍 Stack trace:', error.stack);
+    alert('Error inicializando chat: ' + error.message);
+  }
 })();
+
+console.log('🎬 side_panel.js ejecutado completamente');

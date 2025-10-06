@@ -14,14 +14,18 @@ const ToolbarModule = (function() {
     return toolbar;
   }
 
-  function showToolbar(x, y, text) {
+  function showToolbar(pageX, pageY, clientX, clientY, text) {
     if (toolbar) toolbar.remove();
 
     selectedText = text;
     toolbar = document.createElement('div');
     toolbar.className = 'ai-toolbar';
-    toolbar.style.left = x + 'px';
-    toolbar.style.top = (y - 50) + 'px';
+    toolbar.style.left = pageX + 'px';
+    toolbar.style.top = (pageY - 50) + 'px';
+
+    // Guardar posición del viewport (clientY) para el diálogo, no pageY
+    toolbar.dataset.selectionY = clientY;
+    console.log('🎯 Toolbar posicionado en - pageX:', pageX, 'pageY:', pageY, 'clientY guardado:', clientY);
 
     toolbar.innerHTML = `
       <button class="ai-tool pen" data-action="rewrite" aria-label="Reescribir">
@@ -84,6 +88,8 @@ const ToolbarModule = (function() {
           MenusModule.showMoreMenu(btn);
         } else {
           const rect = toolbar.getBoundingClientRect();
+          // No usar selectionY guardado, usar directamente la posición del toolbar
+          console.log('🎯 Enviando rect al diálogo - left:', rect.left, 'top:', rect.top, 'bottom:', rect.bottom);
           toolbar.style.display = 'none';
 
           // Para traducir, usar idioma por defecto (español), el usuario puede cambiar desde el selector

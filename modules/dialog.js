@@ -9,26 +9,35 @@ const DialogModule = (function() {
     let left = initialLeft;
     let top = initialTop;
 
+    console.log('🔧 adjustDialogPosition - Posición inicial:', { left: initialLeft, top: initialTop });
+    console.log('🔧 adjustDialogPosition - Viewport:', { width: viewportWidth, height: viewportHeight });
+    console.log('🔧 adjustDialogPosition - Dialog size:', { width: rect.width, height: rect.height });
+
     // Ajustar si se sale por la derecha
     if (left + rect.width > viewportWidth) {
       left = viewportWidth - rect.width - 10;
+      console.log('🔧 Ajustado por derecha, nuevo left:', left);
     }
 
     // Ajustar si se sale por la izquierda
     if (left < 10) {
       left = 10;
+      console.log('🔧 Ajustado por izquierda, nuevo left:', left);
     }
 
     // Ajustar si se sale por abajo
     if (top + rect.height > viewportHeight) {
       top = viewportHeight - rect.height - 10;
+      console.log('🔧 Ajustado por abajo, nuevo top:', top);
     }
 
     // Ajustar si se sale por arriba
     if (top < 10) {
       top = 10;
+      console.log('🔧 Ajustado por arriba, nuevo top:', top);
     }
 
+    console.log('🔧 adjustDialogPosition - Posición final:', { left, top });
     dialog.style.left = left + 'px';
     dialog.style.top = top + 'px';
   }
@@ -42,8 +51,10 @@ const DialogModule = (function() {
     let initialLeft, initialTop;
 
     if (toolbarRect) {
+      // Posicionar el diálogo justo debajo del toolbar
       initialLeft = toolbarRect.left;
       initialTop = toolbarRect.bottom + 10;
+      console.log('🎯 Posicionando diálogo en - left:', initialLeft, 'top:', initialTop, 'toolbar bottom:', toolbarRect.bottom);
       dialog.style.left = initialLeft + 'px';
       dialog.style.top = initialTop + 'px';
     } else {
@@ -204,6 +215,7 @@ const DialogModule = (function() {
 
     if (toolbarRect) {
       dialog.style.left = toolbarRect.left + 'px';
+      // Posicionar justo debajo del toolbar
       dialog.style.top = (toolbarRect.bottom + 10) + 'px';
     } else {
       dialog.style.left = '50%';
@@ -626,20 +638,35 @@ const DialogModule = (function() {
         });
 
         // Abrir side panel y enviar datos completos
-        chrome.runtime.sendMessage({
-          action: 'openSidePanel',
-          data: {
-            selectedText: selectedText,
-            currentAnswer: currentAnswer,
-            action: currentAction
-          }
-        }, (response) => {
-          if (response && response.success) {
-            console.log('✅ Side panel abierto correctamente');
+        try {
+          chrome.runtime.sendMessage({
+            action: 'openSidePanel',
+            data: {
+              selectedText: selectedText,
+              currentAnswer: currentAnswer,
+              action: currentAction
+            }
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error('❌ Error de runtime:', chrome.runtime.lastError);
+              alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+              return;
+            }
+
+            if (response && response.success) {
+              console.log('✅ Side panel abierto correctamente');
+            } else {
+              console.error('❌ Error abriendo side panel:', response?.error);
+            }
+          });
+        } catch (error) {
+          console.error('❌ Error fatal al abrir side panel:', error);
+          if (error.message.includes('Extension context invalidated')) {
+            alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
           } else {
-            console.error('❌ Error abriendo side panel:', response?.error);
+            alert('Error al abrir chat: ' + error.message);
           }
-        });
+        }
       });
     } else {
       console.warn('⚠️ No se encontró el botón .open-chat-btn en el diálogo');

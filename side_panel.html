@@ -212,9 +212,15 @@
       display: inline-block;
     }
 
+    .chat-attachment {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .chat-attachment img {
-      max-width: 80px;
-      max-height: 80px;
+      max-width: 120px;
+      max-height: 120px;
       border-radius: 8px;
       border: 2px solid #3a3a40;
     }
@@ -235,6 +241,49 @@
       justify-content: center;
       font-size: 14px;
       line-height: 1;
+    }
+
+    .image-action-select {
+      background: #35353c;
+      border: 1px solid #3a3a40;
+      color: #eaeaf0;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .image-action-select:focus {
+      outline: none;
+      border-color: #8ab4ff;
+    }
+
+    /* Suggestion Chips */
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 0;
+    }
+
+    .suggestion-chip {
+      background: #35353c;
+      border: 1px solid #3a3a40;
+      color: #eaeaf0;
+      padding: 8px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .suggestion-chip:hover {
+      background: #3a3a40;
+      border-color: #8ab4ff;
+      transform: translateY(-2px);
     }
 
     .chat-input-container {
@@ -509,8 +558,22 @@
       <div class="empty-state-icon">💬</div>
       <h2>Comienza una conversación</h2>
       <p>Escribe un mensaje o usa el botón "Continuar en el chat" desde cualquier diálogo AI</p>
+      <div class="suggestion-chips">
+        <button class="suggestion-chip" data-suggestion="Ayúdame a escribir un correo profesional">
+          ✉️ Escribir correo
+        </button>
+        <button class="suggestion-chip" data-suggestion="Resume este texto en 3 puntos clave">
+          📝 Resumir texto
+        </button>
+        <button class="suggestion-chip" data-suggestion="Traduce este texto al inglés">
+          🌐 Traducir...
+        </button>
+        <button class="suggestion-chip" data-suggestion="Explícame este concepto de forma simple">
+          💡 Explicar
+        </button>
+      </div>
     </div>
-  </div>
+  </div> 
 
   <div class="chat-input-area">
     <div class="chat-attachments" id="chatAttachments"></div>
@@ -553,10 +616,24 @@
     </div>
   </div>
 
+  <script>
+    console.log('🎯 side_panel.html cargado - scripts inline ejecutándose');
+    console.log('📍 Location:', window.location.href);
+    console.log('📂 Base URI:', document.baseURI);
+  </script>
   <script src="modules/markdown.js"></script>
   <script src="modules/aiService.js"></script>
   <script src="modules/ai.js"></script>
   <script src="modules/multimodal.js"></script>
   <script src="side_panel.js"></script>
+  <script>
+    console.log('🏁 Todos los scripts cargados');
+    console.log('🔍 Verificando módulos después de cargar scripts:', {
+      MarkdownRenderer: typeof MarkdownRenderer,
+      AIServiceInstance: typeof window.AIServiceInstance,
+      AIModule: typeof AIModule,
+      MultimodalModule: typeof MultimodalModule
+    });
+  </script>
 </body>
 </html>

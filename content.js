@@ -54,7 +54,8 @@ function handleTextSelection(e) {
 
     if (text.length > 0) {
       console.log('✨ Mostrando toolbar');
-      ToolbarModule.showToolbar(e.pageX, e.pageY, text);
+      // Pasar pageX/pageY para posición absoluta y clientX/clientY para posición en viewport
+      ToolbarModule.showToolbar(e.pageX, e.pageY, e.clientX, e.clientY, text);
     } else {
       console.log('❌ Ocultando todo');
       hideAll();

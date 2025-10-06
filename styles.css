@@ -3694,6 +3694,110 @@
 
 /* El tema oscuro ya está aplicado por defecto al chat */
 
+/* Botón flotante para abrir chat */
+.ai-float-btn {
+  position: fixed;
+  right: 0;
+  top: 60%;
+  z-index: 999998;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
+  background: linear-gradient(90deg, #4b2b83 0%, #6b39c7 100%);
+  border: none;
+  border-radius: 999px 0 0 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.ai-float-btn:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.ai-float-btn:active {
+  transform: translateX(-2px);
+}
+
+/* Mascota con aro degradado */
+.ai-float-mascot {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  padding: 2px;
+  background: conic-gradient(from 180deg, #66ccff 0% 25%, #9f6aff 25% 60%, #ff61b6 60% 85%, #66ccff 85% 100%);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) inset;
+}
+
+.ai-float-mascot-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+/* Ojos */
+.ai-float-mascot-inner::before,
+.ai-float-mascot-inner::after {
+  content: "";
+  position: absolute;
+  top: 45%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #26262b;
+}
+
+.ai-float-mascot-inner::before {
+  left: 38%;
+}
+
+.ai-float-mascot-inner::after {
+  right: 38%;
+}
+
+/* Boca */
+.ai-float-mouth {
+  position: absolute;
+  bottom: 28%;
+  left: 52%;
+  width: 8px;
+  height: 8px;
+  border: 3px solid transparent;
+  border-left-color: #26262b;
+  border-radius: 2px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Etiqueta Ctrl+M */
+.ai-float-label {
+  color: #d8c8ff;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.35s ease, opacity 0.25s ease, margin 0.25s ease;
+  margin-right: 0;
+}
+
+.ai-float-btn:hover .ai-float-label {
+  max-width: 160px;
+  opacity: 1;
+  margin-right: 2px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .ai-chat-panel {
@@ -3703,5 +3807,9 @@
 
   .ai-chat-suggestions {
     flex-direction: column;
+  }
+
+  .ai-float-btn {
+    top: 70%;
   }
 }
