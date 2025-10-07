@@ -137,18 +137,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Handle OCR request
 async function handleOCRRequest(imageUrl) {
   try {
-    // Create image element from URL
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = imageUrl;
-
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
+    // Open side panel with OCR request
+    chrome.runtime.sendMessage({
+      action: 'openSidePanel',
+      data: {
+        imageMode: true,
+        imageUrl: imageUrl,
+        imageAction: 'ocr',
+        prompt: 'Extract all visible text from this image. Return ONLY the extracted text, nothing else. If there\'s no text, say \'No text found\'.'
+      }
     });
-
-    // Process OCR
-    await OCRModule.processImageOCR(img);
   } catch (error) {
     console.error('Error processing OCR:', error);
     alert('Error extracting text: ' + error.message);
@@ -158,37 +156,16 @@ async function handleOCRRequest(imageUrl) {
 // Handle explain image request
 async function handleExplainImage(imageUrl) {
   try {
-    // Create image element from URL
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = imageUrl;
-
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
+    // Open side panel with explain request
+    chrome.runtime.sendMessage({
+      action: 'openSidePanel',
+      data: {
+        imageMode: true,
+        imageUrl: imageUrl,
+        imageAction: 'explain',
+        prompt: 'Explain what is happening in this image in detail.'
+      }
     });
-
-    // Show loading dialog
-    const loadingDialog = DialogModule.showLoadingDialog(null);
-    loadingDialog.querySelector('.ai-loading').textContent = 'Explaining image...';
-    document.body.appendChild(loadingDialog);
-
-    // Convert image to blob
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-
-    // Explain image
-    const explanation = await MultimodalModule.processImageWithAction(blob, 'explain', '', (progress) => {
-      // Update progress if needed
-    });
-
-    loadingDialog.remove();
-
-    // Create dialog with explanation
-    const dialog = DialogModule.createImageDialog(blob, 'explain', null);
-    const answerDiv = dialog.querySelector('.ai-answer');
-    answerDiv.textContent = explanation;
-    document.body.appendChild(dialog);
   } catch (error) {
     console.error('Error explaining image:', error);
     alert('Error explaining image: ' + error.message);
@@ -198,37 +175,16 @@ async function handleExplainImage(imageUrl) {
 // Handle describe image request
 async function handleDescribeImage(imageUrl) {
   try {
-    // Create image element from URL
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = imageUrl;
-
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
+    // Open side panel with describe request
+    chrome.runtime.sendMessage({
+      action: 'openSidePanel',
+      data: {
+        imageMode: true,
+        imageUrl: imageUrl,
+        imageAction: 'describe',
+        prompt: 'Describe this image in detail.'
+      }
     });
-
-    // Show loading dialog
-    const loadingDialog = DialogModule.showLoadingDialog(null);
-    loadingDialog.querySelector('.ai-loading').textContent = 'Describing image...';
-    document.body.appendChild(loadingDialog);
-
-    // Convert image to blob
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-
-    // Describe image
-    const description = await MultimodalModule.describeImage(blob, 'Describe this image in detail.', (progress) => {
-      // Update progress if needed
-    });
-
-    loadingDialog.remove();
-
-    // Create dialog with description
-    const dialog = DialogModule.createImageDialog(blob, 'describe', null);
-    const answerDiv = dialog.querySelector('.ai-answer');
-    answerDiv.textContent = description;
-    document.body.appendChild(dialog);
   } catch (error) {
     console.error('Error describing image:', error);
     alert('Error describing image: ' + error.message);

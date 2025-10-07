@@ -121,7 +121,7 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
     console.log('📨 Mensaje recibido en side panel:', request.action);
 
     if (request.action === 'chatData' && request.data) {
-      const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent } = request.data;
+      const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent, imageMode, imageUrl, imageAction, prompt } = request.data;
 
       console.log('📥 Datos recibidos:', {
         selectedText: selectedText?.substring(0, 50) + '...',
@@ -131,12 +131,54 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
         webChatMode,
         pageTitle,
         pageUrl,
-        pageContentLength: pageContent?.length
+        pageContentLength: pageContent?.length,
+        imageMode,
+        imageAction,
+        imageUrl: imageUrl?.substring(0, 50) + '...'
       });
 
       // 🆕 NUEVA CONVERSACIÓN: Limpiar historial existente antes de agregar nuevo contexto
       console.log('🆕 Iniciando nueva conversación');
       conversationHistory = [];
+
+      // Si es modo imagen (OCR, Explain, Describe)
+      if (imageMode && imageUrl && prompt) {
+        console.log('🖼️ Modo Imagen activado:', imageAction);
+
+        // Cargar la imagen
+        fetch(imageUrl)
+          .then(res => res.blob())
+          .then(async (blob) => {
+            attachedImageFile = new File([blob], 'image.jpg', { type: blob.type });
+
+            // Mostrar la imagen adjunta
+            displayAttachedImage(blob);
+
+            // Agregar mensaje del usuario con el prompt
+            conversationHistory.push({
+              role: 'user',
+              content: prompt,
+              image: attachedImageFile,
+              timestamp: Date.now()
+            });
+
+            // Renderizar historial
+            renderChatHistory();
+            saveHistory();
+
+            // Procesar automáticamente
+            setTimeout(() => {
+              processMessage(prompt, attachedImageFile);
+            }, 100);
+          })
+          .catch(error => {
+            console.error('Error loading image:', error);
+            alert('Error loading image: ' + error.message);
+          });
+
+        sendResponse({ success: true });
+        return true;
+      }
 
       // Si es modo web chat (chat con la página)
       if (webChatMode && pageContent) {
@@ -586,6 +628,22 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
     });
 
     sendBtn.disabled = false;
+  }
+
+  /**
+   * Display attached image (for image mode from context menu)
+   */
+  function displayAttachedImage(blob) {
+    const imageUrl = URL.createObjectURL(blob);
+
+    chatAttachments.innerHTML = `
+      <div class="chat-attachment">
+        <div style="position: relative;">
+          <img src="${imageUrl}" alt="Attached image">
+        </div>
+      </div>
+    `;
+    chatAttachments.style.display = 'flex';
   }
 
   /**
