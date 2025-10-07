@@ -2,64 +2,46 @@ const DialogModule = (function() {
   const pinnedDialogs = [];
 
   function adjustDialogPosition(dialog, initialLeft, initialTop) {
-    console.log('🔧🔧🔧 adjustDialogPosition LLAMADO 🔧🔧🔧');
     const rect = dialog.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
 
-    // initialLeft/initialTop son coordenadas ABSOLUTAS de página
-    // rect.left/rect.top son coordenadas del VIEWPORT
-    // Para comparar, necesitamos convertir todo a coordenadas del viewport
+    // initialLeft/initialTop are ABSOLUTE page coordinates
+    // rect.left/rect.top are VIEWPORT coordinates
+    // To compare, we need to convert everything to viewport coordinates
 
     let left = initialLeft;
     let top = initialTop;
 
-    console.log('🔧 adjustDialogPosition - Posición inicial (absoluta):', { left: initialLeft, top: initialTop });
-    console.log('🔧 adjustDialogPosition - Posición actual del dialog (viewport):', {
-      left: rect.left,
-      top: rect.top,
-      bottom: rect.bottom
-    });
-    console.log('🔧 adjustDialogPosition - Scroll:', { scrollX, scrollY });
-    console.log('🔧 adjustDialogPosition - Viewport:', { width: viewportWidth, height: viewportHeight });
-    console.log('🔧 adjustDialogPosition - Dialog size:', { width: rect.width, height: rect.height });
-
-    // Convertir posición inicial absoluta a viewport para hacer las comparaciones
+    // Convert initial absolute position to viewport for comparisons
     const leftInViewport = initialLeft - scrollX;
     const topInViewport = initialTop - scrollY;
-
-    console.log('🔧 Posición en viewport:', { left: leftInViewport, top: topInViewport });
 
     let adjustedLeft = initialLeft;
     let adjustedTop = initialTop;
 
-    // Ajustar si se sale por la derecha
+    // Adjust if it goes off the right side
     if (leftInViewport + rect.width > viewportWidth) {
       adjustedLeft = viewportWidth - rect.width - 10 + scrollX;
-      console.log('🔧 Ajustado por derecha, nuevo left:', adjustedLeft);
     }
 
-    // Ajustar si se sale por la izquierda
+    // Adjust if it goes off the left side
     if (leftInViewport < 10) {
       adjustedLeft = 10 + scrollX;
-      console.log('🔧 Ajustado por izquierda, nuevo left:', adjustedLeft);
     }
 
-    // Ajustar si se sale por abajo
+    // Adjust if it goes off the bottom
     if (topInViewport + rect.height > viewportHeight) {
       adjustedTop = viewportHeight - rect.height - 10 + scrollY;
-      console.log('🔧 Ajustado por abajo, nuevo top:', adjustedTop);
     }
 
-    // Ajustar si se sale por arriba
+    // Adjust if it goes off the top
     if (topInViewport < 10) {
       adjustedTop = 10 + scrollY;
-      console.log('🔧 Ajustado por arriba, nuevo top:', adjustedTop);
     }
 
-    console.log('🔧 adjustDialogPosition - Posición final (absoluta):', { left: adjustedLeft, top: adjustedTop });
     dialog.style.left = adjustedLeft + 'px';
     dialog.style.top = adjustedTop + 'px';
   }
@@ -72,24 +54,15 @@ const DialogModule = (function() {
 
     let initialLeft, initialTop;
 
-    console.log('🟢 createDialog llamado con toolbarRect:', toolbarRect);
-    console.log('🟢 Scroll actual - scrollX:', window.scrollX, 'scrollY:', window.scrollY);
-
     if (toolbarRect) {
-      // El toolbarRect viene con coordenadas del viewport (relativas a la ventana visible)
-      // Como el diálogo usa position: absolute, necesitamos coordenadas absolutas de página
-      // Sumamos el scroll para convertir viewport → página
+      // toolbarRect comes with viewport coordinates (relative to the visible window)
+      // Since the dialog uses position: absolute, we need absolute page coordinates
+      // We add scroll to convert viewport → page
       initialLeft = toolbarRect.left + window.scrollX;
       initialTop = toolbarRect.bottom + window.scrollY + 10;
 
-      console.log('🎯 Posicionando diálogo:');
-      console.log('  - Toolbar bottom (viewport):', toolbarRect.bottom);
-      console.log('  - scrollY:', window.scrollY);
-      console.log('  - Posición final (absoluta):', { left: initialLeft, top: initialTop });
-
       dialog.style.left = initialLeft + 'px';
       dialog.style.top = initialTop + 'px';
-      console.log('📏 Style asignado - left:', dialog.style.left, 'top:', dialog.style.top);
     } else {
       dialog.style.left = '50%';
       dialog.style.top = '50%';
@@ -98,9 +71,9 @@ const DialogModule = (function() {
 
     const actionTitle = getActionTitle(action);
 
-    // Agregar selector de idiomas (siempre presente, pero oculto si no es traducir)
+    // Add language selector (always present, but hidden if not translating)
     const languageSelector = `
-      <select class="ai-lang-selector" aria-label="Seleccionar idioma" style="display: ${action === 'translate' ? 'block' : 'none'}">
+      <select class="ai-lang-selector" aria-label="Select language" style="display: ${action === 'translate' ? 'block' : 'none'}">
         <option value="es">Español</option>
         <option value="en">English</option>
         <option value="fr">Français</option>
@@ -116,7 +89,7 @@ const DialogModule = (function() {
       <header class="ai-result-header ai-draggable">
         <div class="title">${actionTitle}</div>
         <div style="position: relative;">
-          <button class="ai-iconbtn mode-dropdown-btn" aria-label="Abrir opciones">
+          <button class="ai-iconbtn mode-dropdown-btn" aria-label="Open options">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M6 9l6 6 6-6"/>
             </svg>
@@ -124,42 +97,42 @@ const DialogModule = (function() {
           <div class="ai-mode-dropdown">
             <div class="ai-mode-dropdown-item ${action === 'summarize' ? 'active' : ''}" data-mode="summarize">
               <span class="icon">📄</span>
-              Resumir
+              Summarize
             </div>
             <div class="ai-mode-dropdown-item ${action === 'translate' ? 'active' : ''}" data-mode="translate">
               <span class="icon">🌐</span>
-              Traducir
+              Translate
             </div>
             <div class="ai-mode-dropdown-item ${action === 'explain' ? 'active' : ''}" data-mode="explain">
               <span class="icon">💡</span>
-              Explicar
+              Explain
             </div>
             <div class="ai-mode-dropdown-item ${action === 'grammar' ? 'active' : ''}" data-mode="grammar">
               <span class="icon">📚</span>
-              Gramática
+              Grammar
             </div>
             <div class="ai-mode-dropdown-item ${action === 'rewrite' ? 'active' : ''}" data-mode="rewrite">
               <span class="icon">✏️</span>
-              Reescribir
+              Rewrite
             </div>
             <div class="ai-mode-dropdown-item ${action === 'expand' ? 'active' : ''}" data-mode="expand">
               <span class="icon">🔍</span>
-              Expandir
+              Expand
             </div>
             <div class="ai-mode-dropdown-item ${action === 'answer' ? 'active' : ''}" data-mode="answer">
               <span class="icon">💬</span>
-              Responder
+              Answer
             </div>
           </div>
         </div>
         <div class="spacer"></div>
         ${languageSelector}
-        <button class="ai-iconbtn pin-btn" aria-label="Fijar">
+        <button class="ai-iconbtn pin-btn" aria-label="Pin">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M16 3l5 5-7 7-4 1 1-4 7-7zM2 22l6-6"/>
           </svg>
         </button>
-        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+        <button class="ai-iconbtn close-panel" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -173,39 +146,39 @@ const DialogModule = (function() {
       </div>
 
       <div class="ai-actions">
-        <div class="left">Preguntar de seguimiento</div>
+        <div class="left">Ask follow-up</div>
         <div class="right">
-          <button class="ai-iconbtn copy-btn" aria-label="Copiar">
+          <button class="ai-iconbtn copy-btn" aria-label="Copy">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="9" width="10" height="10" rx="2"></rect>
               <rect x="5" y="5" width="10" height="10" rx="2"></rect>
             </svg>
           </button>
-          <button class="ai-iconbtn regenerate-btn" aria-label="Generar de nuevo">
+          <button class="ai-iconbtn regenerate-btn" aria-label="Regenerate">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
           </button>
-          <button class="ai-iconbtn edit-btn" aria-label="Editar la respuesta">
+          <button class="ai-iconbtn edit-btn" aria-label="Edit response">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
           </button>
-          <button class="ai-iconbtn speak-btn" aria-label="Hablar">
+          <button class="ai-iconbtn speak-btn" aria-label="Speak">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
             </svg>
           </button>
-          <button class="ai-iconbtn open-chat-btn" aria-label="Continuar en el chat" title="Continuar en el chat">
+          <button class="ai-iconbtn open-chat-btn" aria-label="Continue in chat" title="Continue in chat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               <path d="M9 10h6M9 14h6"/>
             </svg>
           </button>
-          <div class="ai-avatar" title="Perfil">
+          <div class="ai-avatar" title="Profile">
             <div class="eyes"><span></span><span></span></div>
           </div>
         </div>
@@ -216,8 +189,8 @@ const DialogModule = (function() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
-          <input type="text" placeholder="Preguntar de seguimiento" />
-          <button class="ai-send-btn" aria-label="Enviar">
+          <input type="text" placeholder="Ask follow-up question" />
+          <button class="ai-send-btn" aria-label="Send">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 2L11 13"/>
               <path d="M22 2L15 22L11 13L2 9L22 2z"/>
@@ -230,8 +203,8 @@ const DialogModule = (function() {
     makeDraggable(dialog);
     setupDialogEvents(dialog, content, selectedText, action);
 
-    // Ajustar posición después de que el diálogo esté en el DOM (se hace en actions.js)
-    // Pero guardamos la función para llamarla desde fuera
+    // Adjust position after dialog is in the DOM (done in actions.js)
+    // But save the function to call from outside
     dialog.adjustPosition = function() {
       if (toolbarRect) {
         adjustDialogPosition(dialog, initialLeft, initialTop);
@@ -247,7 +220,7 @@ const DialogModule = (function() {
     dialog.dataset.pinned = 'false';
 
     if (toolbarRect) {
-      // Convertir coordenadas del viewport a coordenadas absolutas de página
+      // Convert viewport coordinates to absolute page coordinates
       dialog.style.left = (toolbarRect.left + window.scrollX) + 'px';
       dialog.style.top = (toolbarRect.bottom + window.scrollY + 10) + 'px';
     } else {
@@ -256,14 +229,14 @@ const DialogModule = (function() {
       dialog.style.transform = 'translate(-50%, -50%)';
     }
 
-    dialog.innerHTML = `<div class="ai-loading">Procesando...</div>`;
+    dialog.innerHTML = `<div class="ai-loading">Processing...</div>`;
     document.body.appendChild(dialog);
 
-    // Método para actualizar el progreso
+    // Method to update progress
     dialog.updateProgress = function(percent) {
       const loadingDiv = this.querySelector('.ai-loading');
       if (loadingDiv) {
-        loadingDiv.textContent = `Procesando  ${percent}%`;
+        loadingDiv.textContent = `Processing ${percent}%`;
       }
     };
 
@@ -311,7 +284,7 @@ const DialogModule = (function() {
   }
 
   function setupDialogEvents(dialog, content, selectedText, action) {
-    // Dropdown de modos
+    // Mode dropdown
     const dropdownBtn = dialog.querySelector('.mode-dropdown-btn');
     const dropdown = dialog.querySelector('.ai-mode-dropdown');
 
@@ -321,60 +294,57 @@ const DialogModule = (function() {
         dropdown.classList.toggle('show');
       });
 
-      // Cerrar dropdown al hacer click fuera
+      // Close dropdown when clicking outside
       document.addEventListener('click', (e) => {
         if (!dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
           dropdown.classList.remove('show');
         }
       });
 
-      // Cambiar modo
+      // Change mode
       dropdown.querySelectorAll('[data-mode]').forEach(item => {
         item.addEventListener('click', async (e) => {
           e.stopPropagation();
           const newMode = item.dataset.mode;
 
-          console.log('🔄 Cambiando modo a:', newMode);
-
-          // Cancelar streaming anterior si existe
+          // Cancel previous streaming if it exists
           if (dialog._currentAbortController) {
-            console.log('🛑 Cancelando streaming anterior');
             dialog._currentAbortController.abort();
           }
 
-          // Actualizar UI
+          // Update UI
           dropdown.classList.remove('show');
           dropdown.querySelectorAll('.ai-mode-dropdown-item').forEach(i => i.classList.remove('active'));
           item.classList.add('active');
 
-          // Actualizar título
+          // Update title
           const titleEl = dialog.querySelector('.title');
           titleEl.textContent = getActionTitle(newMode);
 
-          // Actualizar action en dataset
+          // Update action in dataset
           dialog.dataset.action = newMode;
 
-          // Mostrar/ocultar selector de idiomas
+          // Show/hide language selector
           const langSelector = dialog.querySelector('.ai-lang-selector');
           if (langSelector) {
             langSelector.style.display = newMode === 'translate' ? 'block' : 'none';
           }
 
-          // Ejecutar nueva acción con streaming
+          // Execute new action with streaming
           const answerDiv = dialog.querySelector('.ai-answer');
 
-          // Crear typing indicator
+          // Create typing indicator
           answerDiv.innerHTML = `
             <div class="ai-typing-indicator">
               <span></span><span></span><span></span>
             </div>
           `;
 
-          // Crear botón detener
+          // Create stop button
           const header = dialog.querySelector('.ai-result-header');
           let stopBtn = header.querySelector('.ai-stop-btn');
 
-          // Remover botón anterior si existe
+          // Remove previous button if it exists
           if (stopBtn) {
             stopBtn.remove();
           }
@@ -385,7 +355,7 @@ const DialogModule = (function() {
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
               <rect x="6" y="6" width="12" height="12" rx="2"/>
             </svg>
-            Detener
+            Stop
           `;
 
           const spacer = header.querySelector('.spacer');
@@ -393,14 +363,14 @@ const DialogModule = (function() {
             spacer.insertAdjacentElement('afterend', stopBtn);
           }
 
-          // AbortController para cancelar streaming
+          // AbortController to cancel streaming
           const abortController = new AbortController();
           dialog._currentAbortController = abortController;
 
           stopBtn.addEventListener('click', () => {
             abortController.abort();
             stopBtn.disabled = true;
-            stopBtn.textContent = 'Detenido';
+            stopBtn.textContent = 'Stopped';
             dialog._currentAbortController = null;
           });
 
@@ -408,7 +378,7 @@ const DialogModule = (function() {
             let result = '';
             const currentLang = langSelector ? langSelector.value : 'es';
 
-            // Función de callback para streaming
+            // Callback function for streaming
             const onChunk = (chunk) => {
               if (answerDiv) {
                 MarkdownRenderer.renderToElement(answerDiv, chunk);
@@ -426,7 +396,7 @@ const DialogModule = (function() {
                 result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
                 break;
               case 'grammar':
-                // No streaming disponible - usar implementación existente
+                // No streaming available - use existing implementation
                 result = await AIModule.aiGrammar(selectedText);
                 if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
                 break;
@@ -441,12 +411,12 @@ const DialogModule = (function() {
                 break;
             }
 
-            // Remover botón detener y limpiar AbortController
+            // Remove stop button and clear AbortController
             stopBtn.remove();
             dialog._currentAbortController = null;
           } catch (error) {
-            answerDiv.textContent = error.message.includes('cancelado')
-              ? 'Streaming detenido por el usuario'
+            answerDiv.textContent = error.message.includes('canceled') || error.message.includes('cancelado')
+              ? 'Streaming stopped by user'
               : 'Error: ' + error.message;
             stopBtn.remove();
             dialog._currentAbortController = null;
@@ -485,23 +455,32 @@ const DialogModule = (function() {
     const copyBtn = dialog.querySelector('.copy-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(content);
+        const answerDiv = dialog.querySelector('.ai-answer');
+        const textToCopy = answerDiv.textContent || content;
+        navigator.clipboard.writeText(textToCopy);
+
+        // Visual feedback
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<span style="font-size: 0.9rem;">✓</span>';
+        setTimeout(() => {
+          copyBtn.innerHTML = originalHTML;
+        }, 2000);
       });
     }
 
-    // Manejar cambio de idioma en traducción
+    // Handle language change in translation
     const langSelector = dialog.querySelector('.ai-lang-selector');
     if (langSelector) {
       langSelector.addEventListener('change', async (e) => {
         const newLang = e.target.value;
         const answerDiv = dialog.querySelector('.ai-answer');
 
-        // Mostrar estado de carga
-        answerDiv.textContent = 'Procesando...';
+        // Show loading state
+        answerDiv.textContent = 'Processing...';
 
-        // Callback de progreso
+        // Progress callback
         const onProgress = (percent) => {
-          answerDiv.textContent = `Procesando  ${percent}%`;
+          answerDiv.textContent = `Processing ${percent}%`;
         };
 
         try {
@@ -513,7 +492,7 @@ const DialogModule = (function() {
       });
     }
 
-    // Botón Regenerar
+    // Regenerate Button
     const regenerateBtn = dialog.querySelector('.regenerate-btn');
     if (regenerateBtn) {
       regenerateBtn.addEventListener('click', async () => {
@@ -521,14 +500,14 @@ const DialogModule = (function() {
         const answerDiv = dialog.querySelector('.ai-answer');
         const currentLang = langSelector ? langSelector.value : 'es';
 
-        // Mostrar typing indicator
+        // Show typing indicator
         answerDiv.innerHTML = `
           <div class="ai-typing-indicator">
             <span></span><span></span><span></span>
           </div>
         `;
 
-        // Callback para streaming
+        // Streaming callback
         const onChunk = (chunk) => {
           if (answerDiv) {
             MarkdownRenderer.renderToElement(answerDiv, chunk);
@@ -548,7 +527,7 @@ const DialogModule = (function() {
               result = await AIModule.aiExplainStream(selectedText, onChunk);
               break;
             case 'grammar':
-              // Gramática no tiene streaming
+              // Grammar doesn't have streaming
               result = await AIModule.aiGrammar(selectedText);
               MarkdownRenderer.renderToElement(answerDiv, result);
               break;
@@ -568,14 +547,14 @@ const DialogModule = (function() {
       });
     }
 
-    // Botón Editar
+    // Edit Button
     const editBtn = dialog.querySelector('.edit-btn');
     if (editBtn) {
       editBtn.addEventListener('click', () => {
         const answerDiv = dialog.querySelector('.ai-answer');
         const currentText = answerDiv.textContent;
 
-        // Convertir a textarea editable
+        // Convert to editable textarea
         const textarea = document.createElement('textarea');
         textarea.value = currentText;
         textarea.style.width = '100%';
@@ -595,14 +574,14 @@ const DialogModule = (function() {
         answerDiv.appendChild(textarea);
         textarea.focus();
 
-        // Guardar al perder foco
+        // Save on blur
         textarea.addEventListener('blur', () => {
           answerDiv.textContent = textarea.value;
         });
       });
     }
 
-    // Botón Hablar
+    // Speak Button
     const speakBtn = dialog.querySelector('.speak-btn');
     if (speakBtn) {
       let isSpeaking = false;
@@ -613,7 +592,7 @@ const DialogModule = (function() {
         const text = answerDiv.textContent;
 
         if (!isSpeaking) {
-          // Iniciar síntesis de voz
+          // Start speech synthesis
           if ('speechSynthesis' in window) {
             utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'es-ES';
@@ -629,10 +608,10 @@ const DialogModule = (function() {
             isSpeaking = true;
             speakBtn.style.color = '#8ab4ff';
           } else {
-            alert('Tu navegador no soporta síntesis de voz');
+            alert('Your browser does not support speech synthesis');
           }
         } else {
-          // Detener síntesis de voz
+          // Stop speech synthesis
           window.speechSynthesis.cancel();
           isSpeaking = false;
           speakBtn.style.color = '';
@@ -640,27 +619,24 @@ const DialogModule = (function() {
       });
     }
 
-    // Botón "Continuar en el chat"
+    // "Continue in chat" Button
     const openChatBtn = dialog.querySelector('.open-chat-btn');
-    console.log('🔍 Buscando botón open-chat-btn:', openChatBtn);
 
     if (openChatBtn) {
-      console.log('✅ Botón de chat encontrado, agregando evento');
       openChatBtn.addEventListener('click', (e) => {
-        console.log('💬 Click en botón de chat - abriendo side panel');
         e.preventDefault();
         e.stopPropagation();
 
-        // Obtener la respuesta actual del diálogo
+        // Get current dialog response
         const answerDiv = dialog.querySelector('.ai-answer');
         let currentAnswer = '';
 
         if (answerDiv) {
-          // Primero intentar obtener el markdown original
+          // First try to get the original markdown
           if (answerDiv.dataset.markdown) {
             currentAnswer = answerDiv.dataset.markdown;
           }
-          // Si no, obtener el texto (excluyendo typing indicator)
+          // If not, get the text (excluding typing indicator)
           else {
             const typingIndicator = answerDiv.querySelector('.ai-typing-indicator');
             if (typingIndicator) {
@@ -672,13 +648,7 @@ const DialogModule = (function() {
 
         const currentAction = dialog.dataset.action;
 
-        console.log('💬 Abriendo chat con contexto:', {
-          selectedText: selectedText?.substring(0, 50) + '...',
-          currentAnswer: currentAnswer?.substring(0, 50) + '...',
-          currentAction
-        });
-
-        // Abrir side panel y enviar datos completos
+        // Open side panel and send complete data
         try {
           chrome.runtime.sendMessage({
             action: 'openSidePanel',
@@ -689,55 +659,46 @@ const DialogModule = (function() {
             }
           }, (response) => {
             if (chrome.runtime.lastError) {
-              console.error('❌ Error de runtime:', chrome.runtime.lastError);
-              alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+              alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue using the chat.');
               return;
             }
 
             if (response && response.success) {
-              console.log('✅ Side panel abierto correctamente');
-              // Cerrar el diálogo después de abrir el side panel
+              // Close the dialog after opening side panel
               dialog.remove();
-            } else {
-              console.error('❌ Error abriendo side panel:', response?.error);
             }
           });
         } catch (error) {
-          console.error('❌ Error fatal al abrir side panel:', error);
           if (error.message.includes('Extension context invalidated')) {
-            alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+            alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue using the chat.');
           } else {
-            alert('Error al abrir chat: ' + error.message);
+            alert('Error opening chat: ' + error.message);
           }
         }
       });
-    } else {
-      console.warn('⚠️ No se encontró el botón .open-chat-btn en el diálogo');
     }
 
-    // Sistema de chat de seguimiento
+    // Follow-up chat system
     const followupInput = dialog.querySelector('.ai-followup input');
     const sendBtn = dialog.querySelector('.ai-send-btn');
     const chatHistory = dialog.querySelector('.ai-chat-history');
     const previewDiv = dialog.querySelector('.ai-preview');
     const answerDiv = dialog.querySelector('.ai-answer');
 
-    // Historial de conversación
+    // Conversation history
     let conversationHistory = [
       { role: 'user', content: selectedText },
       { role: 'assistant', content: content }
     ];
 
-    // Función para enviar mensaje - Ahora abre el side panel
+    // Function to send message - Now opens side panel
     const sendMessage = async () => {
       if (!followupInput.value.trim()) return;
 
       const userMessage = followupInput.value.trim();
       followupInput.value = '';
 
-      console.log('💬 Pregunta de seguimiento:', userMessage);
-
-      // Obtener la respuesta actual del diálogo
+      // Get current dialog response
       let currentAnswer = '';
       if (answerDiv) {
         if (answerDiv.dataset.markdown) {
@@ -753,7 +714,7 @@ const DialogModule = (function() {
 
       const currentAction = dialog.dataset.action;
 
-      // Abrir side panel con el contexto del diálogo + la pregunta de seguimiento
+      // Open side panel with dialog context + follow-up question
       try {
         chrome.runtime.sendMessage({
           action: 'openSidePanel',
@@ -761,34 +722,29 @@ const DialogModule = (function() {
             selectedText: selectedText,
             currentAnswer: currentAnswer,
             action: currentAction,
-            followupQuestion: userMessage  // Nueva pregunta del usuario
+            followupQuestion: userMessage  // New user question
           }
         }, (response) => {
           if (chrome.runtime.lastError) {
-            console.error('❌ Error de runtime:', chrome.runtime.lastError);
-            alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+            alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue using the chat.');
             return;
           }
 
           if (response && response.success) {
-            console.log('✅ Side panel abierto correctamente con pregunta de seguimiento');
-            // Cerrar el diálogo después de abrir el side panel
+            // Close the dialog after opening side panel
             dialog.remove();
-          } else {
-            console.error('❌ Error abriendo side panel:', response?.error);
           }
         });
       } catch (error) {
-        console.error('❌ Error fatal al abrir side panel:', error);
         if (error.message.includes('Extension context invalidated')) {
-          alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+          alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue using the chat.');
         } else {
-          alert('Error al abrir chat: ' + error.message);
+          alert('Error opening chat: ' + error.message);
         }
       }
     };
 
-    // Event listener para Enter
+    // Event listener for Enter
     if (followupInput) {
       followupInput.addEventListener('keypress', async (e) => {
         if (e.key === 'Enter') {
@@ -797,7 +753,7 @@ const DialogModule = (function() {
       });
     }
 
-    // Event listener para botón de enviar
+    // Event listener for send button
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
         await sendMessage();
@@ -811,12 +767,12 @@ const DialogModule = (function() {
 
     const label = document.createElement('div');
     label.className = 'ai-chat-label';
-    label.textContent = role === 'user' ? 'Tú' : 'Asistente';
+    label.textContent = role === 'user' ? 'You' : 'Assistant';
 
     const bubble = document.createElement('div');
     bubble.className = 'ai-chat-bubble';
 
-    // Renderizar markdown solo para mensajes del asistente
+    // Render markdown only for assistant messages
     if (role === 'assistant') {
       MarkdownRenderer.renderToElement(bubble, content);
     } else {
@@ -832,15 +788,15 @@ const DialogModule = (function() {
 
   function getActionTitle(action) {
     const titles = {
-      'summarize': 'Resumir',
-      'translate': 'Traducir',
-      'explain': 'Explicar esto',
-      'grammar': 'Gramática',
-      'rewrite': 'Reescribir',
-      'expand': 'Expandir',
-      'answer': 'Responder a esta pregunta'
+      'summarize': 'Summarize',
+      'translate': 'Translate',
+      'explain': 'Explain this',
+      'grammar': 'Grammar',
+      'rewrite': 'Rewrite',
+      'expand': 'Expand',
+      'answer': 'Answer this question'
     };
-    return titles[action] || 'Resultado';
+    return titles[action] || 'Result';
   }
 
   function getCurrentDialog() {
@@ -861,7 +817,7 @@ const DialogModule = (function() {
   }
 
   /**
-   * Crear diálogo para procesar imagen
+   * Create dialog for image processing
    */
   function createImageDialog(imageFile, action = 'describe', toolbarRect = null) {
     const dialog = document.createElement('div');
@@ -883,14 +839,14 @@ const DialogModule = (function() {
     }
 
     const actionTitles = {
-      describe: '🖼️ Descripción de Imagen',
-      summarize: '📄 Resumir Imagen',
-      translate: '🌐 Traducir Texto en Imagen',
-      explain: '💡 Explicar Imagen',
-      alttext: '🏷️ Generar Alt Text'
+      describe: '🖼️ Image Description',
+      summarize: '📄 Summarize Image',
+      translate: '🌐 Translate Text in Image',
+      explain: '💡 Explain Image',
+      alttext: '🏷️ Generate Alt Text'
     };
 
-    const title = actionTitles[action] || '🖼️ Procesar Imagen';
+    const title = actionTitles[action] || '🖼️ Process Image';
 
     dialog.innerHTML = `
       <header class="ai-result-header ai-draggable">
@@ -899,7 +855,7 @@ const DialogModule = (function() {
         </div>
         <div class="title">${title}</div>
         <div class="spacer"></div>
-        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+        <button class="ai-iconbtn close-panel" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -908,15 +864,15 @@ const DialogModule = (function() {
 
       <div class="ai-result-body">
         <div class="ai-image-preview" style="margin-bottom: 1rem; text-align: center;">
-          <img src="${URL.createObjectURL(imageFile)}" alt="Imagen a procesar" style="max-width: 100%; max-height: 300px; border-radius: 8px;" />
+          <img src="${URL.createObjectURL(imageFile)}" alt="Image to process" style="max-width: 100%; max-height: 300px; border-radius: 8px;" />
         </div>
-        <div class="ai-answer" style="min-height: 100px;">Procesando imagen...</div>
+        <div class="ai-answer" style="min-height: 100px;">Processing image...</div>
       </div>
 
       <div class="ai-actions">
-        <div class="left">Imagen procesada</div>
+        <div class="left">Image processed</div>
         <div class="right">
-          <button class="ai-iconbtn copy-btn" aria-label="Copiar">
+          <button class="ai-iconbtn copy-btn" aria-label="Copy">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <rect x="9" y="9" width="10" height="10" rx="2"></rect>
               <rect x="5" y="5" width="10" height="10" rx="2"></rect>
@@ -933,14 +889,14 @@ const DialogModule = (function() {
   }
 
   /**
-   * Configurar eventos para diálogo de imagen
+   * Setup events for image dialog
    */
   function setupImageDialogEvents(dialog, imageFile, action) {
     const answerDiv = dialog.querySelector('.ai-answer');
     const copyBtn = dialog.querySelector('.copy-btn');
     const closeBtn = dialog.querySelector('.close-panel');
 
-    // Procesar imagen automáticamente
+    // Process image automatically
     (async () => {
       try {
         const result = await MultimodalModule.processImageWithAction(
@@ -953,12 +909,11 @@ const DialogModule = (function() {
         );
         answerDiv.textContent = result;
       } catch (error) {
-        console.error('Error al procesar imagen:', error);
         answerDiv.textContent = `❌ Error: ${error.message}`;
       }
     })();
 
-    // Copiar
+    // Copy
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(answerDiv.textContent);
       copyBtn.innerHTML = `<span style="font-size: 0.9rem;">✓</span>`;
@@ -972,14 +927,14 @@ const DialogModule = (function() {
       }, 2000);
     });
 
-    // Cerrar
+    // Close
     closeBtn.addEventListener('click', () => {
       dialog.remove();
     });
   }
 
   /**
-   * Función auxiliar para hacer un diálogo draggable (exponer públicamente)
+   * Helper function to make a dialog draggable (publicly exposed)
    */
   function enableDrag(dialog) {
     makeDraggable(dialog);
