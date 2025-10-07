@@ -10,17 +10,69 @@ const RAGEngine = (function() {
       this.vocabulary = new Map();
       this.idf = new Map();
       this.stopWords = new Set([
+        // Spanish stop words
         'el', 'la', 'de', 'que', 'y', 'a', 'en', 'un', 'ser', 'se', 'no', 'haber',
         'por', 'con', 'su', 'para', 'como', 'estar', 'tener', 'le', 'lo', 'todo',
+        'pero', 'más', 'hacer', 'o', 'poder', 'decir', 'este', 'ir', 'otro', 'ese',
+        'la', 'si', 'me', 'ya', 'ver', 'porque', 'dar', 'cuando', 'él', 'muy',
+        'sin', 'vez', 'mucho', 'saber', 'qué', 'sobre', 'mi', 'alguno', 'mismo',
+        'yo', 'también', 'hasta', 'año', 'dos', 'querer', 'entre', 'así', 'primero',
+        'desde', 'grande', 'eso', 'ni', 'nos', 'llegar', 'pasar', 'tiempo', 'ella',
+        'sí', 'día', 'uno', 'bien', 'poco', 'deber', 'entonces', 'poner', 'cosa',
+        'tanto', 'hombre', 'parecer', 'nuestro', 'tan', 'donde', 'ahora', 'parte',
+        'después', 'vida', 'quedar', 'siempre', 'creer', 'hablar', 'llevar', 'dejar',
+        'nada', 'cada', 'seguir', 'menos', 'nuevo', 'encontrar', 'algo', 'solo',
+        'decir', 'estos', 'trabajar', 'salir', 'puede', 'casa', 'mil', 'durante',
+        
+        // English stop words
         'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for',
-        'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by'
+        'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by',
+        'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one',
+        'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about',
+        'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'time',
+        'no', 'just', 'him', 'know', 'take', 'people', 'into', 'year', 'your', 'good',
+        'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only',
+        'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how',
+        'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any',
+        'these', 'give', 'day', 'most', 'us', 'is', 'was', 'are', 'been', 'has', 'had',
+        'were', 'said', 'did', 'having', 'may', 'should', 'am', 'being', 'does', 'done',
+        
+        // French stop words
+        'le', 'de', 'un', 'être', 'et', 'à', 'il', 'avoir', 'ne', 'je', 'son', 'que',
+        'se', 'qui', 'ce', 'dans', 'en', 'du', 'elle', 'au', 'pour', 'pas', 'que',
+        'vous', 'par', 'sur', 'faire', 'plus', 'dire', 'me', 'on', 'mon', 'lui',
+        'nous', 'comme', 'mais', 'pouvoir', 'avec', 'tout', 'y', 'aller', 'voir',
+        'savoir', 'leur', 'si', 'prendre', 'venir', 'même', 'encore', 'aussi',
+        
+        // German stop words
+        'der', 'die', 'und', 'in', 'den', 'von', 'zu', 'das', 'mit', 'sich', 'des',
+        'auf', 'für', 'ist', 'im', 'dem', 'nicht', 'ein', 'eine', 'als', 'auch',
+        'es', 'an', 'werden', 'aus', 'er', 'hat', 'dass', 'sie', 'nach', 'wird',
+        'bei', 'einer', 'um', 'am', 'sind', 'noch', 'wie', 'einem', 'über', 'einen',
+        'so', 'zum', 'war', 'haben', 'nur', 'oder', 'aber', 'vor', 'zur', 'bis',
+        
+        // Italian stop words
+        'di', 'che', 'è', 'per', 'un', 'il', 'in', 'non', 'una', 'sono', 'mi',
+        'ho', 'lo', 'ma', 'ha', 'cosa', 'le', 'sei', 'ti', 'gli', 'nel', 'al',
+        'questo', 'qui', 'quello', 'della', 'dei', 'del', 'tu', 'te', 'delle',
+        'alla', 'gli', 'nelle', 'tutti', 'anche', 'fare', 'più', 'essere', 'stato',
+        
+        // Portuguese stop words
+        'o', 'a', 'os', 'as', 'um', 'uma', 'uns', 'umas', 'ao', 'aos', 'à', 'às',
+        'do', 'da', 'dos', 'das', 'no', 'na', 'nos', 'nas', 'pelo', 'pela', 'pelos',
+        'pelas', 'este', 'esta', 'estes', 'estas', 'esse', 'essa', 'esses', 'essas',
+        'aquele', 'aquela', 'aqueles', 'aquelas', 'isto', 'isso', 'aquilo', 'eu',
+        'tu', 'ele', 'ela', 'nós', 'vós', 'eles', 'elas', 'me', 'te', 'se', 'lhe',
+        'nos', 'vos', 'lhes', 'meu', 'minha', 'meus', 'minhas', 'teu', 'tua', 'teus',
+        'tuas', 'seu', 'sua', 'seus', 'suas', 'nosso', 'nossa', 'nossos', 'nossas'
       ]);
     }
 
     tokenize(text) {
       return text
         .toLowerCase()
-        .replace(/[^\w\sáéíóúñü]/g, ' ')
+        // Support for multiple languages: Spanish, French, German, Italian, Portuguese
+        .replace(/[^\w\sáéíóúñüàâäèêëïîôöùûçãõ]/g, ' ')
         .split(/\s+/)
         .filter(word => word.length > 2 && !this.stopWords.has(word));
     }
@@ -155,14 +207,56 @@ const RAGEngine = (function() {
   class URLScorer {
     constructor() {
       this.commonPatterns = {
-        contact: /contact|contacto|contactanos|contactenos|about|acerca/i,
-        products: /product|producto|shop|tienda|catalogo|catalog/i,
-        services: /service|servicio|what-we-do|que-hacemos/i,
-        pricing: /price|precio|pricing|precios|plan|planes/i,
-        about: /about|acerca|nosotros|who-we-are|quienes-somos/i,
-        help: /help|ayuda|faq|preguntas|support|soporte/i,
-        blog: /blog|news|noticias|article|articulo/i,
-        careers: /career|trabajo|jobs|empleo|join/i
+        // Contact patterns (EN, ES, FR, DE, IT, PT)
+        contact: /contact|contacto|contactanos|contactenos|contáctanos|contáctenos|about|acerca|contact-us|nous-contacter|kontakt|kontaktieren|contattaci|contato|fale-conosco/i,
+        
+        // Products patterns
+        products: /product|producto|productos|shop|tienda|catalogo|catalog|catalogue|store|magasin|boutique|geschäft|laden|negozio|prodotti|loja|produtos/i,
+        
+        // Services patterns
+        services: /service|servicio|servicios|what-we-do|que-hacemos|nos-services|dienstleistungen|servizi|serviços/i,
+        
+        // Pricing patterns
+        pricing: /price|precio|precios|pricing|plan|planes|plans|tarif|tarifs|preis|preise|prezzo|prezzi|preço|preços|cost|coste|costo|custo/i,
+        
+        // About patterns
+        about: /about|acerca|nosotros|who-we-are|quienes-somos|quiénes-somos|about-us|qui-sommes-nous|über-uns|chi-siamo|sobre-nos|nossa-empresa|company|empresa|société|unternehmen|azienda|team|equipo|équipe/i,
+        
+        // Help & Support patterns
+        help: /help|ayuda|faq|preguntas|support|soporte|aide|hilfe|aiuto|ajuda|frequently-asked|preguntas-frecuentes|centro-ayuda|help-center|kundenservice|assistenza/i,
+        
+        // Blog & News patterns
+        blog: /blog|news|noticias|article|articulo|artículo|articles|actualités|neuigkeiten|notizie|notícias|post|entrada|beitrag/i,
+        
+        // Careers patterns
+        careers: /career|trabajo|jobs|empleo|join|únete|trabaja-con-nosotros|work-with-us|carrières|emploi|karriere|stelle|lavora-con-noi|carreiras|trabalhe-conosco|hiring|recruiting|reclutamiento/i,
+        
+        // Features patterns
+        features: /feature|características|funcionalidades|fonctionnalités|funktionen|caratteristiche|recursos|what-we-offer|que-ofrecemos/i,
+        
+        // Documentation patterns
+        documentation: /doc|documentation|documentación|documentação|guide|guía|tutorial|manual|help-docs|api-docs/i,
+        
+        // Download patterns
+        download: /download|descargar|télécharger|herunterladen|scaricare|baixar|get|obtener/i,
+        
+        // Login/Account patterns
+        account: /login|signin|sign-in|register|signup|sign-up|account|cuenta|connexion|inscription|anmelden|registrieren|accedi|registrati|entrar|cadastro/i,
+        
+        // Terms & Privacy patterns
+        legal: /terms|términos|conditions|condiciones|privacy|privacidad|politique|datenschutz|confidentialité|politica|privacidade|legal|cookie|gdpr/i,
+        
+        // Portfolio/Gallery patterns
+        portfolio: /portfolio|portafolio|gallery|galería|galerie|galleria|trabalhos|projetos|projects|proyectos|projets|projekte|progetti/i,
+        
+        // Testimonials/Reviews patterns
+        reviews: /testimonial|testimonio|review|reseña|opinión|avis|bewertung|recensione|avaliação|cliente|customer|client/i,
+        
+        // Partners patterns
+        partners: /partner|socio|partenaire|partnerschaften|collaborazioni|parceiro|alliance|colaboración/i,
+        
+        // Events patterns
+        events: /event|evento|événement|veranstaltung|eventi|webinar|conference|conferencia|conférence|konferenz|conferenza/i
       };
     }
 
