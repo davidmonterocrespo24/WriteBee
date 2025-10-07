@@ -462,7 +462,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       messageEl.className = `message ${msg.role}-message`;
 
       const avatar = msg.role === 'user' ? 'U' : '<div class="ai-avatar" style="width: 100%; height: 100%; font-size: 16px;"><div class="eyes"><span></span><span></span></div></div>';
-      const roleName = msg.role === 'user' ? 'Tú' : 'Asistente';
+      const roleName = msg.role === 'user' ? 'You' : 'Assistant';
       const time = new Date(msg.timestamp).toLocaleTimeString('es', {
         hour: '2-digit',
         minute: '2-digit'
@@ -499,25 +499,22 @@ console.log('📜 side_panel.js loaded - starting execution');
         const actionsEl = document.createElement('div');
         actionsEl.className = 'message-actions';
         actionsEl.innerHTML = `
-          <button class="message-action-btn copy-btn" data-index="${index}">
+          <button class="message-action-btn copy-btn" data-index="${index}" title="Copiar">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
-            Copiar
           </button>
-          <button class="message-action-btn regenerate-btn" data-index="${index}">
+          <button class="message-action-btn regenerate-btn" data-index="${index}" title="Regenerar">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
-            Regenerar
           </button>
-          <button class="message-action-btn speak-btn" data-index="${index}">
+          <button class="message-action-btn speak-btn" data-index="${index}" title="Hablar">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
             </svg>
-            Hablar
           </button>
         `;
         messageEl.appendChild(actionsEl);
@@ -571,10 +568,10 @@ console.log('📜 side_panel.js loaded - starting execution');
   }
 
   /**
-   * Nueva conversación
+   * New conversation
    */
   function newConversation() {
-    if (confirm('¿Deseas iniciar una nueva conversación? Se borrará el historial actual.')) {
+    if (confirm('Do you want to start a new conversation? Current history will be deleted.')) {
       conversationHistory = [];
       saveHistory();
       renderChatHistory();
