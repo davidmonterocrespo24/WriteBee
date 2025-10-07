@@ -3254,38 +3254,40 @@
 
 /* Botón de transcripción de audio */
 .ai-whatsapp-transcribe-btn {
-  position: absolute;
-  right: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #00a884;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  z-index: 1;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: #00a884 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  z-index: 1000 !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
 }
 
 .ai-whatsapp-transcribe-btn:hover {
-  background: #00c89d;
-  transform: translateY(-50%) scale(1.15);
+  background: #06cf9c !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 .ai-whatsapp-transcribe-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
 }
 
 .ai-whatsapp-transcribe-btn svg {
-  width: 18px;
-  height: 18px;
-  color: #ffffff;
+  width: 18px !important;
+  height: 18px !important;
+  color: #ffffff !important;
+  fill: white !important;
 }
 
 /* Spinner para transcripción */
