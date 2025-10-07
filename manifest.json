@@ -45,6 +45,7 @@
         "modules/outlook.js",
         "modules/youtube.js",
         "modules/google.js",
+        "modules/github.js",
         "modules/linkedin.js",
         "modules/twitter.js",
         "modules/whatsapp.js",

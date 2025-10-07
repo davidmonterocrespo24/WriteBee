@@ -94,10 +94,9 @@ const OutlookModule = (function() {
     outlookButton.className = 'ai-outlook-floating-button';
     outlookButton.innerHTML = `
       <button class="ai-outlook-button-float">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          <path d="M8 10h8M8 14h4"/>
-        </svg>
+        <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
+          <div class="eyes"><span></span><span></span></div>
+        </div>
         <span>AI Asistente</span>
       </button>
     `;

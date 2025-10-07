@@ -467,7 +467,7 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
       const messageEl = document.createElement('div');
       messageEl.className = `message ${msg.role}-message`;
 
-      const avatar = msg.role === 'user' ? 'U' : 'AI';
+      const avatar = msg.role === 'user' ? 'U' : '<div class="ai-avatar" style="width: 100%; height: 100%; font-size: 16px;"><div class="eyes"><span></span><span></span></div></div>';
       const roleName = msg.role === 'user' ? 'Tú' : 'Asistente';
       const time = new Date(msg.timestamp).toLocaleTimeString('es', {
         hour: '2-digit',

@@ -2264,62 +2264,81 @@
    GOOGLE SEARCH MODULE STYLES
    ======================================== */
 
+/* Google Search Panel - Fixed right sidebar */
 .ai-google-panel {
+  position: fixed !important;
+  top: 120px !important;
+  right: 20px !important;
+  width: 380px !important;
+  max-width: calc(100vw - 40px) !important;
+  max-height: calc(100vh - 140px) !important;
+  overflow-y: auto !important;
+  z-index: 999998 !important;
   background: #2a2a2f;
   border: 1px solid #3a3a40;
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 12px;
   font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
-.ai-google-panel-fixed {
-  position: fixed !important;
-  top: 150px !important;
-  right: 20px !important;
-  width: 380px !important;
-  max-width: calc(100vw - 40px) !important;
-  max-height: calc(100vh - 170px) !important;
-  overflow-y: auto !important;
-  z-index: 999998 !important;
+/* Scrollbar for the panel */
+.ai-google-panel::-webkit-scrollbar {
+  width: 8px;
 }
 
+.ai-google-panel::-webkit-scrollbar-track {
+  background: #2a2a2f;
+  border-radius: 0 12px 12px 0;
+}
+
+.ai-google-panel::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 4px;
+}
+
+.ai-google-panel::-webkit-scrollbar-thumb:hover {
+  background: #8ab4ff;
+}
+
+/* Floating fallback when sidebar is not found */
 .ai-google-panel-floating {
   position: fixed !important;
-  top: 100px !important;
+  top: 120px !important;
   right: 20px !important;
   width: 380px !important;
   max-width: calc(100vw - 40px) !important;
+  max-height: calc(100vh - 140px) !important;
+  overflow-y: auto !important;
   z-index: 999998 !important;
-  box-shadow: 0 2px 12px rgba(32, 33, 36, 0.3) !important;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
+  margin-bottom: 0 !important;
 }
 
 .ai-google-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
-  background: #1e1e23;
+  padding: 10px 14px;
+  background: linear-gradient(to bottom, #2d2d33, #2a2a2f);
   border-bottom: 1px solid #3a3a40;
-  color: #eaeaf0;
+  cursor: pointer;
+  user-select: none;
 }
 
 .ai-google-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: #8ab4ff;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: inset 0 0 0 2px #ffffff22;
 }
 
 .ai-google-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   stroke: #1e1e1e;
   stroke-width: 2;
 }
@@ -2332,35 +2351,61 @@
 }
 
 .ai-google-title strong {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: #eaeaf0;
 }
 
 .ai-google-title span {
-  font-size: 12px;
+  font-size: 13px;
   color: #a5a7b1;
 }
 
+.ai-google-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #ddd;
+}
+
+.ai-google-toggle:hover {
+  background: #35353c;
+}
+
+.ai-google-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  transition: transform 0.3s ease;
+}
+
 .ai-google-content {
-  padding: 16px;
+  padding: 14px;
   background: #2a2a2f;
 }
 
 .ai-google-info {
-  padding: 10px;
+  padding: 10px 12px;
   background: #1e1e23;
-  border-left: 3px solid #8ab4ff;
-  border-radius: 4px;
+  border: 1px dashed #3a3a40;
+  border-radius: 8px;
   color: #a5a7b1;
   font-size: 13px;
+  line-height: 1.5;
   margin-bottom: 16px;
 }
 
 .ai-google-actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 16px;
 }
 
@@ -2368,34 +2413,32 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 10px 12px;
   background: #242428;
   border: 1px solid #3a3a40;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   text-align: left;
 }
 
 .ai-google-action-btn:hover {
   background: #2e2e33;
   border-color: #8ab4ff;
-  box-shadow: 0 1px 4px rgba(138, 180, 255, 0.3);
-  transform: translateY(-1px);
 }
 
 .ai-google-action-btn:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 .ai-google-action-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
   transform: none;
 }
 
 .ai-google-btn-icon {
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -2409,8 +2452,8 @@
 
 .ai-google-btn-content strong {
   color: #eaeaf0;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .ai-google-btn-content span {
@@ -2420,7 +2463,7 @@
 
 .ai-google-result {
   margin-top: 16px;
-  padding: 14px;
+  padding: 12px;
   background: #242428;
   border: 1px solid #3a3a40;
   border-radius: 8px;
@@ -2430,7 +2473,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 1px solid #3a3a40;
 }
@@ -2453,24 +2496,24 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  background: #2e2e33;
-  border: 1px solid #3a3a40;
-  border-radius: 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  color: #ddd;
 }
 
 .ai-google-copy-btn:hover,
 .ai-google-close-result-btn:hover {
-  background: #3a3a40;
-  border-color: #8ab4ff;
+  background: #35353c;
+  color: #fff;
 }
 
 .ai-google-copy-btn svg,
 .ai-google-close-result-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke: #a5a7b1;
+  width: 16px;
+  height: 16px;
 }
 
 .ai-google-source-info {
@@ -2479,7 +2522,7 @@
 }
 
 .ai-google-result-content {
-  color: #eaeaf0;
+  color: #e8e8e8;
   font-size: 14px;
   line-height: 1.6;
   max-height: 400px;
@@ -2567,6 +2610,29 @@
 
 .ai-google-result-content a:hover {
   text-decoration: underline;
+}
+
+.ai-google-result-content blockquote {
+  border-left: 3px solid #8ab4ff;
+  padding-left: 12px;
+  margin: 12px 0;
+  color: #a5a7b1;
+  font-style: italic;
+}
+
+.ai-google-result-content pre {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.ai-google-result-content pre code {
+  background: none;
+  color: #e8e8e8;
+  padding: 0;
 }
 
 /* ========================================
@@ -4470,4 +4536,300 @@
   background: #8ab4ff;
   color: #1f1f23;
   border-color: #8ab4ff;
+}
+
+/* GitHub Repository Summary Panel */
+.ai-github-panel {
+  background: #2a2a2f;
+  border: 1px solid #3a3a40;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.ai-github-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: linear-gradient(to bottom, #2d2d33, #2a2a2f);
+  border-bottom: 1px solid #3a3a40;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-github-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #7a5cff;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 2px #ffffff22;
+}
+
+.ai-github-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+.ai-github-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-github-title strong {
+  color: #eaeaf0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ai-github-title span {
+  color: #a5a7b1;
+  font-size: 13px;
+}
+
+.ai-github-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #ddd;
+}
+
+.ai-github-toggle:hover {
+  background: #35353c;
+}
+
+.ai-github-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  transition: transform 0.3s ease;
+}
+
+.ai-github-content {
+  padding: 14px;
+  background: #2a2a2f;
+}
+
+.ai-github-info {
+  padding: 10px 12px;
+  background: #1f1f23;
+  border: 1px dashed #3a3a40;
+  border-radius: 8px;
+  color: #a5a7b1;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.ai-github-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ai-github-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #eaeaf0;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-github-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #8ab4ff;
+}
+
+.ai-github-summarize-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #8ab4ff;
+  color: #1e1e1e;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-github-summarize-btn:hover {
+  background: #7aa4ef;
+}
+
+.ai-github-summarize-btn:active {
+  transform: scale(0.95);
+}
+
+.ai-github-summarize-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-github-summarize-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ai-github-result {
+  margin-top: 16px;
+  padding: 12px;
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+}
+
+.ai-github-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #3a3a40;
+}
+
+.ai-github-result-header span {
+  color: #eaeaf0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ai-github-result-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.ai-github-copy-btn,
+.ai-github-regenerate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #ddd;
+}
+
+.ai-github-copy-btn:hover,
+.ai-github-regenerate-btn:hover {
+  background: #35353c;
+  color: #fff;
+}
+
+.ai-github-copy-btn svg,
+.ai-github-regenerate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ai-github-result-content {
+  color: #e8e8e8;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+.ai-github-result-content h1,
+.ai-github-result-content h2,
+.ai-github-result-content h3,
+.ai-github-result-content h4 {
+  color: #eaeaf0;
+  margin-top: 18px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.ai-github-result-content h1 {
+  font-size: 20px;
+  border-bottom: 2px solid #3a3a40;
+  padding-bottom: 8px;
+}
+
+.ai-github-result-content h2 {
+  font-size: 18px;
+}
+
+.ai-github-result-content h3 {
+  font-size: 16px;
+}
+
+.ai-github-result-content ul,
+.ai-github-result-content ol {
+  padding-left: 24px;
+  margin: 12px 0;
+}
+
+.ai-github-result-content li {
+  margin: 6px 0;
+}
+
+.ai-github-result-content code {
+  background: #1f1f23;
+  color: #ffd400;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.ai-github-result-content pre {
+  background: #1f1f23;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.ai-github-result-content pre code {
+  background: none;
+  color: #e8e8e8;
+  padding: 0;
+}
+
+.ai-github-result-content blockquote {
+  border-left: 3px solid #7a5cff;
+  padding-left: 12px;
+  margin: 12px 0;
+  color: #a5a7b1;
+  font-style: italic;
+}
+
+.ai-github-result-content a {
+  color: #8ab4ff;
+  text-decoration: none;
+}
+
+.ai-github-result-content a:hover {
+  text-decoration: underline;
 }

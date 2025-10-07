@@ -77,10 +77,9 @@ const WhatsAppModule = (function() {
     btn.setAttribute('type', 'button');
 
     btn.innerHTML = `
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-        <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        <path d="M12 8v6M8 11h8" fill="none" stroke="#ffffff" stroke-width="2"/>
-      </svg>
+      <div class="ai-avatar" style="width: 24px; height: 24px; font-size: 12px; background: #00a884;">
+        <div class="eyes"><span></span><span></span></div>
+      </div>
     `;
 
     btn.addEventListener('click', (e) => {
@@ -113,11 +112,9 @@ const WhatsAppModule = (function() {
     btn.title = 'Transcribir audio con AI';
 
     btn.innerHTML = `
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" fill="none" stroke="currentColor" stroke-width="2"/>
-        <text x="12" y="18" text-anchor="middle" font-size="6" fill="currentColor">AI</text>
-      </svg>
+      <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px; background: #00a884;">
+        <div class="eyes"><span></span><span></span></div>
+      </div>
     `;
 
     btn.addEventListener('click', async (e) => {

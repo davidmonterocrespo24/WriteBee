@@ -64,10 +64,9 @@ const YoutubeModule = (function() {
     youtubePanel.innerHTML = `
       <div class="ai-youtube-header">
         <div class="ai-youtube-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            <path d="M8 10h8M8 14h4"/>
-          </svg>
+          <div class="ai-avatar" style="width: 24px; height: 24px; font-size: 12px;">
+            <div class="eyes"><span></span><span></span></div>
+          </div>
         </div>
         <div class="ai-youtube-title">
           <strong>Asistente AI</strong>
@@ -82,7 +81,7 @@ const YoutubeModule = (function() {
 
       <div class="ai-youtube-content">
         <div class="ai-youtube-info">
-          💡 Genera un resumen inteligente de este video usando los subtítulos disponibles.
+          Genera un resumen inteligente de este video usando los subtítulos disponibles.
         </div>
 
         <div class="ai-youtube-options">

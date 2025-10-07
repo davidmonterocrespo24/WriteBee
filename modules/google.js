@@ -25,8 +25,24 @@ const GoogleModule = (function() {
       }
     }).observe(document, { subtree: true, childList: true });
 
+    // Observador adicional para detectar cuando aparece el sidebar
+    const sidebarObserver = new MutationObserver(() => {
+      // Solo intentar insertar si no existe el panel y hay una query
+      if (!googlePanel && getSearchQuery()) {
+        console.log('🔄 Sidebar detectado por MutationObserver, intentando insertar panel...');
+        insertGooglePanel();
+      }
+    });
+
+    sidebarObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
     // Verificar inmediatamente
     setTimeout(onSearchChange, 1000);
+    // Reintentar después de 3 segundos por si la página tarda en cargar
+    setTimeout(onSearchChange, 3000);
   }
 
   function onSearchChange() {
@@ -51,31 +67,41 @@ const GoogleModule = (function() {
     // Remover panel anterior si existe
     removeGooglePanel();
 
-    // Crear panel de AI
+    console.log('📍 Creando panel flotante en el lado derecho');
+
+    // Crear panel de AI (siempre flotante a la derecha)
     googlePanel = document.createElement('div');
-    googlePanel.className = 'ai-google-panel ai-google-panel-fixed';
+    googlePanel.className = 'ai-google-panel';
     googlePanel.innerHTML = `
       <div class="ai-google-header">
         <div class="ai-google-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 16v-4M12 8h.01"/>
-          </svg>
+          <div class="ai-avatar" style="width: 24px; height: 24px; font-size: 12px;">
+            <div class="eyes"><span></span><span></span></div>
+          </div>
         </div>
         <div class="ai-google-title">
           <strong>Asistente AI</strong>
           <span>Analiza los resultados</span>
         </div>
+        <button class="ai-google-toggle" aria-label="Expandir/Contraer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
       </div>
 
       <div class="ai-google-content">
         <div class="ai-google-info">
-          💡 Usa IA para analizar los resultados de búsqueda
+          � Generando resumen automático del primer resultado...
         </div>
 
         <div class="ai-google-actions">
           <button class="ai-google-action-btn summary-btn">
-            <div class="ai-google-btn-icon">📄</div>
+            <div class="ai-google-btn-icon">
+              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
+                <div class="eyes"><span></span><span></span></div>
+              </div>
+            </div>
             <div class="ai-google-btn-content">
               <strong>Resumen de Búsqueda</strong>
               <span>Resume el primer resultado</span>
@@ -83,7 +109,11 @@ const GoogleModule = (function() {
           </button>
 
           <button class="ai-google-action-btn mindmap-btn">
-            <div class="ai-google-btn-icon">🧠</div>
+            <div class="ai-google-btn-icon">
+              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
+                <div class="eyes"><span></span><span></span></div>
+              </div>
+            </div>
             <div class="ai-google-btn-content">
               <strong>Mapa Mental</strong>
               <span>Organiza conceptos clave</span>
@@ -122,9 +152,125 @@ const GoogleModule = (function() {
       </div>
     `;
 
-    // Simplemente agregar el panel al body - usará position: fixed con CSS
+    // Insertar el panel en el body (flotante a la derecha)
     document.body.appendChild(googlePanel);
-    console.log('✅ Panel de Google insertado (fixed position)');
+    console.log('✅ Panel de Google insertado (flotante derecha)');
+    
+    setupGooglePanelEvents(googlePanel);
+    
+    // Activar automáticamente el resumen al aparecer el panel
+    setTimeout(() => {
+      const summaryBtn = googlePanel.querySelector('.summary-btn');
+      const infoDiv = googlePanel.querySelector('.ai-google-info');
+      
+      if (summaryBtn && infoDiv) {
+        console.log('🚀 Activando resumen automático...');
+        
+        // Actualizar el mensaje
+        infoDiv.innerHTML = '⏳ Analizando el primer resultado de búsqueda...';
+        
+        // Activar el botón de resumen
+        summaryBtn.click();
+        
+        // Después de un momento, actualizar el mensaje
+        setTimeout(() => {
+          if (infoDiv) {
+            infoDiv.innerHTML = '💡 Usa los botones para analizar los resultados de búsqueda';
+          }
+        }, 2000);
+      }
+    }, 500); // Pequeño delay para asegurar que todo esté configurado
+  }
+
+  function createFloatingSidebar() {
+    console.log('🎈 Creando panel flotante como fallback');
+    
+    // Crear panel de AI flotante
+    googlePanel = document.createElement('div');
+    googlePanel.className = 'ai-google-panel ai-google-panel-floating';
+    googlePanel.innerHTML = `
+      <div class="ai-google-header">
+        <div class="ai-google-icon">
+          <div class="ai-avatar" style="width: 24px; height: 24px; font-size: 12px;">
+            <div class="eyes"><span></span><span></span></div>
+          </div>
+        </div>
+        <div class="ai-google-title">
+          <strong>Asistente AI</strong>
+          <span>Analiza los resultados</span>
+        </div>
+        <button class="ai-google-toggle" aria-label="Expandir/Contraer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="ai-google-content">
+        <div class="ai-google-info">
+          Usa IA para analizar los resultados de búsqueda
+        </div>
+
+        <div class="ai-google-actions">
+          <button class="ai-google-action-btn summary-btn">
+            <div class="ai-google-btn-icon">
+              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
+                <div class="eyes"><span></span><span></span></div>
+              </div>
+            </div>
+            <div class="ai-google-btn-content">
+              <strong>Resumen de Búsqueda</strong>
+              <span>Resume el primer resultado</span>
+            </div>
+          </button>
+
+          <button class="ai-google-action-btn mindmap-btn">
+            <div class="ai-google-btn-icon">
+              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
+                <div class="eyes"><span></span><span></span></div>
+              </div>
+            </div>
+            <div class="ai-google-btn-content">
+              <strong>Mapa Mental</strong>
+              <span>Organiza conceptos clave</span>
+            </div>
+          </button>
+
+          <button class="ai-google-action-btn insights-btn">
+            <div class="ai-google-btn-icon">💡</div>
+            <div class="ai-google-btn-content">
+              <strong>Insights</strong>
+              <span>Puntos principales</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="ai-google-result" style="display: none;">
+          <div class="ai-google-result-header">
+            <span class="ai-google-result-title">Resultado:</span>
+            <div class="ai-google-result-actions">
+              <button class="ai-google-copy-btn" title="Copiar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <rect x="9" y="9" width="10" height="10" rx="2"></rect>
+                  <rect x="5" y="5" width="10" height="10" rx="2"></rect>
+                </svg>
+              </button>
+              <button class="ai-google-close-result-btn" title="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="ai-google-source-info"></div>
+          <div class="ai-google-result-content"></div>
+        </div>
+      </div>
+    `;
+
+    // Insertar en el body
+    document.body.appendChild(googlePanel);
+    console.log('✅ Panel flotante de Google insertado');
     
     setupGooglePanelEvents(googlePanel);
   }
@@ -137,6 +283,17 @@ const GoogleModule = (function() {
   }
 
   function setupGooglePanelEvents(panel) {
+    // Toggle expandir/contraer
+    const toggleBtn = panel.querySelector('.ai-google-toggle');
+    const content = panel.querySelector('.ai-google-content');
+    let isExpanded = true;
+
+    toggleBtn.addEventListener('click', () => {
+      isExpanded = !isExpanded;
+      content.style.display = isExpanded ? 'block' : 'none';
+      toggleBtn.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
+    });
+
     const summaryBtn = panel.querySelector('.summary-btn');
     const mindmapBtn = panel.querySelector('.mindmap-btn');
     const insightsBtn = panel.querySelector('.insights-btn');

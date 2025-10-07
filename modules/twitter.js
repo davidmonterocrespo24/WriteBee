@@ -102,9 +102,9 @@ const TwitterModule = (function() {
 
     btn.innerHTML = `
       <div dir="ltr" class="css-146c3p1 r-bcqeeo r-qvutc0 r-37j5jr r-q4m81j r-a023e6 r-rjixqe r-b88u0q r-1awozwy r-6koalj r-18u37iz r-16y2uox r-1777fci" style="color: rgb(29, 155, 240);">
-        <svg viewBox="0 0 24 24" aria-hidden="true" class="r-4qtqp9 r-yyyyoo r-dnmrzs r-bnwqim r-lrvibr r-m6rgpd r-z80fyv r-19wmn03" style="color: rgb(29, 155, 240);">
-          <g><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z M12 8v6M8 11h8" fill="none" stroke="currentColor" stroke-width="2"/></g>
-        </svg>
+        <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px; background: rgb(29, 155, 240);">
+          <div class="eyes"><span></span><span></span></div>
+        </div>
         <span class="css-1jxf684 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3 r-a023e6 r-rjixqe"></span>
       </div>
     `;
@@ -150,9 +150,9 @@ const TwitterModule = (function() {
 
     btn.innerHTML = `
       <div dir="ltr" class="css-146c3p1 r-bcqeeo r-qvutc0 r-37j5jr r-q4m81j r-a023e6 r-rjixqe r-b88u0q r-1awozwy r-6koalj r-18u37iz r-16y2uox r-1777fci" style="color: rgb(29, 155, 240);">
-        <svg viewBox="0 0 24 24" aria-hidden="true" class="r-4qtqp9 r-yyyyoo r-dnmrzs r-bnwqim r-lrvibr r-m6rgpd r-z80fyv r-19wmn03" style="color: rgb(29, 155, 240);">
-          <g><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z M8 10h8M8 14h4" fill="none" stroke="currentColor" stroke-width="2"/></g>
-        </svg>
+        <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px; background: rgb(29, 155, 240);">
+          <div class="eyes"><span></span><span></span></div>
+        </div>
         <span class="css-1jxf684 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-bcqeeo r-1ttztb7 r-qvutc0 r-poiln3 r-a023e6 r-rjixqe"></span>
       </div>
     `;
