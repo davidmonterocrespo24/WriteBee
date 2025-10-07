@@ -366,15 +366,15 @@ const GoogleModule = (function() {
 
       switch (type) {
         case 'summary':
-          titleText.textContent = '📄 Resumen:';
+          titleText.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="4" y="4" width="16" height="16" rx="2"/></svg> Resumen:';
           result = await generateSummary(firstResult);
           break;
         case 'mindmap':
-          titleText.textContent = '🧠 Mapa Mental:';
+          titleText.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="2"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M10 10L8 8M14 10l2-2M10 14l-2 2M14 14l2 2"/></svg> Mapa Mental:';
           result = await generateMindMap(firstResult);
           break;
         case 'insights':
-          titleText.textContent = '💡 Insights:';
+          titleText.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg> Insights:';
           result = await generateInsights(firstResult);
           break;
       }
@@ -387,7 +387,7 @@ const GoogleModule = (function() {
       console.error('Error procesando resultado:', error);
       resultContent.innerHTML = `
         <div style="color: #ff6b6b; padding: 12px; background: #fff5f5; border-radius: 6px; border-left: 3px solid #ff6b6b;">
-          <strong>❌ Error:</strong> ${error.message}
+          <strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg> Error:</strong> ${error.message}
         </div>
       `;
       resultDiv.style.display = 'block';
