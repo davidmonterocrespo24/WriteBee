@@ -1,5 +1,5 @@
 /**
- * AIService - Clase para interactuar con las APIs de Chrome AI
+ * AIService - Class to interact with Chrome AI APIs
  */
 class AIService {
   constructor() {
@@ -7,7 +7,7 @@ class AIService {
   }
 
   /**
-   * Verifica si una API específica está disponible
+   * Checks if a specific API is available
    */
   async checkAvailability(apiName) {
     try {
@@ -25,13 +25,13 @@ class AIService {
   }
 
   /**
-   * Muestra el progreso de descarga del modelo
+   * Shows the download progress of the model
    */
   createMonitor(onProgress) {
     return (m) => {
       m.addEventListener('downloadprogress', (e) => {
         const percent = Math.round(e.loaded * 100);
-        console.log(`📥 Descargando modelo: ${percent}%`);
+        console.log(`📥 Downloading model: ${percent}%`);
         if (onProgress) {
           onProgress(percent);
         }
@@ -40,7 +40,7 @@ class AIService {
   }
 
   /**
-   * Resume texto usando Summarizer API
+   * Summarizes text using Summarizer API
    */
   async summarize(text, onProgress = null) {
     try {
@@ -66,7 +66,7 @@ class AIService {
   }
 
   /**
-   * Resume texto con streaming
+   * Summarizes text with streaming
    */
   async summarizeStream(text, onChunk, signal = null) {
     try {
@@ -84,7 +84,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        // Acumular manualmente porque la API devuelve deltas
+        // Accumulate manually because the API returns deltas
         fullText += chunk;
         if (onChunk) onChunk(fullText);
       }
@@ -93,7 +93,7 @@ class AIService {
       return fullText;
     } catch (error) {
       if (signal?.aborted) {
-        throw new Error('Streaming cancelado');
+        throw new Error('Streaming canceled');
       }
       console.error('Error en summarizeStream:', error);
       throw error;
@@ -101,7 +101,7 @@ class AIService {
   }
 
   /**
-   * Traduce texto usando Translator API
+   * Translates text using Translator API
    */
   async translate(text, targetLang, onProgress = null) {
     try {
@@ -109,7 +109,7 @@ class AIService {
         throw new Error('La API Translator no está disponible en este navegador.');
       }
 
-      // Detectar idioma de origen
+      // Detect source language
       let sourceLang = 'en';
       if (await this.checkAvailability('LanguageDetector')) {
         const detector = await self.LanguageDetector.create({
@@ -122,7 +122,7 @@ class AIService {
         detector.destroy();
       }
 
-      // Verificar disponibilidad del par de idiomas
+      // Check availability of the language pair
       const availability = await self.Translator.availability({
         sourceLanguage: sourceLang,
         targetLanguage: targetLang
@@ -149,7 +149,7 @@ class AIService {
   }
 
   /**
-   * Explica texto usando Prompt API
+   * Explains text using Prompt API
    */
   async explain(text, onProgress = null) {
     try {
@@ -173,7 +173,7 @@ class AIService {
   }
 
   /**
-   * Corrige gramática usando Proofreader API
+   * Checks grammar using Proofreader API
    */
   async checkGrammar(text, onProgress = null) {
     try {
@@ -189,7 +189,7 @@ class AIService {
       const result = await proofreader.proofread(text);
       proofreader.destroy();
 
-      // Formatear el resultado
+      // Format the result
       if (result.corrections.length === 0) {
         return '✅ No se encontraron errores gramaticales.';
       }
@@ -208,7 +208,7 @@ class AIService {
   }
 
   /**
-   * Reescribe texto usando Rewriter API
+   * Rewrites text using Rewriter API
    */
   async rewrite(text, onProgress = null) {
     try {
@@ -233,7 +233,7 @@ class AIService {
   }
 
   /**
-   * Expande texto usando Writer API
+   * Expands text using Writer API
    */
   async expand(text, onProgress = null) {
     try {
@@ -259,7 +259,7 @@ class AIService {
   }
 
   /**
-   * Responde preguntas usando Prompt API
+   * Answers questions using Prompt API
    */
   async answer(text, onProgress = null) {
     try {
@@ -283,7 +283,7 @@ class AIService {
   }
 
   /**
-   * Procesa mensajes de chat con contexto
+   * Processes chat messages with context
    */
   async chat(conversationHistory, onProgress = null) {
     try {
@@ -295,7 +295,7 @@ class AIService {
         monitor: this.createMonitor(onProgress)
       });
 
-      // Construir el contexto de la conversación
+      // Build the conversation context
       const context = conversationHistory.map(msg =>
         `${msg.role === 'user' ? 'Usuario' : 'Asistente'}: ${msg.content}`
       ).join('\n\n');
@@ -311,7 +311,7 @@ class AIService {
   }
 
   /**
-   * Streaming para respuestas largas (opcional)
+   * Streaming for long responses (optional)
    */
   async *streamResponse(text, action) {
     try {
@@ -348,7 +348,7 @@ class AIService {
   }
 
   /**
-   * Traduce con streaming
+   * Translates with streaming
    */
   async translateStream(text, targetLang, onChunk, signal = null) {
     try {
@@ -376,7 +376,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText += chunk; // Acumular deltas
+        fullText += chunk; // Accumulate deltas
         if (onChunk) onChunk(fullText);
       }
 
@@ -384,7 +384,7 @@ class AIService {
       return fullText;
     } catch (error) {
       if (signal?.aborted) {
-        throw new Error('Streaming cancelado');
+        throw new Error('Streaming canceled');
       }
       console.error('Error en translateStream:', error);
       throw error;
@@ -392,7 +392,7 @@ class AIService {
   }
 
   /**
-   * Explica texto usando Prompt API con streaming
+   * Explains text using Prompt API with streaming
    */
   async explainStream(text, onChunk, signal = null) {
     try {
@@ -414,7 +414,7 @@ class AIService {
       return fullText;
     } catch (error) {
       if (signal?.aborted) {
-        throw new Error('Streaming cancelado');
+        throw new Error('Streaming canceled');
       }
       console.error('Error en explainStream:', error);
       throw error;
@@ -422,7 +422,7 @@ class AIService {
   }
 
   /**
-   * Expande texto usando Writer API con streaming
+   * Expands text using Writer API with streaming
    */
   async expandStream(text, onChunk, signal = null) {
     try {
@@ -448,7 +448,7 @@ class AIService {
       return fullText;
     } catch (error) {
       if (signal?.aborted) {
-        throw new Error('Streaming cancelado');
+        throw new Error('Streaming canceled');
       }
       console.error('Error en expandStream:', error);
       throw error;
@@ -456,7 +456,7 @@ class AIService {
   }
 
   /**
-   * Responde preguntas usando Prompt API con streaming
+   * Answers questions using Prompt API with streaming
    */
   async answerStream(text, onChunk, signal = null) {
     try {
@@ -478,7 +478,7 @@ class AIService {
       return fullText;
     } catch (error) {
       if (signal?.aborted) {
-        throw new Error('Streaming cancelado');
+        throw new Error('Streaming canceled');
       }
       console.error('Error en answerStream:', error);
       throw error;
@@ -486,7 +486,7 @@ class AIService {
   }
 
   /**
-   * Reescribe texto con streaming
+   * Rewrites text with streaming
    */
   async rewriteStream(text, onChunk, signal = null) {
     try {
@@ -499,7 +499,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText += chunk; // Acumular deltas
+        fullText += chunk; // Accumulate deltas
         if (onChunk) onChunk(fullText);
       }
 
@@ -507,7 +507,7 @@ class AIService {
       return fullText;
     } catch (error) {
       if (signal?.aborted) {
-        throw new Error('Streaming cancelado');
+        throw new Error('Streaming canceled');
       }
       console.error('Error en rewriteStream:', error);
       throw error;
@@ -515,7 +515,7 @@ class AIService {
   }
 
   /**
-   * Writer API con streaming
+   * Writer API with streaming
    */
   async writeStream(prompt, onChunk, signal = null) {
     try {
@@ -536,7 +536,7 @@ class AIService {
       return fullText;
     } catch (error) {
       if (signal?.aborted) {
-        throw new Error('Streaming cancelado');
+        throw new Error('Streaming canceled');
       }
       console.error('Error en writeStream:', error);
       throw error;
@@ -544,7 +544,7 @@ class AIService {
   }
 
   /**
-   * Destruye todas las sesiones activas
+   * Destroys all active sessions
    */
   cleanup() {
     for (const [key, session] of this.sessions) {
@@ -556,6 +556,6 @@ class AIService {
   }
 }
 
-// Exportar como singleton
+// Export as singleton
 const aiServiceInstance = new AIService();
 window.AIServiceInstance = aiServiceInstance;

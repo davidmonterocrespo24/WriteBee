@@ -91,16 +91,13 @@ const GoogleModule = (function() {
       </div>
 
       <div class="ai-google-content">
-        <div class="ai-google-info">
-          � Generando resumen automático del primer resultado...
-        </div>
-
         <div class="ai-google-actions">
           <button class="ai-google-action-btn summary-btn">
             <div class="ai-google-btn-icon">
-              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
-                <div class="eyes"><span></span><span></span></div>
-              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12h6M9 16h6M9 8h6"/>
+                <rect x="4" y="4" width="16" height="16" rx="2"/>
+              </svg>
             </div>
             <div class="ai-google-btn-content">
               <strong>Resumen de Búsqueda</strong>
@@ -110,9 +107,14 @@ const GoogleModule = (function() {
 
           <button class="ai-google-action-btn mindmap-btn">
             <div class="ai-google-btn-icon">
-              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
-                <div class="eyes"><span></span><span></span></div>
-              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="2"/>
+                <circle cx="6" cy="6" r="2"/>
+                <circle cx="18" cy="6" r="2"/>
+                <circle cx="6" cy="18" r="2"/>
+                <circle cx="18" cy="18" r="2"/>
+                <path d="M10 10L8 8M14 10l2-2M10 14l-2 2M14 14l2 2"/>
+              </svg>
             </div>
             <div class="ai-google-btn-content">
               <strong>Mapa Mental</strong>
@@ -121,7 +123,12 @@ const GoogleModule = (function() {
           </button>
 
           <button class="ai-google-action-btn insights-btn">
-            <div class="ai-google-btn-icon">💡</div>
+            <div class="ai-google-btn-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
             <div class="ai-google-btn-content">
               <strong>Insights</strong>
               <span>Puntos principales</span>
@@ -161,23 +168,10 @@ const GoogleModule = (function() {
     // Activar automáticamente el resumen al aparecer el panel
     setTimeout(() => {
       const summaryBtn = googlePanel.querySelector('.summary-btn');
-      const infoDiv = googlePanel.querySelector('.ai-google-info');
       
-      if (summaryBtn && infoDiv) {
+      if (summaryBtn) {
         console.log('🚀 Activando resumen automático...');
-        
-        // Actualizar el mensaje
-        infoDiv.innerHTML = '⏳ Analizando el primer resultado de búsqueda...';
-        
-        // Activar el botón de resumen
         summaryBtn.click();
-        
-        // Después de un momento, actualizar el mensaje
-        setTimeout(() => {
-          if (infoDiv) {
-            infoDiv.innerHTML = '💡 Usa los botones para analizar los resultados de búsqueda';
-          }
-        }, 2000);
       }
     }, 500); // Pequeño delay para asegurar que todo esté configurado
   }
@@ -207,16 +201,13 @@ const GoogleModule = (function() {
       </div>
 
       <div class="ai-google-content">
-        <div class="ai-google-info">
-          Usa IA para analizar los resultados de búsqueda
-        </div>
-
         <div class="ai-google-actions">
           <button class="ai-google-action-btn summary-btn">
             <div class="ai-google-btn-icon">
-              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
-                <div class="eyes"><span></span><span></span></div>
-              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12h6M9 16h6M9 8h6"/>
+                <rect x="4" y="4" width="16" height="16" rx="2"/>
+              </svg>
             </div>
             <div class="ai-google-btn-content">
               <strong>Resumen de Búsqueda</strong>
@@ -226,9 +217,14 @@ const GoogleModule = (function() {
 
           <button class="ai-google-action-btn mindmap-btn">
             <div class="ai-google-btn-icon">
-              <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
-                <div class="eyes"><span></span><span></span></div>
-              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="2"/>
+                <circle cx="6" cy="6" r="2"/>
+                <circle cx="18" cy="6" r="2"/>
+                <circle cx="6" cy="18" r="2"/>
+                <circle cx="18" cy="18" r="2"/>
+                <path d="M10 10L8 8M14 10l2-2M10 14l-2 2M14 14l2 2"/>
+              </svg>
             </div>
             <div class="ai-google-btn-content">
               <strong>Mapa Mental</strong>
@@ -237,7 +233,12 @@ const GoogleModule = (function() {
           </button>
 
           <button class="ai-google-action-btn insights-btn">
-            <div class="ai-google-btn-icon">💡</div>
+            <div class="ai-google-btn-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
             <div class="ai-google-btn-content">
               <strong>Insights</strong>
               <span>Puntos principales</span>

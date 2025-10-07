@@ -1,5 +1,5 @@
 const AIModule = (function() {
-  // Obtener instancia del servicio de AI
+  // Get AI service instance
   const getAIService = () => window.AIServiceInstance;
 
   async function aiSummarize(text, onProgress = null) {
@@ -7,8 +7,8 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.summarize(text, onProgress);
     } catch (error) {
-      console.error('Error en aiSummarize:', error);
-      return `❌ Error al resumir: ${error.message}`;
+      console.error('Error in aiSummarize:', error);
+      return `❌ Error summarizing: ${error.message}`;
     }
   }
 
@@ -17,8 +17,8 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.translate(text, targetLang, onProgress);
     } catch (error) {
-      console.error('Error en aiTranslate:', error);
-      return `❌ Error al traducir: ${error.message}`;
+      console.error('Error in aiTranslate:', error);
+      return `❌ Error translating: ${error.message}`;
     }
   }
 
@@ -27,8 +27,8 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.explain(text, onProgress);
     } catch (error) {
-      console.error('Error en aiExplain:', error);
-      return `❌ Error al explicar: ${error.message}`;
+      console.error('Error in aiExplain:', error);
+      return `❌ Error explaining: ${error.message}`;
     }
   }
 
@@ -37,8 +37,8 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.checkGrammar(text, onProgress);
     } catch (error) {
-      console.error('Error en aiGrammar:', error);
-      return `❌ Error al revisar gramática: ${error.message}`;
+      console.error('Error in aiGrammar:', error);
+      return `❌ Error checking grammar: ${error.message}`;
     }
   }
 
@@ -47,8 +47,8 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.rewrite(text, onProgress);
     } catch (error) {
-      console.error('Error en aiRewrite:', error);
-      return `❌ Error al reescribir: ${error.message}`;
+      console.error('Error in aiRewrite:', error);
+      return `❌ Error rewriting: ${error.message}`;
     }
   }
 
@@ -57,8 +57,8 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.expand(text, onProgress);
     } catch (error) {
-      console.error('Error en aiExpand:', error);
-      return `❌ Error al expandir: ${error.message}`;
+      console.error('Error in aiExpand:', error);
+      return `❌ Error expanding: ${error.message}`;
     }
   }
 
@@ -67,8 +67,8 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.answer(text, onProgress);
     } catch (error) {
-      console.error('Error en aiAnswer:', error);
-      return `❌ Error al responder: ${error.message}`;
+      console.error('Error in aiAnswer:', error);
+      return `❌ Error answering: ${error.message}`;
     }
   }
 
@@ -77,18 +77,18 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.chat(conversationHistory, onProgress);
     } catch (error) {
-      console.error('Error en aiChat:', error);
-      return `❌ Error en chat: ${error.message}`;
+      console.error('Error in aiChat:', error);
+      return `❌ Error in chat: ${error.message}`;
     }
   }
 
-  // Funciones con streaming
+  // Streaming functions
   async function aiSummarizeStream(text, onChunk, signal = null) {
     try {
       const service = getAIService();
       return await service.summarizeStream(text, onChunk, signal);
     } catch (error) {
-      console.error('Error en aiSummarizeStream:', error);
+      console.error('Error in aiSummarizeStream:', error);
       throw error;
     }
   }
@@ -98,7 +98,7 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.rewriteStream(text, onChunk, signal);
     } catch (error) {
-      console.error('Error en aiRewriteStream:', error);
+      console.error('Error in aiRewriteStream:', error);
       throw error;
     }
   }
@@ -108,7 +108,7 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.writeStream(prompt, onChunk, signal);
     } catch (error) {
-      console.error('Error en aiWriteStream:', error);
+      console.error('Error in aiWriteStream:', error);
       throw error;
     }
   }
@@ -118,7 +118,7 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.translateStream(text, targetLang, onChunk, signal);
     } catch (error) {
-      console.error('Error en aiTranslateStream:', error);
+      console.error('Error in aiTranslateStream:', error);
       throw error;
     }
   }
@@ -128,7 +128,7 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.explainStream(text, onChunk, signal);
     } catch (error) {
-      console.error('Error en aiExplainStream:', error);
+      console.error('Error in aiExplainStream:', error);
       throw error;
     }
   }
@@ -138,7 +138,7 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.expandStream(text, onChunk, signal);
     } catch (error) {
-      console.error('Error en aiExpandStream:', error);
+      console.error('Error in aiExpandStream:', error);
       throw error;
     }
   }
@@ -148,7 +148,7 @@ const AIModule = (function() {
       const service = getAIService();
       return await service.answerStream(text, onChunk, signal);
     } catch (error) {
-      console.error('Error en aiAnswerStream:', error);
+      console.error('Error in aiAnswerStream:', error);
       throw error;
     }
   }
