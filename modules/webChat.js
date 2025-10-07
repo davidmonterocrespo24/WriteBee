@@ -1,6 +1,8 @@
 const WebChatModule = (function() {
   let pageContent = null;
   let pageSummary = null;
+  let ragEngine = null;
+  let isIndexed = false;
 
   /**
    * Extract text content from current page
@@ -40,46 +42,196 @@ const WebChatModule = (function() {
   }
 
   /**
-   * Summarize current page
+   * Extract all links from current page
    */
-  async function summarizePage(onProgress = null) {
+  function extractPageLinks() {
+    const links = [];
+    const currentDomain = window.location.hostname;
+    
+    document.querySelectorAll('a[href]').forEach(anchor => {
+      try {
+        const url = new URL(anchor.href, window.location.href);
+        
+        // Only include same-domain links (internal links)
+        if (url.hostname === currentDomain && 
+            !url.href.includes('#') && 
+            !url.href.endsWith('.pdf') &&
+            !url.href.endsWith('.jpg') &&
+            !url.href.endsWith('.png')) {
+          links.push(url.href);
+        }
+      } catch (e) {
+        // Ignore invalid URLs
+      }
+    });
+    
+    // Remove duplicates
+    return [...new Set(links)];
+  }
+
+  /**
+   * Initialize RAG Engine with current page
+   */
+  async function initializeRAG(onProgress = null) {
     try {
+      if (!window.RAGEngine) {
+        throw new Error('RAG Engine not loaded');
+      }
+
+      if (onProgress) onProgress('Initializing RAG Engine...');
+      
+      // Get or create RAG instance
+      ragEngine = RAGEngine.getInstance();
+      
+      // Clear previous index
+      ragEngine.clear();
+      
+      // Extract content
       if (!pageContent) {
         pageContent = extractPageContent();
       }
-
-      if (onProgress) onProgress('Analyzing page content...');
-
+      
+      if (onProgress) onProgress('Indexing current page...');
+      
+      // Index current page
       const metadata = getPageMetadata();
-      const prompt = `Summarize this web page:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\nContent:\n${pageContent.substring(0, 8000)}`;
+      await ragEngine.indexPage(pageContent, metadata);
+      
+      isIndexed = true;
+      
+      console.log('✅ RAG Engine initialized and page indexed');
+      return true;
+    } catch (error) {
+      console.error('❌ Error initializing RAG:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Index relevant links based on question
+   */
+  async function indexRelevantLinks(question, onProgress = null) {
+    try {
+      if (!ragEngine) {
+        await initializeRAG(onProgress);
+      }
+
+      const links = extractPageLinks();
+      console.log(`🔗 Found ${links.length} internal links`);
+
+      if (links.length === 0) {
+        console.log('ℹ️ No links to index');
+        return;
+      }
+
+      // Determine how many links to index based on total count
+      const maxLinks = links.length <= 10 ? Math.min(3, links.length) : 5;
+      
+      if (onProgress) onProgress(`Analyzing ${links.length} links for relevance...`);
+      
+      // Index relevant links
+      await ragEngine.indexLinks(links, question, maxLinks);
+      
+      console.log('✅ Relevant links indexed');
+    } catch (error) {
+      console.error('❌ Error indexing links:', error);
+      // Don't throw - continue with current page only
+    }
+  }
+
+  /**
+   * Summarize current page using RAG
+   */
+  async function summarizePage(onProgress = null) {
+    try {
+      // Initialize RAG
+      if (!isIndexed) {
+        await initializeRAG(onProgress);
+      }
+
+      if (onProgress) onProgress('Analyzing page structure...');
+
+      // Get key chunks using a summarization query
+      const summaryQuery = 'main topics key points important information summary overview';
+      const relevantChunks = ragEngine.retrieve(summaryQuery, 8);
+
+      const context = ragEngine.buildContext(relevantChunks);
+      const metadata = getPageMetadata();
+
+      if (onProgress) onProgress('Generating summary...');
+
+      const prompt = `Summarize this web page in a clear and concise way:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\n${context}`;
 
       pageSummary = await AIModule.aiSummarize(prompt);
 
       return pageSummary;
     } catch (error) {
-      throw new Error('Page summarization error: ' + error.message);
-    }
-  }
-
-  /**
-   * Chat with current page
-   */
-  async function chatWithPage(question, onProgress = null) {
-    try {
+      console.error('❌ Error in summarizePage:', error);
+      
+      // Fallback
       if (!pageContent) {
         pageContent = extractPageContent();
       }
 
-      if (onProgress) onProgress('Processing your question...');
+      const metadata = getPageMetadata();
+      const prompt = `Summarize this web page:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\nContent:\n${pageContent.substring(0, 8000)}`;
+
+      pageSummary = await AIModule.aiSummarize(prompt);
+      return pageSummary;
+    }
+  }
+
+  /**
+   * Chat with current page using RAG
+   */
+  async function chatWithPage(question, onProgress = null) {
+    try {
+      // Initialize RAG if not already done
+      if (!isIndexed) {
+        await initializeRAG(onProgress);
+      }
+
+      // Index relevant links based on question
+      if (onProgress) onProgress('Finding relevant content...');
+      await indexRelevantLinks(question, onProgress);
+
+      // Retrieve relevant chunks
+      if (onProgress) onProgress('Retrieving relevant information...');
+      const relevantChunks = ragEngine.retrieve(question, 5);
+
+      // Build context from retrieved chunks
+      const context = ragEngine.buildContext(relevantChunks);
+
+      if (onProgress) onProgress('Generating answer...');
+
+      // Build prompt with context
+      const metadata = getPageMetadata();
+      const prompt = `You are answering a question about the website: ${metadata.title}
+
+${context}
+
+User question: ${question}
+
+Please provide a comprehensive and accurate answer based on the information above. If the information is not sufficient, say so.`;
+
+      const answer = await AIModule.aiPrompt(prompt);
+
+      return answer;
+    } catch (error) {
+      console.error('❌ Error in chatWithPage:', error);
+      
+      // Fallback to simple chat without RAG
+      if (onProgress) onProgress('Using fallback method...');
+      
+      if (!pageContent) {
+        pageContent = extractPageContent();
+      }
 
       const metadata = getPageMetadata();
       const context = `Based on this web page:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\nContent:\n${pageContent.substring(0, 8000)}\n\nQuestion: ${question}`;
 
       const answer = await AIModule.aiPrompt(context);
-
       return answer;
-    } catch (error) {
-      throw new Error('Page chat error: ' + error.message);
     }
   }
 
@@ -103,24 +255,42 @@ const WebChatModule = (function() {
   }
 
   /**
-   * Extract key points from page
+   * Extract key points from page using RAG
    */
   async function extractKeyPoints(onProgress = null) {
     try {
-      if (!pageContent) {
-        pageContent = extractPageContent();
+      // Initialize RAG
+      if (!isIndexed) {
+        await initializeRAG(onProgress);
       }
 
       if (onProgress) onProgress('Extracting key points...');
 
+      // Retrieve diverse chunks
+      const query = 'important key main essential critical significant';
+      const relevantChunks = ragEngine.retrieve(query, 10);
+
+      const context = ragEngine.buildContext(relevantChunks);
       const metadata = getPageMetadata();
-      const prompt = `Extract the key points from this web page as bullet points:\n\nTitle: ${metadata.title}\n\nContent:\n${pageContent.substring(0, 8000)}`;
+
+      const prompt = `Extract the key points from this web page as bullet points:\n\nTitle: ${metadata.title}\n\n${context}`;
 
       const result = await AIModule.aiPrompt(prompt);
 
       return result;
     } catch (error) {
-      throw new Error('Key points extraction error: ' + error.message);
+      console.error('❌ Error in extractKeyPoints:', error);
+      
+      // Fallback
+      if (!pageContent) {
+        pageContent = extractPageContent();
+      }
+
+      const metadata = getPageMetadata();
+      const prompt = `Extract the key points from this web page as bullet points:\n\nTitle: ${metadata.title}\n\nContent:\n${pageContent.substring(0, 8000)}`;
+
+      const result = await AIModule.aiPrompt(prompt);
+      return result;
     }
   }
 
@@ -177,6 +347,9 @@ const WebChatModule = (function() {
   return {
     extractPageContent,
     getPageMetadata,
+    extractPageLinks,
+    initializeRAG,
+    indexRelevantLinks,
     summarizePage,
     chatWithPage,
     chatWithTabs,

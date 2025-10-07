@@ -13,6 +13,25 @@ AI-powered text assistant for Chrome that helps you work with text on any websit
 - **Expand** - Add more details
 - **Answer** - Answer questions
 
+### 🌐 Advanced Web Chat with RAG
+**NEW!** Chat with any web page using Retrieval-Augmented Generation:
+- 🔍 **Smart Content Analysis** - Vectorizes page content into searchable chunks
+- 🔗 **Multi-Page Intelligence** - Analyzes relevant links based on your question
+- 🎯 **Precise Answers** - Retrieves only the most relevant information
+- ⚡ **Fast & Lightweight** - Uses TF-IDF vectorization (no external APIs needed)
+- 🧠 **Context-Aware** - Prioritizes current page but explores related pages when needed
+- 📊 **URL Intelligence** - Determines which links to check based on question context
+
+**Example:** You're on a company's homepage and ask "How do I contact support?" 
+The system will:
+1. Analyze all links on the page
+2. Identify `/contact` or `/support` as most relevant
+3. Vectorize that page's content
+4. Find the exact contact information
+5. Provide a precise answer
+
+[See detailed RAG documentation](RAG_DOCUMENTATION.md)
+
 ### 📧 Gmail Integration
 When viewing an email in Gmail:
 1. An **"AI Response"** button appears in the toolbar
@@ -92,9 +111,12 @@ extensionAI2/
 │   ├── markdown.js      # Markdown renderer
 │   ├── menus.js         # Context menus
 │   ├── toolbar.js       # Floating toolbar
+│   ├── ragEngine.js     # 🔍 RAG Engine (NEW!)
+│   ├── webChat.js       # 🌐 Web chat with RAG
 │   ├── gmail.js         # 📧 Gmail integration
 │   └── youtube.js       # 📺 YouTube integration
-└── readme.md            # This file
+├── readme.md            # This file
+└── RAG_DOCUMENTATION.md # 📖 RAG Engine documentation
 ```
 
 ## 🎨 Dialog Features

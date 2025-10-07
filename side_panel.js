@@ -176,23 +176,60 @@ console.log('📜 side_panel.js loaded - starting execution');
 
       // Si es modo web chat (chat con la página)
       if (webChatMode && pageContent) {
-        console.log('💬 Modo Chat con Página activado');
+        console.log('💬 Modo Chat con Página activado - usando RAG');
 
-        // Agregar contexto de la página como mensaje del sistema (no se muestra)
-        conversationHistory.push({
-          role: 'system',
-          content: `You are chatting about this web page:\n\nTitle: ${pageTitle}\nURL: ${pageUrl}\n\nPage content:\n${pageContent}`,
-          timestamp: Date.now()
-        });
+        // 🔥 NUEVO: Inicializar RAG en lugar de agregar contexto como mensaje del sistema
+        (async () => {
+          try {
+            // Inicializar RAG Engine con el contenido de la página
+            if (window.WebChatModule && window.WebChatModule.initializeRAG) {
+              console.log('🚀 Inicializando RAG Engine...');
+              
+              await window.WebChatModule.initializeRAG((progress) => {
+                console.log('📊 RAG Progress:', progress);
+              });
 
-        // Agregar mensaje de bienvenida del asistente
-        conversationHistory.push({
-          role: 'assistant',
-          content: `I'm ready to help you with this page: **${pageTitle}**\n\nWhat would you like to know about it?${selectedText ? `\n\nI see you selected some text. Would you like me to explain it in the context of this page?` : ''}`,
-          timestamp: Date.now()
-        });
+              console.log('✅ RAG Engine inicializado');
+            }
 
-        console.log('✅ Contexto de página agregado');
+            // Agregar mensaje de bienvenida del asistente
+            conversationHistory.push({
+              role: 'assistant',
+              content: `I'm ready to help you with this page: **${pageTitle}**\n\nWhat would you like to know about it?${selectedText ? `\n\nI see you selected some text. Would you like me to explain it in the context of this page?` : ''}`,
+              timestamp: Date.now()
+            });
+
+            // Renderizar historial
+            renderChatHistory();
+            saveHistory();
+
+            // Hacer scroll al final
+            setTimeout(() => {
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+          } catch (error) {
+            console.error('❌ Error inicializando RAG:', error);
+            
+            // Fallback: usar método antiguo
+            conversationHistory.push({
+              role: 'system',
+              content: `You are chatting about this web page:\n\nTitle: ${pageTitle}\nURL: ${pageUrl}\n\nPage content:\n${pageContent}`,
+              timestamp: Date.now()
+            });
+
+            conversationHistory.push({
+              role: 'assistant',
+              content: `I'm ready to help you with this page: **${pageTitle}**\n\nWhat would you like to know about it?${selectedText ? `\n\nI see you selected some text. Would you like me to explain it in the context of this page?` : ''}`,
+              timestamp: Date.now()
+            });
+
+            renderChatHistory();
+            saveHistory();
+          }
+        })();
+
+        sendResponse({ success: true });
+        return true;
       } else {
         // Modo normal de diálogo
         // Agregar el texto seleccionado como mensaje del usuario
@@ -354,6 +391,19 @@ console.log('📜 side_panel.js loaded - starting execution');
         renderChatHistory();
       };
 
+      // Callback para progreso
+      const onProgress = (progress) => {
+        console.log('📊 Progress:', progress);
+        assistantMessage.content = `⏳ ${progress}`;
+        renderChatHistory();
+      };
+
+      // Verificar si estamos en modo chat con página
+      const isWebChatMode = conversationHistory.some(msg => 
+        msg.role === 'assistant' && 
+        msg.content.includes("I'm ready to help you with this page:")
+      );
+
       // Si hay imagen, procesarla con multimodal según la acción
       if (imageFile) {
         console.log('🖼️ Procesando imagen con acción:', action);
@@ -368,6 +418,13 @@ console.log('📜 side_panel.js loaded - starting execution');
         } else {
           throw new Error('MultimodalModule no está disponible');
         }
+      }
+      // Si estamos en modo chat con página, usar WebChatModule con RAG
+      else if (isWebChatMode && typeof WebChatModule !== 'undefined') {
+        console.log('🌐 Usando WebChatModule con RAG para responder');
+        result = await WebChatModule.chatWithPage(text, onProgress);
+        assistantMessage.content = result;
+        assistantMessage.isTyping = false;
       }
       // Si hay una acción específica, usar streaming
       else if (action) {

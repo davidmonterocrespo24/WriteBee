@@ -34,6 +34,7 @@
         "modules/ocr.js",
         "modules/promptLibrary.js",
         "modules/pdf.js",
+        "modules/ragEngine.js",
         "modules/webChat.js",
         "modules/dialog.js",
         "modules/actions.js",
