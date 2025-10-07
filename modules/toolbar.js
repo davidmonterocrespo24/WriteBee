@@ -14,7 +14,7 @@ const ToolbarModule = (function() {
     return toolbar;
   }
 
-  function showToolbar(pageX, pageY, clientX, clientY, text) {
+  async function showToolbar(pageX, pageY, clientX, clientY, text) {
     if (toolbar) toolbar.remove();
 
     selectedText = text;
@@ -27,41 +27,19 @@ const ToolbarModule = (function() {
     toolbar.dataset.selectionY = clientY;
     console.log('🎯 Toolbar posicionado en - pageX:', pageX, 'pageY:', pageY, 'clientY guardado:', clientY);
 
+    // Load pinned actions from config
+    const pinnedActions = await ToolbarConfigModule.getPinnedActions();
+
+    // Build toolbar buttons HTML
+    const buttonsHTML = pinnedActions.map(action => {
+      const className = action.className ? `ai-tool ${action.className}` : 'ai-tool';
+      return `<button class="${className}" data-action="${action.id}" aria-label="${action.label}" title="${action.label}">${action.icon}</button>`;
+    }).join('\n');
+
     toolbar.innerHTML = `
-      <button class="ai-tool pen" data-action="rewrite" aria-label="Reescribir">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="currentColor" d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25zm2.92 2.33h-.5v-.5l9.9-9.9.5.5-9.9 9.9zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z"/>
-        </svg>
-      </button>
+      ${buttonsHTML}
 
-      <button class="ai-tool" data-action="summarize" aria-label="Resumir">
-        <svg class="doc" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-          <path d="M14 2v6h6"/>
-          <path d="M8 12h8M8 16h8"/>
-        </svg>
-      </button>
-
-      <button class="ai-tool has-caret" data-action="translate" aria-label="Traducir">
-        <svg class="translate" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 5h9"/>
-          <path d="M8 5s.3 5-4 9"/>
-          <path d="M12 9h-8"/>
-          <path d="M14 19l4-10 4 10"/>
-          <path d="M15.5 15h5"/>
-        </svg>
-      </button>
-
-      <button class="ai-tool" data-action="chat-with-page" aria-label="Chat with this page" title="Chat with this page">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          <circle cx="9" cy="10" r="1"/>
-          <circle cx="12" cy="10" r="1"/>
-          <circle cx="15" cy="10" r="1"/>
-        </svg>
-      </button>
-
-      <button class="ai-tool" data-action="more" aria-label="Más opciones">
+      <button class="ai-tool" data-action="more" aria-label="More options">
         <svg class="ai-kebab" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="6" r="2"/>
           <circle cx="12" cy="12" r="2"/>
@@ -69,7 +47,7 @@ const ToolbarModule = (function() {
         </svg>
       </button>
 
-      <div class="ai-avatar" aria-label="Perfil">
+      <div class="ai-avatar" aria-label="Profile">
         <div class="eyes"><span></span><span></span></div>
       </div>
     `;
@@ -182,11 +160,132 @@ const ToolbarModule = (function() {
     }
   }
 
+  async function refreshToolbar() {
+    if (!toolbar) return;
+
+    // Load pinned actions from config
+    const pinnedActions = await ToolbarConfigModule.getPinnedActions();
+
+    // Build toolbar buttons HTML
+    const buttonsHTML = pinnedActions.map(action => {
+      const className = action.className ? `ai-tool ${action.className}` : 'ai-tool';
+      return `<button class="${className}" data-action="${action.id}" aria-label="${action.label}" title="${action.label}">${action.icon}</button>`;
+    }).join('\n');
+
+    // Update only the buttons, keeping the more button and avatar
+    toolbar.innerHTML = `
+      ${buttonsHTML}
+
+      <button class="ai-tool" data-action="more" aria-label="More options">
+        <svg class="ai-kebab" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="6" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="12" cy="18" r="2"/>
+        </svg>
+      </button>
+
+      <div class="ai-avatar" aria-label="Profile">
+        <div class="eyes"><span></span><span></span></div>
+      </div>
+    `;
+
+    // Re-attach event listeners
+    toolbar.querySelectorAll('[data-action]').forEach(btn => {
+      // Activar la bandera en mousedown (antes del mouseup)
+      btn.addEventListener('mousedown', () => {
+        const action = btn.dataset.action;
+        if (action !== 'more') {
+          console.log('⬇️ MouseDown en toolbar');
+          if (window.setIgnoreNextMouseUp) {
+            console.log('🚫 Activando ignoreNextMouseUp');
+            window.setIgnoreNextMouseUp();
+          }
+        }
+      });
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.action;
+
+        if (action === 'more') {
+          MenusModule.showMoreMenu(btn);
+        } else if (action === 'chat-with-page') {
+          // Open side panel with page context
+          toolbar.style.display = 'none';
+          MenusModule.hideMenus(); // Close any open menus
+
+          // Extract page content
+          const pageContent = WebChatModule.extractPageContent();
+          const metadata = WebChatModule.getPageMetadata();
+
+          // Open side panel with page context
+          try {
+            chrome.runtime.sendMessage({
+              action: 'openSidePanel',
+              data: {
+                webChatMode: true,
+                pageTitle: metadata.title,
+                pageUrl: metadata.url,
+                pageContent: pageContent.substring(0, 10000),
+                selectedText: selectedText // Include selected text if any
+              }
+            }, (response) => {
+              if (chrome.runtime.lastError) {
+                console.error('Extension context error:', chrome.runtime.lastError);
+                alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
+                return;
+              }
+              if (response && response.success) {
+                console.log('✅ Side panel opened with page context');
+              }
+            });
+          } catch (error) {
+            console.error('Error sending message:', error);
+            alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
+          }
+        } else {
+          console.log('🔵 Click en acción:', action);
+
+          // Log de datos guardados
+          console.log('📦 Datos guardados en toolbar:', {
+            initialLeft: toolbar.dataset.initialLeft,
+            initialTop: toolbar.dataset.initialTop,
+            initialBottom: toolbar.dataset.initialBottom
+          });
+
+          // Log de posición actual del toolbar
+          const currentRect = toolbar.getBoundingClientRect();
+          console.log('📍 Posición ACTUAL del toolbar:', {
+            left: currentRect.left,
+            top: currentRect.top,
+            bottom: currentRect.bottom
+          });
+
+          // Usar la posición inicial guardada, no la actual
+          const rect = {
+            left: parseFloat(toolbar.dataset.initialLeft) || currentRect.left,
+            top: parseFloat(toolbar.dataset.initialTop) || currentRect.top,
+            bottom: parseFloat(toolbar.dataset.initialBottom) || currentRect.bottom
+          };
+          console.log('🎯 Rect que se enviará al diálogo:', rect);
+          console.log('📏 Viewport actual - scrollY:', window.scrollY, 'clientHeight:', window.innerHeight);
+
+          toolbar.style.display = 'none';
+
+          // Para traducir, usar idioma por defecto (español), el usuario puede cambiar desde el selector
+          const param = action === 'translate' ? 'es' : null;
+          ActionsModule.executeAction(action, param, rect, selectedText);
+        }
+      });
+    });
+  }
+
   return {
     getSelectedText,
     setSelectedText,
     getToolbar,
     showToolbar,
-    hideToolbar
+    hideToolbar,
+    refreshToolbar
   };
 })();

@@ -1,8 +1,9 @@
 const MenusModule = (function() {
   let menu = null;
   let translateMenu = null;
+  let draggedItem = null;
 
-  function showMoreMenu(button) {
+  async function showMoreMenu(button) {
     if (menu) menu.remove();
 
     const rect = button.getBoundingClientRect();
@@ -17,46 +18,69 @@ const MenusModule = (function() {
       absolute: { left: rect.left + window.scrollX, top: rect.bottom + window.scrollY + 5 }
     });
 
+    // Load ALL actions from config (both pinned and unpinned)
+    const allActions = await ToolbarConfigModule.loadConfig();
+
+    // Build menu items HTML
+    const menuItems = allActions.map((action, index) => {
+      const iconHTML = action.icon.includes('<svg') || action.icon.includes('<span')
+        ? action.icon
+        : `<span class="icon">${action.icon}</span>`;
+
+      const pinIcon = action.pinned ? '📌' : '📍';
+      const pinTitle = action.pinned ? 'Unpin from toolbar' : 'Pin to toolbar';
+
+      return `
+        <div class="ai-menu-item ${action.pinned ? 'pinned' : ''}"
+             data-action="${action.id}"
+             data-action-id="${action.id}"
+             data-index="${index}"
+             draggable="true">
+          <div class="drag-handle">☰</div>
+          <div class="menu-item-content">
+            ${iconHTML}
+            <span class="menu-item-label">${action.label}</span>
+          </div>
+          <button class="pin-menu-btn" data-action-id="${action.id}" title="${pinTitle}">${pinIcon}</button>
+        </div>
+      `;
+    }).join('');
+
     menu.innerHTML = `
-      <div class="ai-menu-item" data-action="summarize">
-        <span class="icon">📄</span>
-        Resumir
-        <span class="pin">📌</span>
-      </div>
-      <div class="ai-menu-item" data-action="translate">
-        <span class="icon">🌐</span>
-        Traducir a: <small>español</small>
-        <span class="pin">📌</span>
-      </div>
-      <div class="ai-menu-item" data-action="explain">
-        <span class="icon">💡</span>
-        Explicar esto
-      </div>
-      <div class="ai-menu-item" data-action="grammar">
-        <span class="icon">📚</span>
-        Gramática
-      </div>
-      <div class="ai-menu-item" data-action="rewrite">
-        <span class="icon">✏️</span>
-        Reescribir
-      </div>
-      <div class="ai-menu-item" data-action="expand">
-        <span class="icon">🔍</span>
-        Expandir
-      </div>
-      <div class="ai-menu-item" data-action="answer">
-        <span class="icon">💬</span>
-        Responder a esta pregunta
-      </div>
-      <div class="ai-menu-item" data-action="chat-with-page">
-        <span class="icon">💬</span>
-        Chat with this page
-      </div>
+      <div class="menu-hint">Drag to reorder • Click pin to show/hide</div>
+      ${menuItems}
     `;
 
     document.body.appendChild(menu);
 
-    menu.querySelectorAll('[data-action]').forEach(item => {
+    // Add pin button listeners
+    menu.querySelectorAll('.pin-menu-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const actionId = btn.dataset.actionId;
+        await ToolbarConfigModule.togglePin(actionId);
+
+        // Refresh the toolbar
+        await ToolbarModule.refreshToolbar();
+
+        // Refresh the menu
+        const moreButton = document.querySelector('[data-action="more"]');
+        if (moreButton) {
+          hideMenus();
+          await showMoreMenu(moreButton);
+        }
+      });
+    });
+
+    // Add drag and drop listeners
+    menu.querySelectorAll('.ai-menu-item').forEach(item => {
+      item.addEventListener('dragstart', handleDragStart);
+      item.addEventListener('dragover', handleDragOver);
+      item.addEventListener('drop', handleDrop);
+      item.addEventListener('dragend', handleDragEnd);
+    });
+
+    menu.querySelectorAll('.ai-menu-item').forEach(item => {
       // Activar la bandera en mousedown (antes del mouseup)
       item.addEventListener('mousedown', (e) => {
         console.log('⬇️ MouseDown en menú');
@@ -68,6 +92,12 @@ const MenusModule = (function() {
 
       item.addEventListener('click', (e) => {
         e.stopPropagation();
+
+        // Don't execute action if clicking on pin button
+        if (e.target.classList.contains('pin-menu-btn')) {
+          return;
+        }
+
         console.log('🎯 Click en menú - acción:', item.dataset.action);
 
         const action = item.dataset.action;
@@ -161,6 +191,58 @@ const MenusModule = (function() {
         ActionsModule.executeAction('translate', item.dataset.lang, rect, ToolbarModule.getSelectedText());
       });
     });
+  }
+
+  // Drag and drop handlers
+  function handleDragStart(e) {
+    draggedItem = e.currentTarget;
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
+  }
+
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+
+    const target = e.currentTarget;
+    if (target !== draggedItem && target.classList.contains('ai-menu-item')) {
+      const rect = target.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+
+      if (e.clientY < midY) {
+        target.parentNode.insertBefore(draggedItem, target);
+      } else {
+        target.parentNode.insertBefore(draggedItem, target.nextSibling);
+      }
+    }
+
+    return false;
+  }
+
+  function handleDrop(e) {
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+    return false;
+  }
+
+  async function handleDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+
+    // Get new order
+    const items = Array.from(menu.querySelectorAll('.ai-menu-item'));
+    const newOrder = items.map(item => item.dataset.actionId);
+
+    // Save new order
+    await ToolbarConfigModule.reorderActions(newOrder);
+
+    // Refresh the toolbar to show new order
+    await ToolbarModule.refreshToolbar();
+
+    draggedItem = null;
   }
 
   function hideMenus() {

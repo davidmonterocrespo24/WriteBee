@@ -74,6 +74,7 @@ function handleClickOutside(e) {
   const toolbar = ToolbarModule.getToolbar();
   const menu = MenusModule.getMenu();
   const translateMenu = MenusModule.getTranslateMenu();
+  const settingsPanel = ToolbarSettingsModule.getSettingsPanel();
 
   // Verificar si el click fue en algún diálogo (incluyendo módulos específicos)
   const allDialogs = document.querySelectorAll('.ai-result-panel, .ai-twitter-dialog, .ai-linkedin-dialog');
@@ -93,18 +94,20 @@ function handleClickOutside(e) {
     return;
   }
 
-  // Si el click fue fuera de toolbar, menús y diálogos, ocultar todo
+  // Si el click fue fuera de toolbar, menús, settings panel y diálogos, ocultar todo
   if ((!toolbar || !toolbar.contains(e.target)) &&
       (!menu || !menu.contains(e.target)) &&
-      (!translateMenu || !translateMenu.contains(e.target))) {
+      (!translateMenu || !translateMenu.contains(e.target)) &&
+      (!settingsPanel || !settingsPanel.contains(e.target))) {
     hideAll();
   }
 }
 
 function hideAll() {
-  console.log('🗑️ hideAll - ocultando toolbar, menús y diálogo actual');
+  console.log('🗑️ hideAll - ocultando toolbar, menús, settings y diálogo actual');
   ToolbarModule.hideToolbar();
   MenusModule.hideMenus();
+  ToolbarSettingsModule.hideSettings();
   const currentDialog = DialogModule.getCurrentDialog();
   if (currentDialog) {
     console.log('🗑️ Eliminando diálogo actual');
