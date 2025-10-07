@@ -89,7 +89,7 @@ const DialogModule = (function() {
       <header class="ai-result-header ai-draggable">
         <div class="title">${actionTitle}</div>
         <div style="position: relative;">
-          <button class="ai-iconbtn mode-dropdown-btn" aria-label="Open options">
+          <button class="ai-iconbtn mode-dropdown-btn" aria-label="Open options" title="Change mode">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M6 9l6 6 6-6"/>
             </svg>
@@ -127,12 +127,12 @@ const DialogModule = (function() {
         </div>
         <div class="spacer"></div>
         ${languageSelector}
-        <button class="ai-iconbtn pin-btn" aria-label="Pin">
+        <button class="ai-iconbtn pin-btn" aria-label="Pin" title="Pin dialog">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M16 3l5 5-7 7-4 1 1-4 7-7zM2 22l6-6"/>
           </svg>
         </button>
-        <button class="ai-iconbtn close-panel" aria-label="Close">
+        <button class="ai-iconbtn close-panel" aria-label="Close" title="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -148,24 +148,24 @@ const DialogModule = (function() {
       <div class="ai-actions">
         <div class="left">Ask follow-up</div>
         <div class="right">
-          <button class="ai-iconbtn copy-btn" aria-label="Copy">
+          <button class="ai-iconbtn copy-btn" aria-label="Copy" title="Copy to clipboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="9" width="10" height="10" rx="2"></rect>
               <rect x="5" y="5" width="10" height="10" rx="2"></rect>
             </svg>
           </button>
-          <button class="ai-iconbtn regenerate-btn" aria-label="Regenerate">
+          <button class="ai-iconbtn regenerate-btn" aria-label="Regenerate" title="Regenerate response">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
           </button>
-          <button class="ai-iconbtn edit-btn" aria-label="Edit response">
+          <button class="ai-iconbtn edit-btn" aria-label="Edit response" title="Edit response">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
           </button>
-          <button class="ai-iconbtn speak-btn" aria-label="Speak">
+          <button class="ai-iconbtn speak-btn" aria-label="Speak" title="Read aloud">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
@@ -190,7 +190,7 @@ const DialogModule = (function() {
             <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
           <input type="text" placeholder="Ask follow-up question" />
-          <button class="ai-send-btn" aria-label="Send">
+          <button class="ai-send-btn" aria-label="Send" title="Send message">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 2L11 13"/>
               <path d="M22 2L15 22L11 13L2 9L22 2z"/>
@@ -855,7 +855,7 @@ const DialogModule = (function() {
         </div>
         <div class="title">${title}</div>
         <div class="spacer"></div>
-        <button class="ai-iconbtn close-panel" aria-label="Close">
+        <button class="ai-iconbtn close-panel" aria-label="Close" title="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -872,7 +872,7 @@ const DialogModule = (function() {
       <div class="ai-actions">
         <div class="left">Image processed</div>
         <div class="right">
-          <button class="ai-iconbtn copy-btn" aria-label="Copy">
+          <button class="ai-iconbtn copy-btn" aria-label="Copy" title="Copy to clipboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <rect x="9" y="9" width="10" height="10" rx="2"></rect>
               <rect x="5" y="5" width="10" height="10" rx="2"></rect>
