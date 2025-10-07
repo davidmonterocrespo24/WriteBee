@@ -3798,6 +3798,276 @@
   margin-right: 2px;
 }
 
+/* Prompt Library Picker */
+.ai-prompt-picker {
+  position: fixed;
+  z-index: 1000000;
+  background: #1f1f23;
+  border: 1px solid #3a3a40;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  width: 350px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.ai-prompt-picker-header {
+  padding: 12px;
+  border-bottom: 1px solid #3a3a40;
+}
+
+.ai-prompt-search {
+  width: 100%;
+  padding: 8px 12px;
+  background: #2a2a2e;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  color: #eaeaf0;
+  font-size: 14px;
+  outline: none;
+}
+
+.ai-prompt-search:focus {
+  border-color: #8ab4ff;
+}
+
+.ai-prompt-picker-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.ai-prompt-category {
+  margin-bottom: 16px;
+}
+
+.ai-prompt-category-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #8a8a8e;
+  padding: 8px 12px;
+  letter-spacing: 0.5px;
+}
+
+.ai-prompt-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+  color: #eaeaf0;
+}
+
+.ai-prompt-item:hover {
+  background: #2a2a2e;
+}
+
+.ai-prompt-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.ai-prompt-name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.ai-prompt-delete {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.ai-prompt-item:hover .ai-prompt-delete {
+  opacity: 1;
+}
+
+.ai-prompt-picker-footer {
+  padding: 12px;
+  border-top: 1px solid #3a3a40;
+}
+
+.ai-btn-add-prompt {
+  width: 100%;
+  padding: 8px;
+  background: #8ab4ff;
+  color: #1f1f23;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ai-btn-add-prompt:hover {
+  background: #6a94ff;
+}
+
+/* Add Prompt Dialog */
+.ai-add-prompt-dialog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #1f1f23;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+}
+
+.ai-add-prompt-dialog h3 {
+  margin: 0 0 8px 0;
+  color: #eaeaf0;
+  font-size: 16px;
+}
+
+.ai-add-prompt-dialog .ai-input {
+  width: 100%;
+  padding: 10px;
+  background: #2a2a2e;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  color: #eaeaf0;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.ai-add-prompt-dialog .ai-input:focus {
+  border-color: #8ab4ff;
+}
+
+.ai-add-prompt-dialog textarea.ai-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.ai-dialog-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.ai-btn-cancel,
+.ai-btn-save {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ai-btn-cancel {
+  background: #3a3a40;
+  color: #eaeaf0;
+}
+
+.ai-btn-cancel:hover {
+  background: #4a4a50;
+}
+
+.ai-btn-save {
+  background: #8ab4ff;
+  color: #1f1f23;
+}
+
+.ai-btn-save:hover {
+  background: #6a94ff;
+}
+
+/* OCR Dialog Styles */
+.ai-ocr-dialog .ai-ocr-text {
+  background: #1f1f23;
+  padding: 12px;
+  border-radius: 6px;
+  min-height: 100px;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #eaeaf0;
+  border: 1px solid #3a3a40;
+}
+
+/* Settings Panel */
+.ai-settings-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000001;
+  background: #1f1f23;
+  border: 1px solid #3a3a40;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-settings-header {
+  padding: 20px;
+  border-bottom: 1px solid #3a3a40;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ai-settings-header h2 {
+  margin: 0;
+  color: #eaeaf0;
+  font-size: 20px;
+}
+
+.ai-settings-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.ai-settings-section {
+  margin-bottom: 24px;
+}
+
+.ai-settings-section h3 {
+  margin: 0 0 12px 0;
+  color: #eaeaf0;
+  font-size: 16px;
+}
+
+.ai-settings-section p {
+  margin: 0 0 12px 0;
+  color: #8a8a8e;
+  font-size: 14px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .ai-chat-panel {
@@ -3812,4 +4082,97 @@
   .ai-float-btn {
     top: 70%;
   }
+
+  .ai-prompt-picker {
+    width: 90vw;
+  }
+
+  .ai-settings-panel {
+    width: 95vw;
+  }
+}
+
+/* PDF Toolbar */
+.ai-pdf-toolbar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999999;
+  background: #1f1f23;
+  border: 1px solid #3a3a40;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.ai-pdf-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #eaeaf0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.ai-pdf-btn:hover {
+  background: #2a2a2e;
+}
+
+.ai-pdf-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Web Chat is now integrated into main chat panel (Ctrl+M) - no separate button needed */
+
+/* Page Summary Dialog */
+.ai-page-summary-dialog {
+  max-width: 700px;
+}
+
+.ai-page-summary-dialog .ai-result-body {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Multi-tab Chat Dialog */
+.ai-multitab-dialog {
+  max-width: 800px;
+}
+
+.ai-multitab-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #3a3a40;
+  overflow-x: auto;
+}
+
+.ai-multitab-tab {
+  padding: 8px 12px;
+  background: #2a2a2e;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ai-multitab-tab:hover {
+  background: #3a3a40;
+}
+
+.ai-multitab-tab.active {
+  background: #8ab4ff;
+  color: #1f1f23;
+  border-color: #8ab4ff;
 }

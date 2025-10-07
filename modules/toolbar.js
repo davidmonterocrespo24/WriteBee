@@ -52,6 +52,15 @@ const ToolbarModule = (function() {
         </svg>
       </button>
 
+      <button class="ai-tool" data-action="chat-with-page" aria-label="Chat with this page" title="Chat with this page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <circle cx="9" cy="10" r="1"/>
+          <circle cx="12" cy="10" r="1"/>
+          <circle cx="15" cy="10" r="1"/>
+        </svg>
+      </button>
+
       <button class="ai-tool" data-action="more" aria-label="Más opciones">
         <svg class="ai-kebab" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="6" r="2"/>
@@ -95,6 +104,33 @@ const ToolbarModule = (function() {
 
         if (action === 'more') {
           MenusModule.showMoreMenu(btn);
+        } else if (action === 'chat-with-page') {
+          // Open side panel with page context
+          toolbar.style.display = 'none';
+
+          // Extract page content
+          const pageContent = WebChatModule.extractPageContent();
+          const metadata = WebChatModule.getPageMetadata();
+
+          // Open side panel with page context
+          chrome.runtime.sendMessage({
+            action: 'openSidePanel',
+            data: {
+              webChatMode: true,
+              pageTitle: metadata.title,
+              pageUrl: metadata.url,
+              pageContent: pageContent.substring(0, 10000),
+              selectedText: selectedText // Include selected text if any
+            }
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
+              return;
+            }
+            if (response && response.success) {
+              console.log('✅ Side panel opened with page context');
+            }
+          });
         } else {
           console.log('🔵 Click en acción:', action);
 

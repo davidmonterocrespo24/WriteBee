@@ -121,37 +121,63 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
     console.log('📨 Mensaje recibido en side panel:', request.action);
 
     if (request.action === 'chatData' && request.data) {
-      const { selectedText, currentAnswer, action, followupQuestion } = request.data;
+      const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent } = request.data;
 
-      console.log('📥 Datos del diálogo recibidos:', {
+      console.log('📥 Datos recibidos:', {
         selectedText: selectedText?.substring(0, 50) + '...',
         currentAnswer: currentAnswer?.substring(0, 50) + '...',
         action,
-        followupQuestion: followupQuestion?.substring(0, 50) + '...'
+        followupQuestion: followupQuestion?.substring(0, 50) + '...',
+        webChatMode,
+        pageTitle,
+        pageUrl,
+        pageContentLength: pageContent?.length
       });
 
       // 🆕 NUEVA CONVERSACIÓN: Limpiar historial existente antes de agregar nuevo contexto
-      console.log('🆕 Iniciando nueva conversación con contexto del diálogo');
+      console.log('🆕 Iniciando nueva conversación');
       conversationHistory = [];
 
-      // Agregar el texto seleccionado como mensaje del usuario
-      if (selectedText && selectedText.trim()) {
+      // Si es modo web chat (chat con la página)
+      if (webChatMode && pageContent) {
+        console.log('💬 Modo Chat con Página activado');
+
+        // Agregar contexto de la página como mensaje del sistema (no se muestra)
         conversationHistory.push({
-          role: 'user',
-          content: selectedText,
+          role: 'system',
+          content: `You are chatting about this web page:\n\nTitle: ${pageTitle}\nURL: ${pageUrl}\n\nPage content:\n${pageContent}`,
           timestamp: Date.now()
         });
-        console.log('✅ Mensaje del usuario agregado');
-      }
 
-      // Agregar la respuesta del asistente si existe
-      if (currentAnswer && currentAnswer.trim()) {
+        // Agregar mensaje de bienvenida del asistente
         conversationHistory.push({
           role: 'assistant',
-          content: currentAnswer,
+          content: `I'm ready to help you with this page: **${pageTitle}**\n\nWhat would you like to know about it?${selectedText ? `\n\nI see you selected some text. Would you like me to explain it in the context of this page?` : ''}`,
           timestamp: Date.now()
         });
-        console.log('✅ Respuesta del asistente agregada');
+
+        console.log('✅ Contexto de página agregado');
+      } else {
+        // Modo normal de diálogo
+        // Agregar el texto seleccionado como mensaje del usuario
+        if (selectedText && selectedText.trim()) {
+          conversationHistory.push({
+            role: 'user',
+            content: selectedText,
+            timestamp: Date.now()
+          });
+          console.log('✅ Mensaje del usuario agregado');
+        }
+
+        // Agregar la respuesta del asistente si existe
+        if (currentAnswer && currentAnswer.trim()) {
+          conversationHistory.push({
+            role: 'assistant',
+            content: currentAnswer,
+            timestamp: Date.now()
+          });
+          console.log('✅ Respuesta del asistente agregada');
+        }
       }
 
       // Si hay pregunta de seguimiento, agregarla y procesarla automáticamente
@@ -391,8 +417,11 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
       return;
     }
 
-    // Renderizar cada mensaje
+    // Renderizar cada mensaje (skip system messages)
     conversationHistory.forEach((msg, index) => {
+      // Skip system messages from rendering
+      if (msg.role === 'system') return;
+
       const messageEl = document.createElement('div');
       messageEl.className = `message ${msg.role}-message`;
 

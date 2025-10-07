@@ -110,3 +110,147 @@ function hideAll() {
     currentDialog.remove();
   }
 }
+
+// Listen for messages from background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'processOCR') {
+    // Process OCR on image
+    handleOCRRequest(request.imageUrl);
+    sendResponse({ success: true });
+  } else if (request.action === 'explainImage') {
+    // Explain image
+    handleExplainImage(request.imageUrl);
+    sendResponse({ success: true });
+  } else if (request.action === 'describeImage') {
+    // Describe image
+    handleDescribeImage(request.imageUrl);
+    sendResponse({ success: true });
+  } else if (request.action === 'checkGrammar') {
+    // Check grammar on selected text
+    handleGrammarCheck(request.text);
+    sendResponse({ success: true });
+  }
+  return true;
+});
+
+// Handle OCR request
+async function handleOCRRequest(imageUrl) {
+  try {
+    // Create image element from URL
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imageUrl;
+
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+
+    // Process OCR
+    await OCRModule.processImageOCR(img);
+  } catch (error) {
+    console.error('Error processing OCR:', error);
+    alert('Error extracting text: ' + error.message);
+  }
+}
+
+// Handle explain image request
+async function handleExplainImage(imageUrl) {
+  try {
+    // Create image element from URL
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imageUrl;
+
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+
+    // Show loading dialog
+    const loadingDialog = DialogModule.showLoadingDialog(null);
+    loadingDialog.querySelector('.ai-loading').textContent = 'Explaining image...';
+    document.body.appendChild(loadingDialog);
+
+    // Convert image to blob
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+
+    // Explain image
+    const explanation = await MultimodalModule.processImageWithAction(blob, 'explain', '', (progress) => {
+      // Update progress if needed
+    });
+
+    loadingDialog.remove();
+
+    // Create dialog with explanation
+    const dialog = DialogModule.createImageDialog(blob, 'explain', null);
+    const answerDiv = dialog.querySelector('.ai-answer');
+    answerDiv.textContent = explanation;
+    document.body.appendChild(dialog);
+  } catch (error) {
+    console.error('Error explaining image:', error);
+    alert('Error explaining image: ' + error.message);
+  }
+}
+
+// Handle describe image request
+async function handleDescribeImage(imageUrl) {
+  try {
+    // Create image element from URL
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imageUrl;
+
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+
+    // Show loading dialog
+    const loadingDialog = DialogModule.showLoadingDialog(null);
+    loadingDialog.querySelector('.ai-loading').textContent = 'Describing image...';
+    document.body.appendChild(loadingDialog);
+
+    // Convert image to blob
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+
+    // Describe image
+    const description = await MultimodalModule.describeImage(blob, 'Describe this image in detail.', (progress) => {
+      // Update progress if needed
+    });
+
+    loadingDialog.remove();
+
+    // Create dialog with description
+    const dialog = DialogModule.createImageDialog(blob, 'describe', null);
+    const answerDiv = dialog.querySelector('.ai-answer');
+    answerDiv.textContent = description;
+    document.body.appendChild(dialog);
+  } catch (error) {
+    console.error('Error describing image:', error);
+    alert('Error describing image: ' + error.message);
+  }
+}
+
+// Handle grammar check request
+async function handleGrammarCheck(text) {
+  try {
+    // Create a temporary dialog with grammar check
+    const loadingDialog = DialogModule.showLoadingDialog(null);
+    loadingDialog.querySelector('.ai-loading').textContent = 'Checking grammar...';
+    document.body.appendChild(loadingDialog);
+
+    const result = await AIModule.aiGrammar(text);
+
+    loadingDialog.remove();
+
+    const grammarDialog = DialogModule.createDialog('grammar', result, text, null);
+    document.body.appendChild(grammarDialog);
+    grammarDialog.adjustPosition?.();
+  } catch (error) {
+    console.error('Error checking grammar:', error);
+    alert('Error checking grammar: ' + error.message);
+  }
+}

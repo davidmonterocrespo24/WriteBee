@@ -84,6 +84,9 @@ const ChatPanelModule = (function() {
             <h2>¡Hola! Soy tu asistente AI</h2>
             <p>Puedo ayudarte a resumir, traducir, explicar textos y mucho más. También puedo procesar imágenes y audio.</p>
             <div class="ai-chat-suggestions">
+              <button class="ai-suggestion-chip" data-action="chat-with-page">
+                💬 Chat with this page
+              </button>
               <button class="ai-suggestion-chip" data-suggestion="Ayúdame a escribir un correo profesional">
                 ✉️ Escribir correo
               </button>
@@ -220,11 +223,16 @@ const ChatPanelModule = (function() {
     // Suggestions
     const suggestionChips = chatPanel.querySelectorAll('.ai-suggestion-chip');
     suggestionChips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const suggestion = chip.dataset.suggestion;
-        input.value = suggestion;
-        input.focus();
-        sendMessage();
+      chip.addEventListener('click', async () => {
+        // Check if it's a special action
+        if (chip.dataset.action === 'chat-with-page') {
+          await startChatWithPage();
+        } else if (chip.dataset.suggestion) {
+          const suggestion = chip.dataset.suggestion;
+          input.value = suggestion;
+          input.focus();
+          sendMessage();
+        }
       });
     });
   }
@@ -403,8 +411,11 @@ const ChatPanelModule = (function() {
       return;
     }
 
-    // Renderizar mensajes
+    // Renderizar mensajes (skip system messages)
     conversationHistory.forEach((msg, index) => {
+      // Skip system messages from rendering
+      if (msg.role === 'system') return;
+
       const messageDiv = document.createElement('div');
       messageDiv.className = `ai-chat-message ${msg.role === 'user' ? 'user-message' : 'ai-message'}`;
 
@@ -758,6 +769,45 @@ const ChatPanelModule = (function() {
    */
   function isOpen() {
     return chatPanel && chatPanel.classList.contains('active');
+  }
+
+  /**
+   * Iniciar chat con la página actual
+   */
+  async function startChatWithPage() {
+    // Remove welcome message
+    const welcome = chatPanel.querySelector('.ai-chat-welcome');
+    if (welcome) {
+      welcome.remove();
+    }
+
+    // Extract page content
+    const pageContent = WebChatModule.extractPageContent();
+    const metadata = WebChatModule.getPageMetadata();
+
+    // Add system message with page context
+    const contextMessage = {
+      role: 'system',
+      content: `You are now chatting about this web page:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\nPage content:\n${pageContent.substring(0, 8000)}`,
+      timestamp: Date.now()
+    };
+
+    conversationHistory.push(contextMessage);
+
+    // Add AI welcome message
+    const welcomeMessage = {
+      role: 'assistant',
+      content: `I'm ready to help you with this page: **${metadata.title}**\n\nWhat would you like to know about it?`,
+      timestamp: Date.now()
+    };
+
+    conversationHistory.push(welcomeMessage);
+    renderChatHistory();
+    saveHistory();
+
+    // Focus on input
+    const input = chatPanel.querySelector('#chatInput');
+    input.focus();
   }
 
   /**

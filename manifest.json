@@ -8,7 +8,8 @@
     "scripting",
     "aiLanguageModelOriginTrial",
     "sidePanel",
-    "storage"
+    "storage",
+    "contextMenus"
   ],
   "host_permissions": [
     "https://web.whatsapp.com/*"
@@ -30,6 +31,10 @@
         "modules/aiService.js",
         "modules/ai.js",
         "modules/multimodal.js",
+        "modules/ocr.js",
+        "modules/promptLibrary.js",
+        "modules/pdf.js",
+        "modules/webChat.js",
         "modules/dialog.js",
         "modules/actions.js",
         "modules/menus.js",
