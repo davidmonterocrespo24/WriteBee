@@ -38,7 +38,6 @@
         "modules/dialog.js",
         "modules/actions.js",
         "modules/toolbarConfig.js",
-        "modules/toolbarSettings.js",
         "modules/menus.js",
         "modules/toolbar.js",
         "modules/floatButton.js",

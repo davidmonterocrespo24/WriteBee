@@ -20,12 +20,16 @@ const ToolbarModule = (function() {
     selectedText = text;
     toolbar = document.createElement('div');
     toolbar.className = 'ai-toolbar';
-    toolbar.style.left = pageX + 'px';
+
+    // Position toolbar from the right so it expands to the left
+    const rightPosition = window.innerWidth - pageX;
+    toolbar.style.right = rightPosition + 'px';
     toolbar.style.top = (pageY - 50) + 'px';
 
     // Guardar posición del viewport (clientY) para el diálogo, no pageY
     toolbar.dataset.selectionY = clientY;
-    console.log('🎯 Toolbar posicionado en - pageX:', pageX, 'pageY:', pageY, 'clientY guardado:', clientY);
+    toolbar.dataset.initialRight = rightPosition;
+    console.log('🎯 Toolbar posicionado en - pageX:', pageX, 'pageY:', pageY, 'rightPosition:', rightPosition, 'clientY guardado:', clientY);
 
     // Load pinned actions from config
     const pinnedActions = await ToolbarConfigModule.getPinnedActions();
