@@ -10,7 +10,7 @@ const FloatButtonModule = (function() {
     floatButton.innerHTML = `
       <div class="ai-float-mascot" aria-hidden="true">
         <div class="ai-float-mascot-inner">
-          <span class="ai-float-mouth" aria-hidden="true"></span>
+          <div class="eyes"><span></span><span></span></div>
         </div>
       </div>
       <span class="ai-float-label">Ctrl+M</span>
