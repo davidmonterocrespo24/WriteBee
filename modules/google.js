@@ -353,7 +353,7 @@ const GoogleModule = (function() {
 
       // Mostrar información de la fuente
       sourceInfo.innerHTML = `
-        <div style="font-size: 12px; color: #5f6368; margin-bottom: 12px; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+        <div style="font-size: 12px; color: #333; margin-bottom: 12px; padding: 8px; background: #e8e8e8; border-radius: 6px; border: 1px solid #ccc;">
           <strong>Fuente:</strong> ${firstResult.title}<br>
           <a href="${firstResult.url}" target="_blank" style="color: #1a73e8; text-decoration: none;">${firstResult.url}</a>
         </div>

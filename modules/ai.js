@@ -8,7 +8,7 @@ const AIModule = (function() {
       return await service.summarize(text, onProgress);
     } catch (error) {
       console.error('Error in aiSummarize:', error);
-      return `❌ Error summarizing: ${error.message}`;
+      return `✕ Error summarizing: ${error.message}`;
     }
   }
 
@@ -18,7 +18,7 @@ const AIModule = (function() {
       return await service.translate(text, targetLang, onProgress);
     } catch (error) {
       console.error('Error in aiTranslate:', error);
-      return `❌ Error translating: ${error.message}`;
+      return `✕ Error translating: ${error.message}`;
     }
   }
 
@@ -28,7 +28,7 @@ const AIModule = (function() {
       return await service.explain(text, onProgress);
     } catch (error) {
       console.error('Error in aiExplain:', error);
-      return `❌ Error explaining: ${error.message}`;
+      return `✕ Error explaining: ${error.message}`;
     }
   }
 
@@ -38,7 +38,7 @@ const AIModule = (function() {
       return await service.checkGrammar(text, onProgress);
     } catch (error) {
       console.error('Error in aiGrammar:', error);
-      return `❌ Error checking grammar: ${error.message}`;
+      return `✕ Error checking grammar: ${error.message}`;
     }
   }
 
@@ -48,7 +48,7 @@ const AIModule = (function() {
       return await service.rewrite(text, onProgress);
     } catch (error) {
       console.error('Error in aiRewrite:', error);
-      return `❌ Error rewriting: ${error.message}`;
+      return `✕ Error rewriting: ${error.message}`;
     }
   }
 
@@ -58,7 +58,7 @@ const AIModule = (function() {
       return await service.expand(text, onProgress);
     } catch (error) {
       console.error('Error in aiExpand:', error);
-      return `❌ Error expanding: ${error.message}`;
+      return `✕ Error expanding: ${error.message}`;
     }
   }
 
@@ -68,7 +68,7 @@ const AIModule = (function() {
       return await service.answer(text, onProgress);
     } catch (error) {
       console.error('Error in aiAnswer:', error);
-      return `❌ Error answering: ${error.message}`;
+      return `✕ Error answering: ${error.message}`;
     }
   }
 
@@ -78,7 +78,7 @@ const AIModule = (function() {
       return await service.chat(conversationHistory, onProgress);
     } catch (error) {
       console.error('Error in aiChat:', error);
-      return `❌ Error in chat: ${error.message}`;
+      return `✕ Error in chat: ${error.message}`;
     }
   }
 
