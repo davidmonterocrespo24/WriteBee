@@ -6,7 +6,7 @@ const FloatButtonModule = (function() {
 
     floatButton = document.createElement('button');
     floatButton.className = 'ai-float-btn';
-    floatButton.setAttribute('aria-label', 'Abrir AI Chat');
+    floatButton.setAttribute('aria-label', 'Open AI Chat');
     floatButton.innerHTML = `
       <div class="ai-float-mascot" aria-hidden="true">
         <div class="ai-float-mascot-inner">
@@ -19,7 +19,6 @@ const FloatButtonModule = (function() {
     floatButton.addEventListener('click', openSidePanel);
     document.body.appendChild(floatButton);
 
-    // Agregar atajo de teclado Ctrl+M
     document.addEventListener('keydown', handleKeyboard);
   }
 
@@ -34,26 +33,26 @@ const FloatButtonModule = (function() {
     try {
       chrome.runtime.sendMessage({
         action: 'openSidePanel',
-        data: null // Sin datos = nueva conversación
+        data: null
       }, (response) => {
         if (chrome.runtime.lastError) {
-          console.error('❌ Error de runtime:', chrome.runtime.lastError);
-          alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+          console.error('❌ Runtime error:', chrome.runtime.lastError);
+          alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue using the chat.');
           return;
         }
 
         if (response && response.success) {
-          console.log('✅ Side panel abierto correctamente');
+          console.log('✅ Side panel opened successfully');
         } else {
-          console.error('❌ Error abriendo side panel:', response?.error);
+          console.error('❌ Error opening side panel:', response?.error);
         }
       });
     } catch (error) {
-      console.error('❌ Error fatal al abrir side panel:', error);
+      console.error('❌ Fatal error opening side panel:', error);
       if (error.message.includes('Extension context invalidated')) {
-        alert('⚠️ La extensión fue recargada.\n\nPor favor recarga esta página (F5) para continuar usando el chat.');
+        alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue using the chat.');
       } else {
-        alert('Error al abrir chat: ' + error.message);
+        alert('Error opening chat: ' + error.message);
       }
     }
   }
@@ -66,7 +65,6 @@ const FloatButtonModule = (function() {
     document.removeEventListener('keydown', handleKeyboard);
   }
 
-  // Crear el botón automáticamente al cargar
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', createFloatButton);
   } else {

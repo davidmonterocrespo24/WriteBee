@@ -1,74 +1,74 @@
-# 🤖 AI Text Assistant - Extensión de Chrome
+# 🤖 AI Text Assistant - Chrome Extension
 
-Asistente de texto potenciado con IA de Chrome que te ayuda a trabajar con texto en cualquier sitio web, con integraciones especiales para Gmail y YouTube.
+AI-powered text assistant for Chrome that helps you work with text on any website, with special integrations for Gmail and YouTube.
 
-## ✨ Características Principales
+## ✨ Main Features
 
-### 📝 Asistente de Texto Universal
-- **Resumir** - Resume cualquier texto seleccionado
-- **Traducir** - Traduce a múltiples idiomas
-- **Explicar** - Explica conceptos complejos
-- **Gramática** - Revisa y corrige errores
-- **Reescribir** - Mejora la redacción
-- **Expandir** - Agrega más detalles
-- **Responder** - Responde preguntas
+### 📝 Universal Text Assistant
+- **Summarize** - Summarize any selected text
+- **Translate** - Translate to multiple languages
+- **Explain** - Explain complex concepts
+- **Grammar** - Review and correct errors
+- **Rewrite** - Improve writing
+- **Expand** - Add more details
+- **Answer** - Answer questions
 
-### 📧 Integración con Gmail
-Cuando estás viendo un correo en Gmail:
-1. Aparece un botón **"Respuesta AI"** en la barra de herramientas
-2. Al hacer clic se abre un diálogo que:
-   - 📋 **Resume automáticamente el correo** recibido
-   - ✍️ **Pide tu input** sobre qué incluir en la respuesta
-   - 🤖 **Genera una respuesta profesional** basada en el contexto
-   - ✏️ **Permite editar** la respuesta antes de enviar
-   - 📤 **Inserta directamente** en el editor de Gmail
+### 📧 Gmail Integration
+When viewing an email in Gmail:
+1. An **"AI Response"** button appears in the toolbar
+2. Clicking opens a dialog that:
+   - 📋 **Automatically summarizes the received email**
+   - ✍️ **Requests your input** on what to include in the response
+   - 🤖 **Generates a professional response** based on context
+   - ✏️ **Allows editing** the response before sending
+   - 📤 **Inserts directly** into Gmail editor
 
-### 📺 Integración con YouTube
-Cuando ves un video en YouTube:
-1. Aparece un **panel AI** arriba de la lista de videos recomendados
-2. El panel permite:
-   - 📋 **Resumir el video** usando los subtítulos disponibles
-   - ⏱️ **Incluir marcas de tiempo** en el resumen
-   - 🎯 **Extraer puntos clave** del contenido
-   - 📄 **Copiar y regenerar** el resumen
-   - ✅ **Funciona con subtítulos** en español e inglés
+### 📺 YouTube Integration
+When watching a video on YouTube:
+1. An **AI panel** appears above the recommended videos list
+2. The panel allows you to:
+   - 📋 **Summarize the video** using available subtitles
+   - ⏱️ **Include timestamps** in the summary
+   - 🎯 **Extract key points** from the content
+   - 📄 **Copy and regenerate** the summary
+   - ✅ **Works with subtitles** in Spanish and English
 
-## 🚀 Instalación
+## 🚀 Installation
 
-1. Descarga o clona este repositorio
-2. Abre Chrome y ve a `chrome://extensions/`
-3. Activa el **Modo de desarrollador** (esquina superior derecha)
-4. Haz clic en **"Cargar extensión sin empaquetar"**
-5. Selecciona la carpeta de la extensión
+1. Download or clone this repository
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable **Developer mode** (top right corner)
+4. Click **"Load unpacked extension"**
+5. Select the extension folder
 
-## 🎯 Cómo Usar
+## 🎯 How to Use
 
-### Uso General
-1. Selecciona cualquier texto en una página web
-2. Aparecerá una barra de herramientas flotante
-3. Haz clic en la acción deseada (resumir, traducir, etc.)
-4. El resultado aparece en un diálogo interactivo
+### General Use
+1. Select any text on a web page
+2. A floating toolbar will appear
+3. Click on the desired action (summarize, translate, etc.)
+4. The result appears in an interactive dialog
 
-### En Gmail
-1. Abre un correo electrónico
-2. Haz clic en el botón morado **"Respuesta AI"**
-3. Lee el resumen del correo
-4. Escribe qué quieres incluir en tu respuesta
-5. Haz clic en **"Generar Respuesta"**
-6. Edita si es necesario
-7. Haz clic en **"Insertar en Gmail"**
+### In Gmail
+1. Open an email
+2. Click the purple **"AI Response"** button
+3. Read the email summary
+4. Write what you want to include in your response
+5. Click **"Generate Response"**
+6. Edit if necessary
+7. Click **"Insert in Gmail"**
 
-### En YouTube
-1. Abre un video con subtítulos disponibles
-2. Busca el panel AI arriba de los videos recomendados
-3. Selecciona las opciones que desees (marcas de tiempo, puntos clave)
-4. Haz clic en **"Generar Resumen del Video"**
-5. Lee, copia o regenera el resumen según necesites
+### On YouTube
+1. Open a video with available subtitles
+2. Look for the AI panel above recommended videos
+3. Select the options you want (timestamps, key points)
+4. Click **"Generate Video Summary"**
+5. Read, copy or regenerate the summary as needed
 
-## 🛠️ Requisitos
+## 🛠️ Requirements
 
-- Google Chrome con soporte para Chrome AI APIs
-- Las siguientes APIs deben estar disponibles:
+- Google Chrome with support for Chrome AI APIs
+- The following APIs must be available:
   - Summarizer API
   - Translator API
   - LanguageModel API (Prompt API)
@@ -77,103 +77,103 @@ Cuando ves un video en YouTube:
   - Writer API
   - LanguageDetector API
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
 ```
 extensionAI2/
-├── manifest.json          # Configuración de la extensión
-├── content.js            # Script principal de contenido
-├── styles.css            # Estilos globales
+├── manifest.json          # Extension configuration
+├── content.js            # Main content script
+├── styles.css            # Global styles
 ├── modules/
-│   ├── actions.js        # Gestión de acciones
-│   ├── ai.js            # Interfaz con APIs de AI
-│   ├── aiService.js     # Servicio de AI (lógica principal)
-│   ├── dialog.js        # Diálogos interactivos
-│   ├── markdown.js      # Renderizador de Markdown
-│   ├── menus.js         # Menús contextuales
-│   ├── toolbar.js       # Barra de herramientas flotante
-│   ├── gmail.js         # 📧 Integración con Gmail
-│   └── youtube.js       # 📺 Integración con YouTube
-└── readme.md            # Este archivo
+│   ├── actions.js        # Actions management
+│   ├── ai.js            # AI APIs interface
+│   ├── aiService.js     # AI service (main logic)
+│   ├── dialog.js        # Interactive dialogs
+│   ├── markdown.js      # Markdown renderer
+│   ├── menus.js         # Context menus
+│   ├── toolbar.js       # Floating toolbar
+│   ├── gmail.js         # 📧 Gmail integration
+│   └── youtube.js       # 📺 YouTube integration
+└── readme.md            # This file
 ```
 
-## 🎨 Características del Diálogo
+## 🎨 Dialog Features
 
-- **Arrastrable** - Mueve el diálogo a donde quieras
-- **Fijable** - Mantén múltiples diálogos abiertos
-- **Chat de seguimiento** - Haz preguntas adicionales
-- **Copiar resultados** - Un clic para copiar
-- **Regenerar** - Obtén respuestas alternativas
-- **Editar** - Modifica las respuestas
-- **Leer en voz alta** - Escucha las respuestas
-- **Cambio de modo** - Cambia entre acciones sin cerrar
+- **Draggable** - Move the dialog wherever you want
+- **Pinnable** - Keep multiple dialogs open
+- **Follow-up chat** - Ask additional questions
+- **Copy results** - One click to copy
+- **Regenerate** - Get alternative responses
+- **Edit** - Modify the responses
+- **Read aloud** - Listen to the responses
+- **Mode switching** - Change between actions without closing
 
-## 🔧 Configuración de APIs
+## 🔧 API Configuration
 
-La extensión usa las Chrome AI APIs nativas. Asegúrate de tener:
+The extension uses native Chrome AI APIs. Make sure you have:
 
-1. Chrome Canary o Dev (versión más reciente)
-2. Flags habilitados en `chrome://flags`:
+1. Chrome Canary or Dev (latest version)
+2. Flags enabled in `chrome://flags`:
    - `#optimization-guide-on-device-model`
    - `#prompt-api-for-gemini-nano`
    - `#summarization-api-for-gemini-nano`
    - `#translation-api`
 
-## 📝 Notas
+## 📝 Notes
 
 ### Gmail
-- La extensión detecta automáticamente cuando abres Gmail
-- Funciona mejor con correos en formato de texto
-- La respuesta generada puede editarse antes de insertar
+- The extension automatically detects when you open Gmail
+- Works best with text-format emails
+- Generated response can be edited before inserting
 
 ### YouTube
-- El video **debe tener subtítulos disponibles**
-- Funciona con subtítulos automáticos o manuales
-- Prefiere subtítulos en español, luego inglés
-- El resumen puede tardar según la longitud del video
+- The video **must have available subtitles**
+- Works with automatic or manual subtitles
+- Prefers subtitles in Spanish, then English
+- Summary may take time depending on video length
 
-## 🐛 Solución de Problemas
+## 🐛 Troubleshooting
 
-### Las APIs no están disponibles
-- Verifica que estés usando Chrome Canary/Dev
-- Revisa los flags en `chrome://flags`
-- Reinicia Chrome después de cambiar flags
+### APIs are not available
+- Verify you are using Chrome Canary/Dev
+- Check the flags in `chrome://flags`
+- Restart Chrome after changing flags
 
-### No aparece el botón en Gmail
-- Actualiza la página de Gmail
-- Verifica que la extensión esté habilitada
-- Revisa la consola del navegador para errores
+### Button doesn't appear in Gmail
+- Refresh the Gmail page
+- Verify the extension is enabled
+- Check browser console for errors
 
-### No se obtienen subtítulos de YouTube
-- Verifica que el video tenga subtítulos (CC)
-- Activa los subtítulos manualmente si no están automáticos
-- Algunos videos privados pueden no funcionar
+### Can't get YouTube subtitles
+- Verify the video has subtitles (CC)
+- Manually activate subtitles if not automatic
+- Some private videos may not work
 
-## 🚀 Próximas Características
+## 🚀 Upcoming Features
 
-- [ ] Más opciones de personalización
-- [ ] Soporte para más idiomas
-- [ ] Integración con más servicios (Twitter, LinkedIn, etc.)
-- [ ] Plantillas personalizadas de respuestas
-- [ ] Historial de respuestas generadas
-- [ ] Modo oscuro/claro
+- [ ] More customization options
+- [ ] Support for more languages
+- [ ] Integration with more services (Twitter, LinkedIn, etc.)
+- [ ] Custom response templates
+- [ ] History of generated responses
+- [ ] Dark/light mode
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+This project is open source and available under the MIT license.
 
-## 🤝 Contribuciones
+## 🤝 Contributions
 
-Las contribuciones son bienvenidas. Por favor:
-1. Haz fork del repositorio
-2. Crea una rama para tu función
-3. Haz commit de tus cambios
-4. Envía un pull request
+Contributions are welcome. Please:
+1. Fork the repository
+2. Create a branch for your feature
+3. Commit your changes
+4. Submit a pull request
 
-## 📧 Contacto
+## 📧 Contact
 
-Para preguntas, sugerencias o reportar bugs, por favor abre un issue en el repositorio.
+For questions, suggestions or to report bugs, please open an issue in the repository.
 
 ---
 
-**Hecho con ❤️ usando Chrome AI APIs**
+**Made with ❤️ using Chrome AI APIs**

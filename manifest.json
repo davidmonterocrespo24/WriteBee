@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AI Text Assistant",
   "version": "1.0",
-  "description": "Asistente de texto con IA de Chrome",
+  "description": "AI-powered text assistant for Chrome",
   "permissions": [
     "activeTab",
     "scripting",

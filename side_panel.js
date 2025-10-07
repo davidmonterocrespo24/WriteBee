@@ -1,14 +1,12 @@
-// Side Panel Chat - Lógica del chat en el panel lateral
-console.log('📜 side_panel.js cargado - empezando ejecución');
+console.log('📜 side_panel.js loaded - starting execution');
 
 (function initSidePanel() {
   try {
-    console.log('🚀 Inicializando Side Panel Chat');
+    console.log('🚀 Initializing Side Panel Chat');
     console.log('⏰ Timestamp:', Date.now());
     console.log('📄 Document ready state:', document.readyState);
 
-    // Verificar módulos disponibles
-    console.log('📦 Módulos disponibles:', {
+    console.log('📦 Available modules:', {
       AIModule: typeof AIModule !== 'undefined',
       MultimodalModule: typeof MultimodalModule !== 'undefined',
       MarkdownRenderer: typeof MarkdownRenderer !== 'undefined',
@@ -20,7 +18,6 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
   let mediaRecorder = null;
   let attachedImageFile = null;
 
-  // Elementos del DOM
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
@@ -31,7 +28,7 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
   const chatAttachments = document.getElementById('chatAttachments');
   const recordingIndicator = document.getElementById('recordingIndicator');
 
-  console.log('✅ Elementos DOM cargados:', {
+  console.log('✅ DOM elements loaded:', {
     chatMessages: !!chatMessages,
     chatInput: !!chatInput,
     sendBtn: !!sendBtn,
@@ -40,63 +37,60 @@ console.log('📜 side_panel.js cargado - empezando ejecución');
     attachImageBtn: !!attachImageBtn
   });
 
-  // Cargar historial guardado
   loadHistory();
 
-  // Setup suggestion chips
   setupSuggestionChips();
 
-  // Event listeners
   if (chatInput) {
     chatInput.addEventListener('input', handleInputChange);
     chatInput.addEventListener('keydown', handleKeyDown);
-    console.log('✅ Event listeners agregados a chatInput');
+    console.log('✅ Event listeners added to chatInput');
   } else {
-    console.error('❌ chatInput no encontrado');
+    console.error('❌ chatInput not found');
   }
 
   if (sendBtn) {
     sendBtn.addEventListener('click', () => {
-      console.log('🔵 Click en sendBtn detectado');
+      console.log('🔵 Click on sendBtn detected');
       sendMessage();
     });
-    console.log('✅ Event listener agregado a sendBtn');
+    console.log('✅ Event listener added to sendBtn');
   } else {
-    console.error('❌ sendBtn no encontrado');
+    console.error('❌ sendBtn not found');
   }
 
   if (newChatBtn) {
     newChatBtn.addEventListener('click', newConversation);
-    console.log('✅ Event listener agregado a newChatBtn');
+    console.log('✅ Event listener added to newChatBtn');
   } else {
-    console.error('❌ newChatBtn no encontrado');
+    console.error('❌ newChatBtn not found');
   }
 
   if (voiceBtn) {
     voiceBtn.addEventListener('click', () => {
-      console.log('🔵 Click en voiceBtn detectado');
+      console.log('🔵 Click on voiceBtn detected');
       toggleVoiceRecording();
     });
-    console.log('✅ Event listener agregado a voiceBtn');
+    console.log('✅ Event listener added to voiceBtn');
   } else {
-    console.error('❌ voiceBtn no encontrado');
+    console.error('❌ voiceBtn not found');
   }
 
   if (attachImageBtn) {
     attachImageBtn.addEventListener('click', () => {
-      console.log('🔵 Click en attachImageBtn detectado');
+      console.log('🔵 Click on attachImageBtn detected');
       imageInput.click();
     });
-    console.log('✅ Event listener agregado a attachImageBtn');
+    console.log('✅ Event listener added to attachImageBtn');
   } else {
-    console.error('❌ attachImageBtn no encontrado');
+    console.error('❌ attachImageBtn not found');
   }
 
   if (imageInput) {
     imageInput.addEventListener('change', handleImageSelect);
-    console.log('✅ Event listener agregado a imageInput');
+    console.log('✅ Event listener added to imageInput');
   } else {
-    console.error('❌ imageInput no encontrado');
+    console.error('❌ imageInput not found');
   }
 
   /**

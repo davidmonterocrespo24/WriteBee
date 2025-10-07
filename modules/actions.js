@@ -1,35 +1,31 @@
 const ActionsModule = (function() {
   async function executeAction(action, param = null, rect = null, selectedText = '') {
-    console.log('⚙️⚙️⚙️ executeAction LLAMADO ⚙️⚙️⚙️');
-    console.log('⚙️ executeAction - acción:', action, 'param:', param);
-    console.log('⚙️ executeAction - rect recibido:', rect);
+    console.log('⚙️ executeAction CALLED');
+    console.log('⚙️ executeAction - action:', action, 'param:', param);
+    console.log('⚙️ executeAction - rect received:', rect);
     MenusModule.hideMenus();
 
-    // Crear el diálogo inmediatamente con typing indicator
-    console.log('📊 Creando diálogo con typing indicator');
+    console.log('📊 Creating dialog with typing indicator');
     const dialog = DialogModule.createDialog(action, '', selectedText, rect);
-    console.log('📊 Dialog creado, agregándolo al DOM...');
+    console.log('📊 Dialog created, adding to DOM...');
     document.body.appendChild(dialog);
-    console.log('✅ Diálogo agregado al DOM');
-    console.log('📊 Posición del diálogo después de agregar al DOM:', {
+    console.log('✅ Dialog added to DOM');
+    console.log('📊 Dialog position after adding to DOM:', {
       left: dialog.style.left,
       top: dialog.style.top,
       boundingRect: dialog.getBoundingClientRect()
     });
 
-    // Ajustar posición después de agregar al DOM
     if (dialog.adjustPosition) {
-      console.log('🔄 Llamando a dialog.adjustPosition()...');
+      console.log('🔄 Calling dialog.adjustPosition()...');
       setTimeout(() => {
-        console.log('⏰ setTimeout ejecutado, llamando adjustPosition ahora');
+        console.log('⏰ setTimeout executed, calling adjustPosition now');
         dialog.adjustPosition();
       }, 0);
     }
 
-    // Obtener el div de respuesta para actualizarlo
     const answerDiv = dialog.querySelector('.ai-answer');
 
-    // Crear typing indicator
     if (answerDiv) {
       answerDiv.innerHTML = `
         <div class="ai-typing-indicator">
@@ -38,36 +34,32 @@ const ActionsModule = (function() {
       `;
     }
 
-    // Crear botón detener
     const stopBtn = document.createElement('button');
     stopBtn.className = 'ai-stop-btn';
     stopBtn.innerHTML = `
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
         <rect x="6" y="6" width="12" height="12" rx="2"/>
       </svg>
-      Detener
+      Stop
     `;
 
-    // Insertar botón detener en el header
     const header = dialog.querySelector('.ai-result-header');
     const spacer = header.querySelector('.spacer');
     if (spacer) {
       spacer.insertAdjacentElement('afterend', stopBtn);
     }
 
-    // AbortController para cancelar streaming
     const abortController = new AbortController();
 
     stopBtn.addEventListener('click', () => {
       abortController.abort();
       stopBtn.disabled = true;
-      stopBtn.textContent = 'Detenido';
+      stopBtn.textContent = 'Stopped';
     });
 
     try {
       let result = '';
 
-      // Función de callback para streaming
       const onChunk = (chunk) => {
         if (answerDiv) {
           MarkdownRenderer.renderToElement(answerDiv, chunk);
@@ -88,7 +80,6 @@ const ActionsModule = (function() {
           result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
           break;
         case 'grammar':
-          // No streaming disponible - usar implementación existente
           result = await AIModule.aiGrammar(selectedText);
           if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
           break;
@@ -100,13 +91,11 @@ const ActionsModule = (function() {
           break;
       }
 
-      // Remover botón detener
       stopBtn.remove();
     } catch (error) {
-      // Actualizar el contenido del diálogo con el error
       if (answerDiv) {
-        answerDiv.textContent = error.message.includes('cancelado')
-          ? 'Streaming detenido por el usuario'
+        answerDiv.textContent = error.message.includes('cancel')
+          ? 'Streaming stopped by user'
           : 'Error: ' + error.message;
       }
       stopBtn.remove();
