@@ -48,6 +48,10 @@ const MenusModule = (function() {
         <span class="icon">💬</span>
         Responder a esta pregunta
       </div>
+      <div class="ai-menu-item" data-action="chat-with-page">
+        <span class="icon">💬</span>
+        Chat with this page
+      </div>
     `;
 
     document.body.appendChild(menu);
@@ -68,6 +72,27 @@ const MenusModule = (function() {
 
         const action = item.dataset.action;
         const toolbar = ToolbarModule.getToolbar();
+
+        // Handle "Chat with this page" separately
+        if (action === 'chat-with-page') {
+          if (toolbar) toolbar.style.display = 'none';
+          hideMenus(); // Close the menu
+
+          const pageContent = WebChatModule.extractPageContent();
+          const metadata = WebChatModule.getPageMetadata();
+
+          chrome.runtime.sendMessage({
+            action: 'openSidePanel',
+            data: {
+              webChatMode: true,
+              pageTitle: metadata.title,
+              pageUrl: metadata.url,
+              pageContent: pageContent.substring(0, 10000),
+              selectedText: ToolbarModule.getSelectedText()
+            }
+          });
+          return;
+        }
 
         // Usar la posición inicial guardada del toolbar, no la actual
         let rect = null;

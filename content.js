@@ -102,8 +102,9 @@ function handleClickOutside(e) {
 }
 
 function hideAll() {
-  console.log('🗑️ hideAll - ocultando toolbar y diálogo actual');
+  console.log('🗑️ hideAll - ocultando toolbar, menús y diálogo actual');
   ToolbarModule.hideToolbar();
+  MenusModule.hideMenus();
   const currentDialog = DialogModule.getCurrentDialog();
   if (currentDialog) {
     console.log('🗑️ Eliminando diálogo actual');

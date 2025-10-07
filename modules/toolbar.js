@@ -107,30 +107,37 @@ const ToolbarModule = (function() {
         } else if (action === 'chat-with-page') {
           // Open side panel with page context
           toolbar.style.display = 'none';
+          MenusModule.hideMenus(); // Close any open menus
 
           // Extract page content
           const pageContent = WebChatModule.extractPageContent();
           const metadata = WebChatModule.getPageMetadata();
 
           // Open side panel with page context
-          chrome.runtime.sendMessage({
-            action: 'openSidePanel',
-            data: {
-              webChatMode: true,
-              pageTitle: metadata.title,
-              pageUrl: metadata.url,
-              pageContent: pageContent.substring(0, 10000),
-              selectedText: selectedText // Include selected text if any
-            }
-          }, (response) => {
-            if (chrome.runtime.lastError) {
-              alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
-              return;
-            }
-            if (response && response.success) {
-              console.log('✅ Side panel opened with page context');
-            }
-          });
+          try {
+            chrome.runtime.sendMessage({
+              action: 'openSidePanel',
+              data: {
+                webChatMode: true,
+                pageTitle: metadata.title,
+                pageUrl: metadata.url,
+                pageContent: pageContent.substring(0, 10000),
+                selectedText: selectedText // Include selected text if any
+              }
+            }, (response) => {
+              if (chrome.runtime.lastError) {
+                console.error('Extension context error:', chrome.runtime.lastError);
+                alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
+                return;
+              }
+              if (response && response.success) {
+                console.log('✅ Side panel opened with page context');
+              }
+            });
+          } catch (error) {
+            console.error('Error sending message:', error);
+            alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
+          }
         } else {
           console.log('🔵 Click en acción:', action);
 
