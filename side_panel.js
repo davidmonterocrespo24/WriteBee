@@ -143,16 +143,16 @@ console.log('📜 side_panel.js loaded - starting execution');
         fetch(imageUrl)
           .then(res => res.blob())
           .then(async (blob) => {
-            attachedImageFile = new File([blob], 'image.jpg', { type: blob.type });
-
-            // Mostrar la imagen adjunta
-            displayAttachedImage(blob);
+            const imageFile = new File([blob], 'image.jpg', { type: blob.type });
+            const imageObjectUrl = URL.createObjectURL(blob);
 
             // Agregar mensaje del usuario con el prompt
             conversationHistory.push({
               role: 'user',
               content: prompt,
-              image: attachedImageFile,
+              image: imageObjectUrl,
+              imageFile: imageFile,
+              imageAction: imageAction,
               timestamp: Date.now()
             });
 
@@ -162,7 +162,7 @@ console.log('📜 side_panel.js loaded - starting execution');
 
             // Procesar automáticamente
             setTimeout(() => {
-              processMessage(prompt, attachedImageFile);
+              processMessage(prompt, imageAction, imageFile);
             }, 100);
           })
           .catch(error => {
