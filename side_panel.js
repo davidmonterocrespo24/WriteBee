@@ -499,18 +499,18 @@ console.log('📜 side_panel.js loaded - starting execution');
         const actionsEl = document.createElement('div');
         actionsEl.className = 'message-actions';
         actionsEl.innerHTML = `
-          <button class="message-action-btn copy-btn" data-index="${index}" title="Copiar">
+          <button class="message-action-btn copy-btn" data-index="${index}" title="Copy">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
           </button>
-          <button class="message-action-btn regenerate-btn" data-index="${index}" title="Regenerar">
+          <button class="message-action-btn regenerate-btn" data-index="${index}" title="Regenerate">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
           </button>
-          <button class="message-action-btn speak-btn" data-index="${index}" title="Hablar">
+          <button class="message-action-btn speak-btn" data-index="${index}" title="Speak">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
@@ -670,12 +670,12 @@ console.log('📜 side_panel.js loaded - starting execution');
             <div class="typing-indicator">
               <span></span><span></span><span></span>
             </div>
-            Transcribiendo...
+            Transcribing...
           `;
           recordingIndicator.style.display = 'flex';
 
           try {
-            console.log('🎤 Transcribiendo audio...');
+            console.log('🎤 Transcribing audio...');
             if (typeof MultimodalModule !== 'undefined') {
               const transcription = await MultimodalModule.transcribeAudio(audioBlob, 'transcribe', (progress) => {
                 console.log('📝 Progreso transcripción:', progress);
@@ -687,15 +687,15 @@ console.log('📜 side_panel.js loaded - starting execution');
               throw new Error('MultimodalModule no está disponible');
             }
           } catch (error) {
-            console.error('❌ Error transcribiendo audio:', error);
-            alert('Error al transcribir audio: ' + error.message);
+            console.error('❌ Error transcribing audio:', error);
+            alert('Error transcribing audio: ' + error.message);
           }
 
           // Ocultar indicador y limpiar
           recordingIndicator.style.display = 'none';
           recordingIndicator.innerHTML = `
             <span class="recording-dot"></span>
-            Grabando audio...
+            Recording audio...
           `;
           stream.getTracks().forEach(track => track.stop());
         };
