@@ -1,0 +1,24 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Antena izquierda -->
+  <line x1="5.3" y1="4" x2="4" y2="1.5" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round"/>
+  <circle cx="4" cy="1.5" r="0.8" fill="#ffffff"/>
+  
+  <!-- Antena derecha -->
+  <line x1="10.7" y1="4" x2="12" y2="1.5" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round"/>
+  <circle cx="12" cy="1.5" r="0.8" fill="#ffffff"/>
+  
+  <!-- Cara amarilla circular (abeja) -->
+  <circle cx="8" cy="8" r="8" fill="#ffd400"/>
+  
+  <!-- Borde negro exterior -->
+  <circle cx="8" cy="8" r="7.6" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>
+  
+  <!-- Borde negro interior -->
+  <circle cx="8" cy="8" r="6" fill="none" stroke="#1a1a1a" stroke-width="0.64"/>
+  
+  <!-- Ojo izquierdo -->
+  <circle cx="5.5" cy="7.5" r="1.5" fill="#1a1a1a"/>
+  
+  <!-- Ojo derecho -->
+  <circle cx="10.5" cy="7.5" r="1.5" fill="#1a1a1a"/>
+</svg>
