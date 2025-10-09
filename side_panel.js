@@ -19,6 +19,7 @@ console.log('📜 side_panel.js loaded - starting execution');
   let attachedImageFile = null;
   let attachedPdfFile = null;
   let isWebChatMode = false; // Flag para trackear si estamos en modo chat con página
+  let lastProcessedDataHash = null; // Para evitar procesar los mismos datos múltiples veces
 
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
@@ -240,6 +241,32 @@ console.log('📜 side_panel.js loaded - starting execution');
       return;
     }
 
+    // Crear un hash único para estos datos
+    const dataHash = JSON.stringify({
+      imageUrl: data.imageUrl,
+      imageAction: data.imageAction,
+      prompt: data.prompt,
+      selectedText: data.selectedText,
+      context: data.context,
+      timestamp: Math.floor(Date.now() / 1000) // Agrupar por segundo
+    });
+
+    // Verificar si ya procesamos estos mismos datos recientemente (en el último segundo)
+    if (lastProcessedDataHash === dataHash) {
+      console.warn('⚠️ Datos duplicados detectados - ignorando procesamiento');
+      return;
+    }
+
+    // Guardar el hash para evitar duplicados
+    lastProcessedDataHash = dataHash;
+    
+    // Limpiar el hash después de 2 segundos
+    setTimeout(() => {
+      if (lastProcessedDataHash === dataHash) {
+        lastProcessedDataHash = null;
+      }
+    }, 2000);
+
     const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent, imageMode, imageUrl, imageAction, prompt, initialPrompt, context } = data;
 
     console.log('📋 Datos extraídos:', {
@@ -276,9 +303,28 @@ console.log('📜 side_panel.js loaded - starting execution');
     });
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // 🆕 NUEVA CONVERSACIÓN: Limpiar historial existente antes de agregar nuevo contexto
-    console.log('🆕 Iniciando nueva conversación');
-    conversationHistory = [];
+    // Para imágenes, siempre limpiar el historial para crear nueva conversación
+    if (imageMode && imageUrl && prompt) {
+      console.log('🖼️ Modo imagen detectado - limpiando historial para nueva conversación');
+      conversationHistory = [];
+    }
+    // Para chat con página (desde menú contextual), limpiar historial
+    else if (context === 'page-chat' && webChatMode) {
+      console.log('🌐 Modo chat con página detectado - limpiando historial para nueva conversación');
+      conversationHistory = [];
+    }
+    // Para resumen de página, NO limpiar si ya hay contenido cargando
+    else if (context === 'page-summary-loading' || context === 'page-summary') {
+      console.log('📄 Resumen de página - manteniendo o actualizando historial');
+      // No limpiar el historial aquí
+    }
+    // Para otros casos, solo limpiar si no es una pregunta de seguimiento
+    else if (!followupQuestion) {
+      console.log('🆕 Iniciando nueva conversación');
+      console.log('🧹 Limpiando historial anterior:', conversationHistory.length, 'mensajes');
+      conversationHistory = [];
+      console.log('✅ Historial limpiado, listo para nueva conversación');
+    }
 
     // MODO: Resumen de página - Estado de carga
     if (context === 'page-summary-loading' && data.isLoading) {
@@ -408,6 +454,8 @@ console.log('📜 side_panel.js loaded - starting execution');
     // MODO: Imagen (OCR, Explain, Describe)
     if (imageMode && imageUrl && prompt) {
       console.log('🖼️ Modo Imagen activado:', imageAction);
+      console.log('🖼️ Image URL:', imageUrl);
+      console.log('🖼️ Prompt:', prompt);
 
       // Cargar la imagen
       fetch(imageUrl)
@@ -416,15 +464,22 @@ console.log('📜 side_panel.js loaded - starting execution');
           const imageFile = new File([blob], 'image.jpg', { type: blob.type });
           const imageObjectUrl = URL.createObjectURL(blob);
 
+          console.log('✅ Imagen cargada y convertida a File');
+          console.log('📦 imageFile:', imageFile);
+          console.log('🎯 imageAction:', imageAction);
+
           // Agregar mensaje del usuario con el prompt
           conversationHistory.push({
             role: 'user',
             content: prompt,
             image: imageObjectUrl,
             imageFile: imageFile,
-            imageAction: imageAction,
+            imageAction: imageAction || 'describe', // Asegurar que imageAction tenga un valor
             timestamp: Date.now()
           });
+
+          console.log('📝 Mensaje de usuario agregado al historial');
+          console.log('📊 Historial actual:', conversationHistory.length, 'mensajes');
 
           // Renderizar historial
           renderChatHistory();
@@ -435,13 +490,17 @@ console.log('📜 side_panel.js loaded - starting execution');
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }, 100);
 
-          // Procesar automáticamente
+          // Procesar automáticamente con la acción correcta
+          console.log('🚀 Procesando mensaje con imagen...');
+          console.log('🎯 Acción a ejecutar:', imageAction);
+          
           setTimeout(() => {
-            processMessage(prompt, imageFile);
+            processMessage(prompt, imageAction, imageFile, null);
           }, 200);
         })
         .catch(err => {
           console.error('❌ Error cargando imagen:', err);
+          alert('Error loading image: ' + err.message);
         });
 
       return;
@@ -600,6 +659,9 @@ console.log('📜 side_panel.js loaded - starting execution');
       console.log('📦 Data details:', {
         context: request.data.context,
         pageTitle: request.data.pageTitle,
+        imageMode: request.data.imageMode,
+        imageUrl: request.data.imageUrl?.substring(0, 50),
+        imageAction: request.data.imageAction,
         hasSummary: !!request.data.currentAnswer,
         hasPageContent: !!request.data.pageContent,
         pageContentLength: request.data.pageContent?.length
@@ -608,14 +670,16 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     if (request.action === 'chatData' && request.data) {
-      // Llamar handleChatData de forma async pero no esperar
+      console.log('✅ Procesando chatData...');
+      // Llamar handleChatData de forma async pero responder inmediatamente
       handleChatData(request.data).then(() => {
         console.log('✅ handleChatData completado exitosamente');
-        sendResponse({ success: true });
       }).catch(error => {
         console.error('❌ Error procesando chatData:', error);
-        sendResponse({ success: false, error: error.message });
       });
+      
+      // Responder inmediatamente para que content.js sepa que el mensaje fue recibido
+      sendResponse({ success: true });
       return true; // Mantener el canal abierto para sendResponse async
     }
     return true;

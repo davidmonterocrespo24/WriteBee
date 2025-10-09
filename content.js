@@ -133,15 +133,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Handle OCR request
 async function handleOCRRequest(imageUrl) {
   try {
-    // Open side panel with OCR request
+    const imageData = {
+      imageMode: true,
+      imageUrl: imageUrl,
+      imageAction: 'ocr',
+      prompt: 'Extract all visible text from this image. Return ONLY the extracted text, nothing else. If there\'s no text, say \'No text found\'.'
+    };
+
+    // Always open side panel with the data
     chrome.runtime.sendMessage({
       action: 'openSidePanel',
-      data: {
-        imageMode: true,
-        imageUrl: imageUrl,
-        imageAction: 'ocr',
-        prompt: 'Extract all visible text from this image. Return ONLY the extracted text, nothing else. If there\'s no text, say \'No text found\'.'
+      data: imageData
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error opening side panel:', chrome.runtime.lastError);
+        return;
       }
+      
+      // Also try to send to side panel directly (in case it was already open)
+      setTimeout(() => {
+        chrome.runtime.sendMessage({
+          action: 'chatData',
+          data: imageData
+        }).catch(() => {
+          // Ignore errors - this is just a backup
+        });
+      }, 300);
     });
   } catch (error) {
     console.error('Error processing OCR:', error);
@@ -152,15 +169,32 @@ async function handleOCRRequest(imageUrl) {
 // Handle explain image request
 async function handleExplainImage(imageUrl) {
   try {
-    // Open side panel with explain request
+    const imageData = {
+      imageMode: true,
+      imageUrl: imageUrl,
+      imageAction: 'explain',
+      prompt: 'Explain what is happening in this image in detail.'
+    };
+
+    // Always open side panel with the data
     chrome.runtime.sendMessage({
       action: 'openSidePanel',
-      data: {
-        imageMode: true,
-        imageUrl: imageUrl,
-        imageAction: 'explain',
-        prompt: 'Explain what is happening in this image in detail.'
+      data: imageData
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error opening side panel:', chrome.runtime.lastError);
+        return;
       }
+      
+      // Also try to send to side panel directly (in case it was already open)
+      setTimeout(() => {
+        chrome.runtime.sendMessage({
+          action: 'chatData',
+          data: imageData
+        }).catch(() => {
+          // Ignore errors - this is just a backup
+        });
+      }, 300);
     });
   } catch (error) {
     console.error('Error explaining image:', error);
@@ -171,15 +205,32 @@ async function handleExplainImage(imageUrl) {
 // Handle describe image request
 async function handleDescribeImage(imageUrl) {
   try {
-    // Open side panel with describe request
+    const imageData = {
+      imageMode: true,
+      imageUrl: imageUrl,
+      imageAction: 'describe',
+      prompt: 'Describe this image in detail.'
+    };
+
+    // Always open side panel with the data
     chrome.runtime.sendMessage({
       action: 'openSidePanel',
-      data: {
-        imageMode: true,
-        imageUrl: imageUrl,
-        imageAction: 'describe',
-        prompt: 'Describe this image in detail.'
+      data: imageData
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error opening side panel:', chrome.runtime.lastError);
+        return;
       }
+      
+      // Also try to send to side panel directly (in case it was already open)
+      setTimeout(() => {
+        chrome.runtime.sendMessage({
+          action: 'chatData',
+          data: imageData
+        }).catch(() => {
+          // Ignore errors - this is just a backup
+        });
+      }, 300);
     });
   } catch (error) {
     console.error('Error describing image:', error);
@@ -222,16 +273,33 @@ async function handleExtractPageContent() {
       contentLength: pageContent.length
     });
 
-    // Send to background to open side panel with the data
+    const pageData = {
+      context: 'page-chat',
+      webChatMode: true,
+      pageTitle: metadata.title,
+      pageUrl: metadata.url,
+      pageContent: pageContent.substring(0, 10000)
+    };
+
+    // Always open side panel with the data
     chrome.runtime.sendMessage({
       action: 'openSidePanel',
-      data: {
-        context: 'page-chat',
-        webChatMode: true,
-        pageTitle: metadata.title,
-        pageUrl: metadata.url,
-        pageContent: pageContent.substring(0, 10000)
+      data: pageData
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error opening side panel:', chrome.runtime.lastError);
+        return;
       }
+      
+      // Also try to send to side panel directly (in case it was already open)
+      setTimeout(() => {
+        chrome.runtime.sendMessage({
+          action: 'chatData',
+          data: pageData
+        }).catch(() => {
+          // Ignore errors - this is just a backup
+        });
+      }, 300);
     });
   } catch (error) {
     console.error('❌ Error extrayendo contenido de página:', error);

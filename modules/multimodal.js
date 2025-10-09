@@ -125,6 +125,7 @@ const MultimodalModule = (function() {
    */
   async function processImageWithAction(imageFile, action, context = "", onProgress = null) {
     const prompts = {
+      ocr: "Extract all visible text from this image. Return ONLY the extracted text, nothing else. If there's no text, say 'No text found'.",
       summarize: "Resume el contenido visible en esta imagen de forma concisa.",
       translate: `Traduce todo el texto visible en esta imagen a ${context || 'español'}.`,
       explain: "Explica qué muestra esta imagen de forma detallada.",
