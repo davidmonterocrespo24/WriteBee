@@ -390,7 +390,20 @@ const DialogModule = (function() {
                 result = await AIModule.aiSummarizeStream(selectedText, onChunk, abortController.signal);
                 break;
               case 'translate':
-                result = await AIModule.aiTranslateStream(selectedText, currentLang, onChunk, abortController.signal);
+                // Use aiAnswerStream with a prompt instead of Translator API
+                const targetLangMap = {
+                  'es': 'español',
+                  'en': 'inglés',
+                  'fr': 'francés',
+                  'de': 'alemán',
+                  'it': 'italiano',
+                  'pt': 'portugués',
+                  'ja': 'japonés',
+                  'zh': 'chino'
+                };
+                const targetLangName = targetLangMap[currentLang] || currentLang;
+                const translatePrompt = `Traduce el siguiente texto a ${targetLangName}. Solo proporciona la traducción, sin explicaciones adicionales:\n\n${selectedText}`;
+                result = await AIModule.aiAnswerStream(translatePrompt, onChunk, abortController.signal);
                 break;
               case 'explain':
                 result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
@@ -475,17 +488,35 @@ const DialogModule = (function() {
         const newLang = e.target.value;
         const answerDiv = dialog.querySelector('.ai-answer');
 
-        // Show loading state
-        answerDiv.textContent = 'Processing...';
-
-        // Progress callback
-        const onProgress = (percent) => {
-          answerDiv.textContent = `Processing ${percent}%`;
-        };
+        // Show typing indicator
+        answerDiv.innerHTML = `
+          <div class="ai-typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        `;
 
         try {
-          const result = await AIModule.aiTranslate(selectedText, newLang, onProgress);
-          MarkdownRenderer.renderToElement(answerDiv, result);
+          // Use aiAnswerStream with a prompt instead of Translator API
+          const targetLangMap = {
+            'es': 'español',
+            'en': 'inglés',
+            'fr': 'francés',
+            'de': 'alemán',
+            'it': 'italiano',
+            'pt': 'portugués',
+            'ja': 'japonés',
+            'zh': 'chino'
+          };
+          const targetLangName = targetLangMap[newLang] || newLang;
+          const translatePrompt = `Traduce el siguiente texto a ${targetLangName}. Solo proporciona la traducción, sin explicaciones adicionales:\n\n${selectedText}`;
+          
+          const onChunk = (chunk) => {
+            if (answerDiv) {
+              MarkdownRenderer.renderToElement(answerDiv, chunk);
+            }
+          };
+          
+          const result = await AIModule.aiAnswerStream(translatePrompt, onChunk);
         } catch (error) {
           answerDiv.textContent = 'Error: ' + error.message;
         }
@@ -521,7 +552,20 @@ const DialogModule = (function() {
               result = await AIModule.aiSummarizeStream(selectedText, onChunk);
               break;
             case 'translate':
-              result = await AIModule.aiTranslateStream(selectedText, currentLang, onChunk);
+              // Use aiAnswerStream with a prompt instead of Translator API
+              const targetLangMap = {
+                'es': 'español',
+                'en': 'inglés',
+                'fr': 'francés',
+                'de': 'alemán',
+                'it': 'italiano',
+                'pt': 'portugués',
+                'ja': 'japonés',
+                'zh': 'chino'
+              };
+              const targetLangName = targetLangMap[currentLang] || currentLang;
+              const translatePrompt = `Traduce el siguiente texto a ${targetLangName}. Solo proporciona la traducción, sin explicaciones adicionales:\n\n${selectedText}`;
+              result = await AIModule.aiAnswerStream(translatePrompt, onChunk);
               break;
             case 'explain':
               result = await AIModule.aiExplainStream(selectedText, onChunk);

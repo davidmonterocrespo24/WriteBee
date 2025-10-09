@@ -74,7 +74,21 @@ const ActionsModule = (function() {
           result = await AIModule.aiRewriteStream(selectedText, onChunk, abortController.signal);
           break;
         case 'translate':
-          result = await AIModule.aiTranslateStream(selectedText, param || 'es', onChunk, abortController.signal);
+          // Use aiAnswerStream with a prompt instead of Translator API (may not be available)
+          const targetLangMap = {
+            'es': 'español',
+            'en': 'inglés',
+            'fr': 'francés',
+            'de': 'alemán',
+            'it': 'italiano',
+            'pt': 'portugués',
+            'ja': 'japonés',
+            'zh': 'chino'
+          };
+          const targetLangCode = param || 'es';
+          const targetLangName = targetLangMap[targetLangCode] || targetLangCode;
+          const translatePrompt = `Traduce el siguiente texto a ${targetLangName}. Solo proporciona la traducción, sin explicaciones adicionales:\n\n${selectedText}`;
+          result = await AIModule.aiAnswerStream(translatePrompt, onChunk, abortController.signal);
           break;
         case 'explain':
           result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
