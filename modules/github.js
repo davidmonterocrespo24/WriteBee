@@ -439,6 +439,63 @@ const GithubModule = (function() {
     return null;
   }
 
+  async function summarizeRepo() {
+    console.log('🐙 Generando resumen del repositorio desde botón flotante...');
+    
+    // Verificar que estamos en un repositorio
+    if (!currentRepo) {
+      alert('No se detectó un repositorio de GitHub. Asegúrate de estar en la página de un repositorio.');
+      return;
+    }
+
+    // Si el panel ya existe, hacer scroll hasta él y ejecutar el resumen
+    if (githubPanel) {
+      githubPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Expandir el contenido si está colapsado
+      const content = githubPanel.querySelector('.ai-github-content');
+      const toggleBtn = githubPanel.querySelector('.ai-github-toggle');
+      if (content && content.style.display === 'none') {
+        content.style.display = 'block';
+        if (toggleBtn) {
+          toggleBtn.style.transform = 'rotate(0deg)';
+        }
+      }
+
+      // Esperar un momento para que termine el scroll
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Disparar el botón de generar resumen
+      const summarizeBtn = githubPanel.querySelector('.ai-github-summarize-btn');
+      const resultDiv = githubPanel.querySelector('.ai-github-result');
+      const resultContent = githubPanel.querySelector('.ai-github-result-content');
+      
+      if (summarizeBtn && resultDiv && resultContent) {
+        await generateRepoSummary(summarizeBtn, resultDiv, resultContent);
+      }
+    } else {
+      // Si no existe el panel, crearlo primero
+      insertGithubPanel();
+      
+      // Esperar un momento para que se inserte
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Hacer scroll y ejecutar
+      if (githubPanel) {
+        githubPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const summarizeBtn = githubPanel.querySelector('.ai-github-summarize-btn');
+        const resultDiv = githubPanel.querySelector('.ai-github-result');
+        const resultContent = githubPanel.querySelector('.ai-github-result-content');
+        
+        if (summarizeBtn && resultDiv && resultContent) {
+          await generateRepoSummary(summarizeBtn, resultDiv, resultContent);
+        }
+      }
+    }
+  }
+
   // Inicializar cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -447,6 +504,7 @@ const GithubModule = (function() {
   }
 
   return {
-    init
+    init,
+    summarizeRepo
   };
 })();
