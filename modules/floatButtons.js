@@ -126,16 +126,6 @@ const FloatButtonsModule = (function() {
 
     buttonsContainer = document.createElement('div');
     buttonsContainer.className = 'ai-float-buttons-container';
-    buttonsContainer.style.cssText = `
-      position: fixed;
-      bottom: 80px;
-      right: 24px;
-      z-index: 9998;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      align-items: flex-end;
-    `;
 
     document.body.appendChild(buttonsContainer);
   }
@@ -171,61 +161,23 @@ const FloatButtonsModule = (function() {
     button.className = 'ai-float-feature-btn';
     button.id = `ai-float-btn-${config.id}`;
     button.setAttribute('aria-label', config.label);
-    button.style.cssText = `
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: ${config.color};
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: visible;
-      opacity: 0;
-      transform: scale(0.8) translateX(20px);
-      animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-      animation-delay: ${buttons.length * 0.05}s;
-    `;
+    button.style.background = config.color;
+    button.style.animationDelay = `${buttons.length * 0.05}s`;
 
     button.innerHTML = `
-      <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+      <div>
         ${config.icon}
       </div>
-      <div class="ai-float-tooltip" style="
-        position: absolute;
-        right: 60px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: #1a1d29;
-        color: #e4e6eb;
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 500;
-        white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.2s;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      ">${config.label}</div>
+      <div class="ai-float-tooltip">${config.label}</div>
     `;
 
     // Efectos hover
     button.addEventListener('mouseenter', () => {
-      button.style.transform = 'scale(1.1)';
-      button.style.boxShadow = `0 6px 20px ${config.color}66`;
       const tooltip = button.querySelector('.ai-float-tooltip');
       if (tooltip) tooltip.style.opacity = '1';
     });
 
     button.addEventListener('mouseleave', () => {
-      button.style.transform = 'scale(1)';
-      button.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
       const tooltip = button.querySelector('.ai-float-tooltip');
       if (tooltip) tooltip.style.opacity = '0';
     });
@@ -234,12 +186,6 @@ const FloatButtonsModule = (function() {
       e.preventDefault();
       e.stopPropagation();
       
-      // Animación de click
-      button.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        button.style.transform = 'scale(1)';
-      }, 150);
-
       config.onClick();
     });
 
@@ -304,8 +250,8 @@ ${text}`;
     const summarizeBtn = document.getElementById('ai-float-btn-summarize');
     if (summarizeBtn) {
       summarizeBtn.style.background = '#FFA726';
-      summarizeBtn.querySelector('div[style*="width: 24px"]').innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
+      summarizeBtn.querySelector('div:first-child').innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10" opacity="0.3"/>
           <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
             <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
@@ -389,13 +335,8 @@ ${text}`;
       // Restaurar botón después de un momento
       setTimeout(() => {
         if (summarizeBtn) {
-          summarizeBtn.style.background = '#9C27B0';
-          summarizeBtn.querySelector('div[style*="width: 24px"]').innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 24px; height: 24px;">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              <path d="M9 8h3"/>
-            </svg>
-          `;
+          summarizeBtn.style.background = BUTTON_CONFIGS.summarize.color;
+          summarizeBtn.querySelector('div:first-child').innerHTML = BUTTON_CONFIGS.summarize.icon;
         }
       }, 1000);
 
@@ -417,13 +358,8 @@ ${text}`;
       
       // Restaurar botón en caso de error
       if (summarizeBtn) {
-        summarizeBtn.style.background = '#9C27B0';
-        summarizeBtn.querySelector('div[style*="width: 24px"]').innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 24px; height: 24px;">
-            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            <path d="M9 8h3"/>
-          </svg>
-        `;
+        summarizeBtn.style.background = BUTTON_CONFIGS.summarize.color;
+        summarizeBtn.querySelector('div:first-child').innerHTML = BUTTON_CONFIGS.summarize.icon;
       }
     }
   }
@@ -537,9 +473,9 @@ ${text}`;
     // Cambiar el ícono del botón para indicar que está procesando
     const translateBtn = document.getElementById('ai-float-btn-translate');
     if (translateBtn) {
-      translateBtn.style.background = '#FFA726'; // Color naranja para indicar procesando
-      translateBtn.querySelector('div[style*="width: 24px"]').innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
+      translateBtn.style.background = '#FFA726';
+      translateBtn.querySelector('div:first-child').innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10" opacity="0.3"/>
           <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
             <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
@@ -844,9 +780,9 @@ etc.`;
 
       // Actualizar botón para mostrar que está traducido
       if (translateBtn) {
-        translateBtn.style.background = '#4CAF50'; // Verde para indicar traducido
-        translateBtn.querySelector('div[style*="width: 24px"]').innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
+        translateBtn.style.background = '#4CAF50';
+        translateBtn.querySelector('div:first-child').innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         `;
@@ -859,7 +795,6 @@ etc.`;
       alert('Error al traducir la página: ' + error.message);
       hideTranslationProgress();
       if (translateBtn) {
-        translateBtn.style.background = '#4285F4';
         resetTranslateButton(translateBtn);
       }
     }
@@ -1283,13 +1218,8 @@ ${sampleText.substring(0, 500)}`;
   }
 
   function resetTranslateButton(translateBtn) {
-    translateBtn.querySelector('div[style*="width: 24px"]').innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 24px; height: 24px;">
-        <path d="M5 8h14M5 8a2 2 0 1 1 0-4h14a2 2 0 1 1 0 4M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/>
-        <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
-        <path d="M7 21h10"/>
-      </svg>
-    `;
+    translateBtn.style.background = BUTTON_CONFIGS.translate.color;
+    translateBtn.querySelector('div:first-child').innerHTML = BUTTON_CONFIGS.translate.icon;
   }
 
   function revertTranslation() {
@@ -1329,7 +1259,6 @@ ${sampleText.substring(0, 500)}`;
     // Restaurar botón
     const translateBtn = document.getElementById('ai-float-btn-translate');
     if (translateBtn) {
-      translateBtn.style.background = '#4285F4';
       resetTranslateButton(translateBtn);
       const tooltip = translateBtn.querySelector('.ai-float-tooltip');
       if (tooltip) tooltip.textContent = 'Traducir Página';
@@ -1463,33 +1392,10 @@ ${sampleText.substring(0, 500)}`;
     return div.innerHTML;
   }
 
-  // Agregar estilos CSS
+  // Agregar estilos CSS adicionales si son necesarios
   function addStyles() {
-    if (document.getElementById('ai-float-buttons-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'ai-float-buttons-styles';
-    style.textContent = `
-      @keyframes slideIn {
-        to {
-          opacity: 1;
-          transform: scale(1) translateX(0);
-        }
-      }
-
-      .ai-float-feature-btn:active {
-        transform: scale(0.9) !important;
-      }
-
-      .ai-float-buttons-container {
-        pointer-events: auto;
-      }
-
-      .ai-float-feature-btn {
-        pointer-events: auto;
-      }
-    `;
-    document.head.appendChild(style);
+    // Los estilos principales están en styles.css
+    // Esta función se mantiene por compatibilidad
   }
 
   // Inicializar cuando el DOM esté listo

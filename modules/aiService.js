@@ -51,7 +51,7 @@ class AIService {
       const summarizer = await self.Summarizer.create({
         type: 'key-points',
         format: 'markdown',
-        length: 'short',
+        length: 'long',
         monitor: this.createMonitor(onProgress)
       });
 
@@ -77,7 +77,7 @@ class AIService {
       const summarizer = await self.Summarizer.create({
         type: 'key-points',
         format: 'markdown',
-        length: 'short'
+        length: 'long'
       });
 
       const stream = summarizer.summarizeStreaming(text, signal ? { signal } : {});

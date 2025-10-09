@@ -159,16 +159,29 @@ const WebChatModule = (function() {
 
       if (onProgress) onProgress('Analyzing page structure...');
 
-      // Get key chunks using a summarization query
-      const summaryQuery = 'main topics key points important information summary overview';
-      const relevantChunks = ragEngine.retrieve(summaryQuery, 8);
+      // Get more chunks for a comprehensive summary (increased from 8 to 15)
+      const summaryQuery = 'main topics key points important information summary overview content sections details';
+      const relevantChunks = ragEngine.retrieve(summaryQuery, 15);
 
       const context = ragEngine.buildContext(relevantChunks);
       const metadata = getPageMetadata();
 
-      if (onProgress) onProgress('Generating summary...');
+      if (onProgress) onProgress('Generating comprehensive summary...');
 
-      const prompt = `Summarize this web page in a clear and concise way:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\n${context}`;
+      // Improved prompt for more detailed summaries
+      const prompt = `Crea un resumen completo y detallado de esta página web. Incluye:
+- Los puntos principales y temas clave
+- Información importante y detalles relevantes
+- La estructura y organización del contenido
+- Conclusiones o ideas principales
+
+Título: ${metadata.title}
+URL: ${metadata.url}
+
+Contenido:
+${context}
+
+Por favor, proporciona un resumen extenso y bien estructurado que capture toda la información importante de la página.`;
 
       pageSummary = await AIModule.aiSummarize(prompt);
 
@@ -176,13 +189,21 @@ const WebChatModule = (function() {
     } catch (error) {
       console.error('❌ Error in summarizePage:', error);
       
-      // Fallback
+      // Fallback with more content
       if (!pageContent) {
         pageContent = extractPageContent();
       }
 
       const metadata = getPageMetadata();
-      const prompt = `Summarize this web page:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\nContent:\n${pageContent.substring(0, 8000)}`;
+      const prompt = `Crea un resumen completo y detallado de esta página web:
+
+Título: ${metadata.title}
+URL: ${metadata.url}
+
+Contenido:
+${pageContent.substring(0, 12000)}
+
+Incluye todos los puntos principales, información importante y estructura del contenido.`;
 
       pageSummary = await AIModule.aiSummarize(prompt);
       return pageSummary;
