@@ -95,10 +95,6 @@ const GithubModule = (function() {
           </div>
 
           <div class="ai-github-content">
-            <div class="ai-github-info">
-              Genera un resumen inteligente analizando el README, package.json, y estructura del repositorio.
-            </div>
-
             <div class="ai-github-options">
               <label class="ai-github-checkbox">
                 <input type="checkbox" id="ai-gh-techs" checked />
@@ -206,7 +202,13 @@ const GithubModule = (function() {
     const includePurpose = document.getElementById('ai-gh-purpose').checked;
 
     btn.disabled = true;
-    btn.innerHTML = '<span style="opacity: 0.6;">Analizando repositorio...</span>';
+    btn.innerHTML = `
+      <svg class="ai-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; animation: spin 1s linear infinite;">
+        <circle cx="12" cy="12" r="10" opacity="0.25"></circle>
+        <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"></path>
+      </svg>
+      <span style="opacity: 0.6;">Analizando repositorio...</span>
+    `;
     resultDiv.style.display = 'none';
 
     try {
@@ -217,7 +219,13 @@ const GithubModule = (function() {
         throw new Error('No se pudo obtener información del repositorio.');
       }
 
-      btn.innerHTML = '<span style="opacity: 0.6;">Generando resumen...</span>';
+      btn.innerHTML = `
+        <svg class="ai-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; animation: spin 1s linear infinite;">
+          <circle cx="12" cy="12" r="10" opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"></path>
+        </svg>
+        <span style="opacity: 0.6;">Generando resumen...</span>
+      `;
 
       // Construir el prompt para la AI
       let prompt = `Analiza el siguiente repositorio de GitHub y genera un resumen completo:\n\n`;
@@ -263,9 +271,7 @@ const GithubModule = (function() {
       prompt += `- 🚀 **Uso**: Cómo empezar con el proyecto (si está disponible)\n\n`;
       prompt += `El resumen debe ser claro, conciso y profesional. Usa emojis apropiados para hacer el contenido más visual.`;
 
-      const summary = await AIModule.aiAnswer(prompt, (percent) => {
-        btn.innerHTML = `<span style="opacity: 0.6;">Procesando ${percent}%</span>`;
-      });
+      const summary = await AIModule.aiAnswer(prompt);
 
       // Renderizar el resultado
       MarkdownRenderer.renderToElement(resultContent, summary);
