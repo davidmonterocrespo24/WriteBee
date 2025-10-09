@@ -583,9 +583,9 @@ ${text}`;
         console.log('✅ Usuario decidió continuar con la traducción');
       }
 
-      // Seleccionar todos los elementos de texto de la página
-      // Selector más amplio para capturar TODO el texto visible
-      const textElements = document.querySelectorAll(`
+      // Seleccionar elementos de texto de forma más inteligente
+      // Estrategia: Procesar elementos "hoja" (sin hijos de texto) primero
+      const allTextElements = document.querySelectorAll(`
         p, h1, h2, h3, h4, h5, h6, 
         li, td, th, 
         span, a, button, label, 
@@ -605,7 +605,7 @@ ${text}`;
       const elementsToTranslate = [];
 
       // Recopilar textos que necesitan traducción
-      textElements.forEach(element => {
+      allTextElements.forEach(element => {
         // Evitar traducir elementos de nuestra extensión
         if (element.closest('.ai-result-panel') || 
             element.closest('.ai-float-btn') ||
@@ -628,43 +628,45 @@ ${text}`;
           return;
         }
 
-        // Obtener el texto directo del elemento (no de elementos hijos)
-        let directText = '';
-        let hasTextNode = false;
-        
-        element.childNodes.forEach(node => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent.trim();
-            if (text) {
-              directText += text + ' ';
-              hasTextNode = true;
-            }
+        // Verificar si algún hijo ya fue marcado para traducción
+        // Esto evita traducir el contenedor si ya traducimos los hijos
+        let hasChildInList = false;
+        for (let i = 0; i < elementsToTranslate.length; i++) {
+          if (element.contains(elementsToTranslate[i])) {
+            hasChildInList = true;
+            break;
           }
-        });
-        
-        directText = directText.trim();
+        }
+        if (hasChildInList) {
+          return;
+        }
 
+        // Obtener TODO el texto visible del elemento usando innerText
+        // innerText respeta la visibilidad CSS y el formato
+        let fullText = element.innerText?.trim() || element.textContent?.trim() || '';
+        
         // Filtros para evitar traducir contenido no válido
-        if (!hasTextNode || !directText || directText.length < 2) {
+        if (!fullText || fullText.length < 2) {
           return;
         }
 
         // Evitar solo números, símbolos o fechas
-        if (directText.match(/^[\d\s\W]+$/) || 
-            directText.match(/^\d+$/) ||
-            directText.match(/^[^a-zA-Z]+$/)) {
+        if (fullText.match(/^[\d\s\W]+$/) || 
+            fullText.match(/^\d+$/) ||
+            fullText.match(/^[^a-zA-Z]+$/)) {
           return;
         }
 
         // Evitar URLs y emails
-        if (directText.includes('http://') || 
-            directText.includes('https://') ||
-            directText.includes('www.') ||
-            directText.includes('@')) {
+        if (fullText.includes('http://') || 
+            fullText.includes('https://') ||
+            fullText.includes('www.') ||
+            fullText.includes('@')) {
           return;
         }
 
-        textsToTranslate.push(directText);
+        // Guardar el texto completo y el elemento
+        textsToTranslate.push(fullText);
         elementsToTranslate.push(element);
       });
 
@@ -737,26 +739,85 @@ etc.`;
                   originalTexts.set(element, originalText);
                 }
                 
-                // Reemplazar TODOS los nodos de texto del elemento
-                let textNodesReplaced = 0;
-                element.childNodes.forEach(node => {
-                  if (node.nodeType === Node.TEXT_NODE) {
-                    const nodeText = node.textContent.trim();
-                    if (nodeText) {
-                      // Reemplazar el contenido completo del nodo de texto
-                      node.textContent = node.textContent.replace(nodeText, translatedText);
-                      textNodesReplaced++;
+                // Estrategia de reemplazo:
+                // 1. Si el elemento tiene solo texto (sin hijos HTML), usar textContent
+                // 2. Si tiene hijos HTML, usar innerText para preservar estructura
+                let replaced = false;
+                
+                try {
+                  // Verificar si el elemento tiene solo texto
+                  const hasOnlyText = Array.from(element.childNodes).every(
+                    node => node.nodeType === Node.TEXT_NODE || 
+                           (node.nodeType === Node.ELEMENT_NODE && node.childNodes.length === 0)
+                  );
+                  
+                  if (hasOnlyText && element.childNodes.length === 1 && element.childNodes[0].nodeType === Node.TEXT_NODE) {
+                    // Caso simple: un solo nodo de texto
+                    const node = element.childNodes[0];
+                    const leadingSpace = node.textContent.match(/^\s+/)?.[0] || '';
+                    const trailingSpace = node.textContent.match(/\s+$/)?.[0] || '';
+                    node.textContent = leadingSpace + translatedText + trailingSpace;
+                    replaced = true;
+                  } else {
+                    // Caso complejo: usar innerText para reemplazar todo el contenido visible
+                    // Pero preservar la estructura HTML interna si es posible
+                    const currentInnerText = element.innerText?.trim() || element.textContent?.trim();
+                    
+                    if (currentInnerText === originalText) {
+                      // Si el innerText coincide exactamente, podemos reemplazar todo
+                      element.innerText = translatedText;
+                      replaced = true;
+                    } else {
+                      // Fallback: buscar y reemplazar en nodos de texto
+                      const walker = document.createTreeWalker(
+                        element,
+                        NodeFilter.SHOW_TEXT,
+                        null,
+                        false
+                      );
+                      
+                      let allText = '';
+                      const textNodes = [];
+                      let node;
+                      
+                      while (node = walker.nextNode()) {
+                        const text = node.textContent.trim();
+                        if (text) {
+                          textNodes.push(node);
+                          allText += (allText ? ' ' : '') + text;
+                        }
+                      }
+                      
+                      // Si el texto combinado coincide con el original, reemplazar el primer nodo
+                      if (allText === originalText && textNodes.length > 0) {
+                        const leadingSpace = textNodes[0].textContent.match(/^\s+/)?.[0] || '';
+                        const trailingSpace = textNodes[textNodes.length - 1].textContent.match(/\s+$/)?.[0] || '';
+                        
+                        // Limpiar todos los nodos excepto el primero
+                        for (let i = 1; i < textNodes.length; i++) {
+                          textNodes[i].textContent = '';
+                        }
+                        
+                        // Poner toda la traducción en el primer nodo
+                        textNodes[0].textContent = leadingSpace + translatedText + trailingSpace;
+                        replaced = true;
+                      }
                     }
                   }
-                });
-                
-                // Si no se reemplazó ningún nodo de texto, intentar establecer textContent directamente
-                if (textNodesReplaced === 0 && element.childNodes.length === 1 && element.childNodes[0].nodeType === Node.TEXT_NODE) {
-                  element.textContent = translatedText;
+                } catch (error) {
+                  console.warn('⚠️ Error al reemplazar texto:', error);
                 }
                 
-                // Marcar como traducido
-                translatedElements.add(element);
+                // Marcar como traducido solo si se reemplazó exitosamente
+                if (replaced) {
+                  translatedElements.add(element);
+                } else {
+                  console.warn('⚠️ No se pudo reemplazar:', {
+                    element,
+                    originalText: originalText.substring(0, 50),
+                    translatedText: translatedText.substring(0, 50)
+                  });
+                }
               }
             }
           }
@@ -1234,16 +1295,27 @@ ${sampleText.substring(0, 500)}`;
   function revertTranslation() {
     console.log('🔄 Revirtiendo traducción...');
 
+    let revertedCount = 0;
+
     // Restaurar textos originales
     originalTexts.forEach((originalText, element) => {
-      let restored = false;
-      element.childNodes.forEach(node => {
-        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() && !restored) {
-          node.textContent = originalText;
-          restored = true;
+      try {
+        // Simplemente usar innerText para restaurar
+        // Esto funciona bien para la mayoría de los casos
+        element.innerText = originalText;
+        revertedCount++;
+      } catch (error) {
+        // Si innerText falla, intentar con textContent
+        try {
+          element.textContent = originalText;
+          revertedCount++;
+        } catch (e) {
+          console.warn('⚠️ Error al revertir elemento:', error);
         }
-      });
+      }
     });
+
+    console.log(`✅ ${revertedCount} elementos revertidos de ${originalTexts.size} totales`);
 
     // Limpiar los mapas y sets
     originalTexts.clear();
@@ -1263,7 +1335,7 @@ ${sampleText.substring(0, 500)}`;
       if (tooltip) tooltip.textContent = 'Traducir Página';
     }
 
-    console.log('✅ Traducción revertida');
+    console.log('✅ Traducción revertida completamente');
   }
 
   function createTranslateDialog(originalText) {
