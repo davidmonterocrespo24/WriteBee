@@ -41,6 +41,44 @@
       gap: 8px;
     }
 
+    .pdf-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #ef4444;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .pdf-indicator svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .page-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #3b82f6;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .page-indicator svg {
+      width: 14px;
+      height: 14px;
+    }
+
     .chat-header-actions {
       display: flex;
       gap: 8px;
@@ -186,6 +224,36 @@
       margin-left: 40px;
     }
 
+    .message-attachment {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(138, 180, 255, 0.1);
+      border: 1px solid rgba(138, 180, 255, 0.3);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-top: 8px;
+      margin-left: 40px;
+      font-size: 13px;
+      color: #8ab4ff;
+    }
+
+    .message-attachment.pdf-attachment {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .message-attachment svg {
+      flex-shrink: 0;
+    }
+
+    .message-attachment .pdf-size {
+      color: #a0a0aa;
+      font-size: 11px;
+      margin-left: 4px;
+    }
+
     .message-actions {
       display: flex;
       gap: 8px;
@@ -244,6 +312,72 @@
       max-height: 120px;
       border-radius: 8px;
       border: 2px solid #3a3a40;
+    }
+
+    .pdf-attachment {
+      background: #35353c;
+      border: 1px solid #3a3a40;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 300px;
+    }
+
+    .pdf-attachment-icon {
+      width: 40px;
+      height: 40px;
+      background: #dc2626;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .pdf-attachment-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pdf-attachment-name {
+      font-weight: 600;
+      color: #eaeaf0;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pdf-attachment-details {
+      font-size: 12px;
+      color: #a0a0aa;
+      margin-top: 2px;
+    }
+
+    .pdf-attachment-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .pdf-attachment-btn {
+      background: transparent;
+      border: 1px solid #3a3a40;
+      color: #a0a0aa;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pdf-attachment-btn:hover {
+      background: #3a3a40;
+      color: #eaeaf0;
     }
 
     .remove-attachment {
@@ -563,8 +697,36 @@
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
       AI Chat
+      <span id="pdfIndicator" class="pdf-indicator" style="display: none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <span id="pdfIndicatorText"></span>
+      </span>
+      <span id="pageIndicator" class="page-indicator" style="display: none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3h18v18H3z"/>
+          <path d="M3 9h18M9 21V9"/>
+        </svg>
+        <span id="pageIndicatorText"></span>
+      </span>
     </h1>
     <div class="chat-header-actions">
+      <button class="header-btn" id="clearPdfBtn" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Clear PDF
+      </button>
+      <button class="header-btn" id="clearPageBtn" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Clear Page
+      </button>
       <button class="header-btn" id="newChatBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 5v14M5 12h14"/>
@@ -592,6 +754,9 @@
         <button class="suggestion-chip" data-suggestion="Explícame este concepto de forma simple">
           💡 Explicar
         </button>
+        <button class="suggestion-chip" data-suggestion="Sube un PDF para chatear con él">
+          📄 Subir PDF
+        </button>
       </div>
     </div>
   </div> 
@@ -612,11 +777,21 @@
         ></textarea>
         <div class="input-actions">
           <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          <input type="file" id="pdfInput" accept=".pdf" style="display: none;">
           <button class="input-btn" id="attachImageBtn" title="Attach image">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
               <circle cx="8.5" cy="8.5" r="1.5"/>
               <path d="M21 15l-5-5L5 21"/>
+            </svg>
+          </button>
+          <button class="input-btn" id="attachPdfBtn" title="Upload PDF to chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
             </svg>
           </button>
           <button class="input-btn" id="voiceBtn" title="Record audio">
@@ -642,11 +817,26 @@
     console.log('📍 Location:', window.location.href);
     console.log('📂 Base URI:', document.baseURI);
   </script>
+  
+  <!-- PDF.js Library for PDF text extraction (local) -->
+  <script src="libs/pdf.min.js"></script>
+  <script>
+    // Configure PDF.js worker (local)
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'libs/pdf.worker.min.js';
+      console.log('✅ PDF.js loaded and configured (local version)');
+    } else {
+      console.warn('⚠️ PDF.js failed to load');
+    }
+  </script>
+  
   <script src="modules/markdown.js"></script>
   <script src="modules/aiService.js"></script>
   <script src="modules/ai.js"></script>
   <script src="modules/multimodal.js"></script>
   <script src="modules/ragEngine.js"></script>
+  <script src="modules/pdfModule.js"></script>
+  <script src="modules/webChat.js"></script>
   <script src="side_panel.js"></script>
   <script>
     console.log('🏁 Todos los scripts cargados');
@@ -655,7 +845,9 @@
       AIServiceInstance: typeof window.AIServiceInstance,
       AIModule: typeof AIModule,
       MultimodalModule: typeof MultimodalModule,
-      RAGEngine: typeof RAGEngine
+      RAGEngine: typeof RAGEngine,
+      PDFModule: typeof PDFModule,
+      WebChatModule: typeof WebChatModule
     });
   </script>
 </body>

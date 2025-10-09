@@ -38,11 +38,13 @@ function handleTextSelection(e) {
 
     const isTwitterButton = e.target.closest('.ai-twitter-btn-tweet, .ai-twitter-btn-reply');
     const isLinkedInButton = e.target.closest('.ai-linkedin-btn-post, .ai-linkedin-btn-comment');
+    const isFloatButton = e.target.closest('.ai-float-btn-container, .ai-float-btn');
 
     console.log('🐦 Click on Twitter button:', !!isTwitterButton);
     console.log('💼 Click on LinkedIn button:', !!isLinkedInButton);
+    console.log('🎈 Click on Float button:', !!isFloatButton);
 
-    if (isInsideDialog || isInsideMenu || isInsideToolbar || isTwitterButton || isLinkedInButton) {
+    if (isInsideDialog || isInsideMenu || isInsideToolbar || isTwitterButton || isLinkedInButton || isFloatButton) {
       console.log('⏸️ Exiting - click inside UI or module button');
       return;
     }
@@ -78,8 +80,9 @@ function handleClickOutside(e) {
 
   const isTwitterButton = e.target.closest('.ai-twitter-btn-tweet, .ai-twitter-btn-reply');
   const isLinkedInButton = e.target.closest('.ai-linkedin-btn-post, .ai-linkedin-btn-comment');
+  const isFloatButton = e.target.closest('.ai-float-btn-container, .ai-float-btn');
 
-  if (clickedInsideDialog || isTwitterButton || isLinkedInButton) {
+  if (clickedInsideDialog || isTwitterButton || isLinkedInButton || isFloatButton) {
     return;
   }
 

@@ -463,7 +463,24 @@ const YoutubeModule = (function() {
     init();
   }
 
-  return {
-    init
+  // API pública
+  const publicAPI = {
+    init,
+    summarizeVideo: async function() {
+      const panel = youtubePanel || document.querySelector('.ai-youtube-panel');
+      if (panel) {
+        const summarizeBtn = panel.querySelector('.ai-youtube-summarize-btn');
+        const resultDiv = panel.querySelector('.ai-youtube-result');
+        const resultContent = panel.querySelector('.ai-youtube-result-content');
+        await generateVideoSummary(summarizeBtn, resultDiv, resultContent);
+      } else {
+        alert('Por favor, abre un video de YouTube primero');
+      }
+    }
   };
+
+  // Hacer disponible globalmente
+  window.YoutubeModule = publicAPI;
+
+  return publicAPI;
 })();

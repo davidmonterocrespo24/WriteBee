@@ -1,6 +1,58 @@
+// ⚠️ CRÍTICO: Interceptar INMEDIATAMENTE cuando el script se carga
+// Esto debe ejecutarse ANTES de que WhatsApp cree cualquier blob
+// Se ejecuta FUERA del módulo para asegurar que se ejecute inmediatamente
+const capturedAudioBlobs = new Map(); // Global para ser accesible
+
+(function setupGlobalInterceptor() {
+  console.log('🎣 [GLOBAL] Configurando interceptor de blobs de audio...');
+  
+  // Guardar la función original
+  const originalCreateObjectURL = URL.createObjectURL;
+  
+  // Sobrescribir URL.createObjectURL GLOBALMENTE
+  URL.createObjectURL = function(blob) {
+    const blobUrl = originalCreateObjectURL.call(this, blob);
+    
+    // Log de TODOS los blobs para debugging
+    console.log('🔍 createObjectURL llamado:', {
+      url: blobUrl.substring(0, 50) + '...',
+      type: blob?.type || 'unknown',
+      size: blob?.size || 0,
+      isAudio: blob?.type?.startsWith('audio/')
+    });
+    
+    // Si es un audio, guardarlo
+    if (blob && blob.type && blob.type.startsWith('audio/')) {
+      console.log('✅ ¡AUDIO BLOB CAPTURADO!', {
+        url: blobUrl,
+        size: blob.size,
+        type: blob.type,
+        sizeKB: (blob.size / 1024).toFixed(2) + ' KB'
+      });
+      
+      // Guardar el blob con su URL
+      capturedAudioBlobs.set(blobUrl, blob);
+      
+      // Limpiar blobs viejos después de 5 minutos
+      setTimeout(() => {
+        if (capturedAudioBlobs.has(blobUrl)) {
+          capturedAudioBlobs.delete(blobUrl);
+          console.log('🗑️ Blob limpiado de caché:', blobUrl);
+        }
+      }, 5 * 60 * 1000);
+    }
+    
+    return blobUrl;
+  };
+  
+  console.log('✅ [GLOBAL] Interceptor instalado - Esperando blobs de audio...');
+})();
+
+// Ahora el módulo de WhatsApp
 const WhatsAppModule = (function() {
   let whatsappButtons = new Set();
   let isWhatsApp = false;
+  // capturedAudioBlobs ya está disponible globalmente
 
   function init() {
     // Detectar si estamos en WhatsApp Web
@@ -8,6 +60,7 @@ const WhatsAppModule = (function() {
 
     if (isWhatsApp) {
       console.log('💬 WhatsApp Web detectado, iniciando módulo...');
+      console.log('📊 Estado del interceptor: Blobs en caché:', capturedAudioBlobs.size);
       observeWhatsApp();
     }
   }
@@ -188,6 +241,8 @@ const WhatsAppModule = (function() {
    */
   async function handleTranscribeAudio(audioElement, buttonElement, container) {
     try {
+      console.log('🎤 WhatsApp: Iniciando proceso de transcripción...');
+      
       // Mostrar estado de carga
       buttonElement.innerHTML = `
         <svg viewBox="0 0 24 24" width="20" height="20" class="ai-spinner">
@@ -197,33 +252,45 @@ const WhatsAppModule = (function() {
       `;
       buttonElement.disabled = true;
 
-      // Intentar obtener el audio del mensaje de WhatsApp
-      const audioBlob = await extractAudioFromWhatsApp(audioElement, container);
-
+      // Paso 1: Intentar obtener blob interceptado
+      let audioBlob = await tryGetInterceptedBlob(container);
+      
       if (audioBlob) {
-        // Si se obtuvo el audio, transcribirlo directamente
-        console.log('🎤 Audio extraído del mensaje, transcribiendo...');
+        console.log('✅ Audio obtenido de blobs interceptados!');
         await transcribeAudioDirectly(audioBlob, buttonElement, container);
-      } else {
-        // Si no se pudo extraer, mostrar diálogo para subir/grabar
-        console.log('⚠️ No se pudo extraer el audio, mostrando opciones alternativas');
-        const dialog = createWhatsAppDialog('transcribe', null, buttonElement, container);
-        document.body.appendChild(dialog);
-        
-        // Restaurar botón
-        buttonElement.innerHTML = `
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" fill="none" stroke="white" stroke-width="2"/>
-            <text x="12" y="17" text-anchor="middle" font-size="5" fill="white" font-weight="bold">AI</text>
-          </svg>
-        `;
-        buttonElement.disabled = false;
+        return;
       }
+      
+      // Paso 2: Si no hay blob interceptado, hacer clic y esperar
+      console.log('🔄 Intentando hacer clic en reproducir para capturar blob...');
+      audioBlob = await clickAndCaptureBlob(container);
+      
+      if (audioBlob) {
+        console.log('✅ Audio capturado después del clic!');
+        await transcribeAudioDirectly(audioBlob, buttonElement, container);
+        return;
+      }
+      
+      // Paso 3: Si todo falla, mostrar opciones manuales
+      console.log('⚠️ No se pudo capturar el audio automáticamente');
+      console.log('📋 Mostrando opciones de transcripción al usuario...');
+      
+      const dialog = createWhatsAppDialog('transcribe', null, buttonElement, container);
+      document.body.appendChild(dialog);
+      
+      // Restaurar botón
+      buttonElement.innerHTML = `
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" fill="none" stroke="white" stroke-width="2"/>
+          <text x="12" y="17" text-anchor="middle" font-size="5" fill="white" font-weight="bold">AI</text>
+        </svg>
+      `;
+      buttonElement.disabled = false;
 
     } catch (error) {
       console.error('Error al transcribir:', error);
-      alert('Error al transcribir audio: ' + error.message);
+      alert('Error: ' + error.message);
       
       // Restaurar botón
       buttonElement.innerHTML = `
@@ -238,6 +305,103 @@ const WhatsAppModule = (function() {
   }
 
   /**
+   * Intentar obtener blob de los ya interceptados
+   */
+  async function tryGetInterceptedBlob(container) {
+    console.log('🔍 Buscando en blobs interceptados...');
+    console.log(`📦 Blobs en caché: ${capturedAudioBlobs.size}`);
+    
+    if (capturedAudioBlobs.size === 0) {
+      return null;
+    }
+    
+    // Si solo hay un blob, usar ese
+    if (capturedAudioBlobs.size === 1) {
+      const blob = Array.from(capturedAudioBlobs.values())[0];
+      console.log('✅ Usando el único blob disponible:', blob.size, 'bytes');
+      return blob;
+    }
+    
+    // Si hay múltiples, intentar encontrar el más reciente
+    const blobs = Array.from(capturedAudioBlobs.entries());
+    const latestBlob = blobs[blobs.length - 1][1];
+    console.log('✅ Usando el blob más reciente:', latestBlob.size, 'bytes');
+    return latestBlob;
+  }
+
+  /**
+   * Hacer clic en reproducir y capturar el blob creado
+   */
+  async function clickAndCaptureBlob(container) {
+    // Buscar el botón de reproducir con múltiples estrategias
+    let playButton = null;
+    
+    // Estrategia 1: Buscar en el contenedor
+    playButton = container.querySelector('button[aria-label*="Reproducir mensaje de voz"]') ||
+                 container.querySelector('button[aria-label*="Reproducir"]') ||
+                 container.querySelector('[data-icon="audio-play"]')?.closest('button');
+    
+    // Estrategia 2: Si el contenedor ES el botón
+    if (!playButton && container.tagName === 'BUTTON' && container.getAttribute('aria-label')?.includes('Reproducir')) {
+      playButton = container;
+    }
+    
+    // Estrategia 3: Buscar en el padre del contenedor
+    if (!playButton && container.parentElement) {
+      playButton = container.parentElement.querySelector('button[aria-label*="Reproducir"]');
+    }
+    
+    // Estrategia 4: Buscar hermanos del contenedor
+    if (!playButton && container.parentElement) {
+      const siblings = Array.from(container.parentElement.querySelectorAll('button'));
+      playButton = siblings.find(btn => btn.getAttribute('aria-label')?.includes('Reproducir'));
+    }
+    
+    if (!playButton) {
+      console.log('⚠️ No se encontró botón de reproducir');
+      console.log('📦 Contenedor recibido:', container);
+      console.log('🏷️ Tag del contenedor:', container.tagName);
+      console.log('🔍 aria-label del contenedor:', container.getAttribute?.('aria-label'));
+      return null;
+    }
+    
+    const initialBlobCount = capturedAudioBlobs.size;
+    console.log('🎬 Haciendo clic en reproducir...');
+    console.log('📊 Blobs antes del clic:', initialBlobCount);
+    console.log('🎯 Botón encontrado:', playButton.getAttribute('aria-label'));
+    
+    // Hacer clic
+    playButton.click();
+    
+    // Esperar hasta 3 segundos a que se capture un nuevo blob
+    for (let i = 0; i < 30; i++) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      if (capturedAudioBlobs.size > initialBlobCount) {
+        console.log(`✅ Nuevo blob capturado después de ${(i + 1) * 100}ms`);
+        
+        // Pausar el audio
+        const pauseButton = container.querySelector('button[aria-label*="Pausar"]') ||
+                           playButton.parentElement?.querySelector('button[aria-label*="Pausar"]');
+        if (pauseButton) {
+          setTimeout(() => pauseButton.click(), 100);
+        }
+        
+        // Obtener el nuevo blob
+        const blobs = Array.from(capturedAudioBlobs.values());
+        return blobs[blobs.length - 1];
+      }
+    }
+    
+    console.log('⏱️ Timeout: No se capturó ningún blob nuevo');
+    console.log('💡 Posibles causas:');
+    console.log('   - El interceptor no se instaló a tiempo');
+    console.log('   - WhatsApp usa otro método para crear blobs');
+    console.log('   - El audio ya está en caché y no se vuelve a crear');
+    return null;
+  }
+
+  /**
    * Extraer el audio directamente del mensaje de WhatsApp
    */
   async function extractAudioFromWhatsApp(audioElement, container) {
@@ -246,87 +410,190 @@ const WhatsAppModule = (function() {
       console.log('📦 Contenedor:', container);
       console.log('🎵 Elemento de audio:', audioElement);
 
-      // Método 1: Buscar elemento <audio> en TODO el documento (WhatsApp puede crearlo fuera del contenedor)
+      // Guardar la cantidad inicial de audios
+      const initialAudioCount = document.querySelectorAll('audio').length;
+      console.log(`� Audios iniciales en la página: ${initialAudioCount}`);
+
+      // Método mejorado: Simular clic y observar cambios en el DOM
+      const playButton = container.querySelector('button[aria-label*="Reproducir mensaje de voz"]') ||
+                        container.querySelector('[aria-label*="Reproducir"]') ||
+                        container.querySelector('[data-icon="audio-play"]') ||
+                        container.querySelector('button svg[title="audio-play"]')?.closest('button') ||
+                        audioElement;
+      
+      if (playButton) {
+        console.log('🎬 Simulando clic en botón de reproducir...', playButton);
+        
+        // Crear un observer para detectar nuevos elementos <audio>
+        let foundAudio = null;
+        const audioObserver = new MutationObserver((mutations) => {
+          const audioElements = document.querySelectorAll('audio');
+          console.log(`🔄 Observer detectó cambio - Total audios: ${audioElements.length}`);
+          
+          for (const audio of audioElements) {
+            console.log('🎵 Audio encontrado:', {
+              src: audio.src,
+              hasBlob: audio.src.startsWith('blob:'),
+              readyState: audio.readyState,
+              duration: audio.duration
+            });
+            
+            if (audio.src && audio.src.startsWith('blob:')) {
+              console.log('✅ Audio blob detectado por observer:', audio.src);
+              foundAudio = audio;
+            }
+          }
+        });
+
+        // Observar todo el documento con todas las opciones posibles
+        audioObserver.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['src'],
+          attributeOldValue: false
+        });
+
+        // Hacer clic en reproducir
+        playButton.click();
+        console.log('✅ Clic ejecutado en el botón');
+        
+        // Esperar a que WhatsApp cree el elemento de audio (hasta 5 segundos)
+        for (let i = 0; i < 50; i++) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          if (foundAudio) {
+            console.log('🎯 Audio encontrado en el intento', i + 1, '(', (i + 1) * 100, 'ms)');
+            break;
+          }
+
+          // Buscar manualmente también en cada iteración
+          // Buscar en TODO el documento, incluyendo iframes y shadow DOM
+          const audioElements = [];
+          
+          // Método 1: Búsqueda estándar
+          audioElements.push(...document.querySelectorAll('audio'));
+          
+          // Método 2: Buscar en todos los shadow roots
+          const allElements = document.querySelectorAll('*');
+          allElements.forEach(el => {
+            if (el.shadowRoot) {
+              const shadowAudios = el.shadowRoot.querySelectorAll('audio');
+              audioElements.push(...shadowAudios);
+            }
+          });
+          
+          // Método 3: Buscar elementos con rol de media
+          const mediaElements = document.querySelectorAll('[role="audio"], audio, video');
+          audioElements.push(...mediaElements);
+          
+          if (audioElements.length > 0 && i % 5 === 0) {
+            console.log(`🔍 Búsqueda manual #${Math.floor(i/5) + 1} - Audios encontrados: ${audioElements.length}`);
+          }
+          
+          for (const audio of audioElements) {
+            if (audio.src && audio.src.startsWith('blob:')) {
+              console.log('✅ Audio blob encontrado manualmente en intento', i + 1);
+              console.log('📊 Detalles:', {
+                src: audio.src,
+                duration: audio.duration,
+                readyState: audio.readyState,
+                paused: audio.paused
+              });
+              foundAudio = audio;
+              break;
+            }
+          }
+
+          if (foundAudio) break;
+        }
+
+        audioObserver.disconnect();
+
+        if (foundAudio) {
+          console.log('🎵 Convirtiendo blob a archivo de audio...');
+          console.log('📦 Audio element:', foundAudio);
+          console.log('🔗 Blob URL:', foundAudio.src);
+          
+          try {
+            // Obtener el blob del audio usando fetch (como sugiere ChatGPT)
+            console.log('🌐 Haciendo fetch del blob...');
+            const response = await fetch(foundAudio.src);
+            console.log('📥 Respuesta del fetch:', response.status, response.statusText);
+            
+            const blob = await response.blob();
+            
+            console.log('✅ Audio extraído exitosamente!');
+            console.log('📊 Detalles del blob:', {
+              size: blob.size,
+              type: blob.type,
+              sizeKB: (blob.size / 1024).toFixed(2) + ' KB'
+            });
+            
+            // Pausar el audio de WhatsApp para evitar que suene
+            try {
+              foundAudio.pause();
+              foundAudio.currentTime = 0;
+              console.log('⏸️ Audio pausado y reseteado');
+            } catch (e) {
+              console.log('⚠️ No se pudo pausar el audio:', e);
+            }
+            
+            // Volver a hacer clic en el botón de play para que vuelva al estado inicial
+            setTimeout(() => {
+              try {
+                const pauseButton = container.querySelector('button[aria-label*="Pausar"]');
+                if (pauseButton) {
+                  pauseButton.click();
+                  console.log('⏹️ Audio detenido mediante botón de pausa');
+                } else {
+                  playButton.click();
+                  console.log('🔄 Botón restaurado al estado inicial');
+                }
+              } catch (e) {
+                console.log('⚠️ No se pudo restaurar el estado del botón:', e);
+              }
+            }, 200);
+            
+            return blob;
+          } catch (fetchError) {
+            console.error('❌ Error al obtener el blob:', fetchError);
+            console.error('📋 Stack trace:', fetchError.stack);
+          }
+        } else {
+          console.log('⚠️ No se detectó elemento de audio después de hacer clic y esperar');
+          console.log('💡 Intentando método alternativo...');
+        }
+      } else {
+        console.log('⚠️ No se encontró botón de reproducir');
+        console.log('🔍 Selectores intentados:');
+        console.log('  - button[aria-label*="Reproducir mensaje de voz"]');
+        console.log('  - [aria-label*="Reproducir"]');
+        console.log('  - [data-icon="audio-play"]');
+      }
+
+      // Método fallback: Buscar cualquier audio existente con blob
+      console.log('🔍 Buscando audios existentes con blob...');
       const allAudioElements = document.querySelectorAll('audio');
-      console.log(`🔍 Elementos <audio> encontrados en la página: ${allAudioElements.length}`);
+      console.log(`� Total de elementos <audio>: ${allAudioElements.length}`);
       
       for (const audioTag of allAudioElements) {
         if (audioTag.src && audioTag.src.startsWith('blob:')) {
-          console.log('✅ Encontrado elemento audio con blob:', audioTag.src);
+          console.log('✅ Audio con blob encontrado:', audioTag.src);
+          
           try {
             const response = await fetch(audioTag.src);
             const blob = await response.blob();
-            console.log('✅ Audio extraído, tamaño:', blob.size, 'bytes');
+            console.log('✅ Audio extraído:', blob.size, 'bytes');
             return blob;
-          } catch (e) {
-            console.log('⚠️ Error al obtener blob:', e);
-          }
-        }
-      }
-
-      // Método 2: Simular clic en reproducir y esperar más tiempo
-      const playButton = container.querySelector('[aria-label*="Reproducir"]') ||
-                        container.querySelector('[data-icon="audio-play"]');
-      
-      if (playButton) {
-        console.log('🎬 Encontrado botón de reproducir, simulando clic...');
-        playButton.click();
-        
-        // Esperar más tiempo y buscar el audio creado
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const allAudiosAfterClick = document.querySelectorAll('audio');
-        console.log(`🔍 Elementos <audio> después del clic: ${allAudiosAfterClick.length}`);
-        
-        for (const audioTag of allAudiosAfterClick) {
-          console.log('🎵 Audio encontrado:', {
-            src: audioTag.src,
-            currentSrc: audioTag.currentSrc,
-            paused: audioTag.paused,
-            duration: audioTag.duration
-          });
-          
-          if (audioTag.src && audioTag.src.startsWith('blob:')) {
-            // Pausar el audio
-            try {
-              audioTag.pause();
-              console.log('⏸️ Audio pausado');
-            } catch (e) {
-              console.log('⚠️ No se pudo pausar:', e);
-            }
-            
-            try {
-              const response = await fetch(audioTag.src);
-              const blob = await response.blob();
-              console.log('✅ Audio extraído después del clic, tamaño:', blob.size, 'bytes');
-              return blob;
-            } catch (e) {
-              console.log('⚠️ Error al obtener blob después del clic:', e);
-            }
-          }
-        }
-      }
-
-      // Método 3: Buscar en el DOM global elementos con src
-      const mediaElements = document.querySelectorAll('[src*="blob:"]');
-      console.log(`🔍 Elementos con blob: encontrados: ${mediaElements.length}`);
-      
-      for (const media of mediaElements) {
-        console.log('📦 Elemento encontrado:', media.tagName, media.src);
-        if (media.src && (media.tagName === 'AUDIO' || media.tagName === 'VIDEO')) {
-          try {
-            const response = await fetch(media.src);
-            const blob = await response.blob();
-            console.log('✅ Audio extraído de elemento multimedia, tamaño:', blob.size, 'bytes');
-            return blob;
-          } catch (e) {
-            console.log('⚠️ Error al obtener blob de elemento multimedia:', e);
+          } catch (error) {
+            console.error('❌ Error al fetch del blob:', error);
           }
         }
       }
 
       console.log('⚠️ No se pudo extraer el audio automáticamente');
-      console.log('ℹ️ WhatsApp usa audio encriptado que no se puede acceder directamente');
+      console.log('💡 Sugerencia: Intenta reproducir el audio primero, luego haz clic en el botón de transcripción');
       return null;
 
     } catch (error) {
@@ -616,6 +883,21 @@ const WhatsAppModule = (function() {
    * HTML para diálogo de transcripción
    */
   function createTranscribeDialogHTML() {
+    const hasCapturedBlobs = capturedAudioBlobs.size > 0;
+    const blobInfo = hasCapturedBlobs 
+      ? `<div style="background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+          <strong style="color: #2e7d32;">✅ ${capturedAudioBlobs.size} audio(s) detectado(s) en memoria</strong>
+          <p style="margin: 0.5rem 0 0 0; color: #1b5e20; font-size: 0.9rem;">
+            Intenta hacer clic en el botón de reproducir primero, luego vuelve a hacer clic en el botón AI.
+          </p>
+        </div>`
+      : `<div style="background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+          <strong style="color: #856404;">⚠️ No se detectaron audios en memoria</strong>
+          <p style="margin: 0.5rem 0 0 0; color: #856404; font-size: 0.9rem;">
+            Para capturar el audio automáticamente: Primero haz clic en <strong>Reproducir</strong>, luego en el botón <strong>AI</strong>.
+          </p>
+        </div>`;
+    
     return `
       <header class="ai-result-header ai-draggable">
         <div class="ai-avatar" title="WhatsApp AI">
@@ -632,43 +914,74 @@ const WhatsAppModule = (function() {
 
       <div class="ai-result-body" style="padding: 1.5rem;">
         <div class="ai-whatsapp-transcribe-section">
-          <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-            <strong>ℹ️ Nota importante:</strong>
-            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">
-              WhatsApp encripta los audios, así que no se pueden extraer automáticamente. 
-              <strong>Descarga el audio</strong> haciendo clic derecho en el mensaje → "Descargar" y luego súbelo aquí.
-            </p>
+          ${blobInfo}
+          
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+            <div style="display: flex; align-items: start; gap: 1rem;">
+              <div style="font-size: 2rem;">💡</div>
+              <div>
+                <strong style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;">Consejo para captura automática</strong>
+                <p style="margin: 0; font-size: 0.95rem; opacity: 0.95; line-height: 1.5;">
+                  1️⃣ Haz clic en <strong>"Reproducir"</strong> en el mensaje de voz<br>
+                  2️⃣ Luego haz clic en el botón verde <strong>"AI"</strong><br>
+                  3️⃣ El audio se transcribirá automáticamente ✨
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div class="transcribe-options">
-            <button class="transcribe-btn upload-btn" data-action="upload" style="flex: 1;">
+          <div style="background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+            <strong style="color: #2e7d32; display: block; margin-bottom: 0.5rem;">📥 Método alternativo - Subir manualmente:</strong>
+            <ol style="margin: 0; padding-left: 1.5rem; color: #1b5e20; line-height: 1.8;">
+              <li><strong>Clic derecho</strong> en el mensaje de voz</li>
+              <li>Selecciona <strong>"Descargar"</strong></li>
+              <li>El archivo se guardará como <code style="background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px;">.opus</code></li>
+              <li>Súbelo usando el botón de abajo 👇</li>
+            </ol>
+          </div>
+
+          <div class="transcribe-options" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+            <button class="transcribe-btn upload-btn" data-action="upload" style="flex: 1; padding: 1rem; border: 2px dashed #00a884; background: #f0fdf4; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-size: 1rem; font-weight: 600; color: #00a884; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
               </svg>
-              📥 Subir audio descargado
-            </button>
-            <button class="transcribe-btn record-btn" data-action="record" style="flex: 1;">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                <circle cx="12" cy="12" r="8"/>
-              </svg>
-              🎙️ Grabar nuevo audio
+              <div>
+                <div>📥 Subir audio descargado</div>
+                <small style="font-size: 0.8rem; font-weight: normal; opacity: 0.7;">Formatos: .opus, .ogg, .mp3, .m4a</small>
+              </div>
             </button>
           </div>
+          
+          <div style="text-align: center; margin: 1rem 0; color: #999; font-size: 0.9rem;">o</div>
+          
+          <button class="transcribe-btn record-btn" data-action="record" style="width: 100%; padding: 1rem; border: 2px solid #00a884; background: white; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-size: 1rem; font-weight: 600; color: #00a884; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <circle cx="12" cy="12" r="8"/>
+            </svg>
+            🎙️ Grabar audio nuevo desde micrófono
+          </button>
+          
           <input type="file" accept="audio/*,.opus" style="display: none;" class="audio-file-input" />
 
-          <div class="audio-player-section" style="display: none; margin-top: 1rem;">
-            <audio controls style="width: 100%; margin-bottom: 1rem;"></audio>
-            <select class="transcribe-mode">
-              <option value="transcribe">Transcribir texto completo</option>
-              <option value="summary">Resumir contenido</option>
-            </select>
-            <button class="transcribe-btn process-btn" style="margin-top: 0.5rem; width: 100%;">
-              ✨ Procesar audio
+          <div class="audio-player-section" style="display: none; margin-top: 1.5rem; background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border: 1px solid #e0e0e0;">
+            <div style="margin-bottom: 1rem;">
+              <strong style="display: block; margin-bottom: 0.5rem; color: #333;">🎵 Audio cargado:</strong>
+              <audio controls style="width: 100%; margin-bottom: 1rem;"></audio>
+            </div>
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555;">Modo de procesamiento:</label>
+              <select class="transcribe-mode" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: white;">
+                <option value="transcribe">📝 Transcribir texto completo</option>
+                <option value="summary">📋 Resumir contenido del audio</option>
+              </select>
+            </div>
+            <button class="transcribe-btn process-btn" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #00a884 0%, #008f6d 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0, 168, 132, 0.3);">
+              ✨ Procesar audio con AI
             </button>
           </div>
 
           <div class="transcribe-result" style="margin-top: 1rem; display: none;">
-            <div class="ai-answer" style="min-height: 100px; white-space: pre-wrap;"></div>
+            <div class="ai-answer" style="min-height: 100px; white-space: pre-wrap; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0;"></div>
           </div>
         </div>
       </div>
@@ -823,6 +1136,31 @@ const WhatsAppModule = (function() {
     // Subir archivo
     uploadBtn.addEventListener('click', () => {
       fileInput.click();
+    });
+    
+    // Hover effects
+    uploadBtn.addEventListener('mouseenter', () => {
+      uploadBtn.style.background = '#dcfce7';
+      uploadBtn.style.transform = 'translateY(-2px)';
+      uploadBtn.style.boxShadow = '0 4px 12px rgba(0, 168, 132, 0.2)';
+    });
+    
+    uploadBtn.addEventListener('mouseleave', () => {
+      uploadBtn.style.background = '#f0fdf4';
+      uploadBtn.style.transform = 'translateY(0)';
+      uploadBtn.style.boxShadow = 'none';
+    });
+    
+    recordBtn.addEventListener('mouseenter', () => {
+      recordBtn.style.background = '#f0fdf4';
+      recordBtn.style.transform = 'translateY(-2px)';
+      recordBtn.style.boxShadow = '0 4px 12px rgba(0, 168, 132, 0.2)';
+    });
+    
+    recordBtn.addEventListener('mouseleave', () => {
+      recordBtn.style.background = 'white';
+      recordBtn.style.transform = 'translateY(0)';
+      recordBtn.style.boxShadow = 'none';
     });
 
     fileInput.addEventListener('change', (e) => {

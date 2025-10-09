@@ -27,6 +27,251 @@ const GmailModule = (function() {
     setTimeout(checkForEmailView, 1000);
   }
 
+  async function handleUnreadSummary() {
+    console.log('📬 Obteniendo correos no leídos...');
+    
+    try {
+      const unreadEmails = await getUnreadEmails();
+      
+      if (unreadEmails.length === 0) {
+        alert('No hay correos no leídos 🎉');
+        return;
+      }
+      
+      console.log(`📧 ${unreadEmails.length} correos no leídos encontrados`);
+      
+      // Crear diálogo de resumen
+      const dialog = createUnreadSummaryDialog(unreadEmails);
+      document.body.appendChild(dialog);
+      
+      // Generar resumen
+      await generateUnreadSummary(dialog, unreadEmails);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al obtener correos no leídos: ' + error.message);
+    }
+  }
+
+  async function getUnreadEmails() {
+    // Buscar todos los correos no leídos en la vista actual
+    const unreadRows = document.querySelectorAll('tr.zE, tr.zA');
+    const unreadEmails = [];
+    
+    for (const row of unreadRows) {
+      try {
+        // Verificar si el correo está marcado como no leído (tiene la clase específica)
+        const isUnread = row.classList.contains('zE') || 
+                        row.querySelector('.zF') || // Badge de no leído
+                        row.querySelector('span[email]')?.closest('tr')?.classList.contains('zE');
+        
+        if (!isUnread && !row.classList.contains('zE')) continue;
+        
+        // Extraer información del correo
+        const senderElement = row.querySelector('span[email]') || 
+                             row.querySelector('.yW span') ||
+                             row.querySelector('.yP');
+        
+        const subjectElement = row.querySelector('.bog span') || 
+                              row.querySelector('[data-thread-id] span');
+        
+        const snippetElement = row.querySelector('.y2');
+        
+        const sender = senderElement?.getAttribute('email') || 
+                      senderElement?.textContent?.trim() || 
+                      'Desconocido';
+        
+        const subject = subjectElement?.textContent?.trim() || 'Sin asunto';
+        const snippet = snippetElement?.textContent?.trim() || '';
+        
+        unreadEmails.push({
+          sender,
+          subject,
+          snippet,
+          row
+        });
+        
+        // Limitar a 20 correos para no sobrecargar
+        if (unreadEmails.length >= 20) break;
+        
+      } catch (error) {
+        console.error('Error procesando correo:', error);
+      }
+    }
+    
+    return unreadEmails;
+  }
+
+  function createUnreadSummaryDialog(unreadEmails) {
+    const dialog = document.createElement('div');
+    dialog.className = 'ai-result-panel';
+    dialog.dataset.pinned = 'true';
+    
+    dialog.style.left = '50%';
+    dialog.style.top = '50%';
+    dialog.style.transform = 'translate(-50%, -50%)';
+    dialog.style.width = 'min(800px, 95vw)';
+    dialog.style.maxHeight = '90vh';
+    
+    dialog.innerHTML = `
+      <header class="ai-result-header ai-draggable">
+        <div class="ai-avatar" title="Resumen de No Leídos">
+          <div class="eyes"><span></span><span></span></div>
+        </div>
+        <div class="title">Resumen de ${unreadEmails.length} Correos No Leídos</div>
+        <div class="spacer"></div>
+        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </header>
+      
+      <div class="ai-result-body" style="max-height: calc(90vh - 60px); overflow-y: auto;">
+        <div class="ai-gmail-section">
+          <div class="ai-gmail-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>Resumen General</span>
+          </div>
+          <div class="ai-unread-summary-content">
+            <div style="color: #a5a7b1; text-align: center; padding: 40px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;">
+                <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+                  <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                </path>
+              </svg>
+              <div>Analizando correos no leídos...</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ai-gmail-section">
+          <div class="ai-gmail-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span>Lista de Correos</span>
+          </div>
+          <div class="ai-unread-emails-list" style="max-height: 400px; overflow-y: auto;">
+            ${unreadEmails.map((email, index) => `
+              <div class="ai-email-item" style="padding: 12px; border-bottom: 1px solid #2a2d3a; cursor: pointer; transition: background 0.2s;" data-index="${index}">
+                <div style="display: flex; align-items: start; gap: 12px;">
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 600; color: #e4e6eb; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${escapeHtml(email.sender)}
+                    </div>
+                    <div style="font-size: 13px; color: #b8bcc8; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${escapeHtml(email.subject)}
+                    </div>
+                    ${email.snippet ? `
+                      <div style="font-size: 12px; color: #8b8f9b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${escapeHtml(email.snippet)}
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    makeDraggable(dialog);
+    
+    // Eventos
+    const closeBtn = dialog.querySelector('.close-panel');
+    closeBtn.addEventListener('click', () => dialog.remove());
+    
+    // Click en cada email para abrirlo
+    const emailItems = dialog.querySelectorAll('.ai-email-item');
+    emailItems.forEach((item, index) => {
+      item.addEventListener('mouseenter', () => {
+        item.style.background = 'rgba(255, 255, 255, 0.05)';
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.background = '';
+      });
+      item.addEventListener('click', () => {
+        const email = unreadEmails[index];
+        if (email.row) {
+          email.row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          email.row.click();
+        }
+      });
+    });
+    
+    return dialog;
+  }
+
+  async function generateUnreadSummary(dialog, unreadEmails) {
+    const summaryContent = dialog.querySelector('.ai-unread-summary-content');
+    
+    try {
+      // Preparar el texto de todos los correos
+      const emailsText = unreadEmails.map((email, index) => {
+        return `Correo ${index + 1}:
+Remitente: ${email.sender}
+Asunto: ${email.subject}
+${email.snippet ? `Contenido: ${email.snippet}` : ''}
+---`;
+      }).join('\n\n');
+      
+      const prompt = `Analiza los siguientes ${unreadEmails.length} correos no leídos y genera un resumen ejecutivo que incluya:
+
+1. **Resumen general**: Una vista general de los temas principales
+2. **Correos urgentes o importantes**: Identifica cuáles requieren atención inmediata
+3. **Categorías**: Agrupa los correos por tema o tipo (trabajo, personal, notificaciones, etc.)
+4. **Acciones sugeridas**: Qué correos deberían responderse primero
+
+Correos no leídos:
+
+${emailsText}
+
+Genera un resumen claro, conciso y bien estructurado en español.`;
+
+      // Generar resumen con progreso
+      const summary = await AIModule.aiAnswer(prompt, (percent) => {
+        summaryContent.innerHTML = `
+          <div style="color: #a5a7b1; text-align: center; padding: 40px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;">
+              <circle cx="12" cy="12" r="10" opacity="0.3"/>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+                <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+              </path>
+            </svg>
+            <div>Analizando correos... ${percent}%</div>
+          </div>
+        `;
+      });
+      
+      // Renderizar el resumen
+      MarkdownRenderer.renderToElement(summaryContent, summary);
+      
+    } catch (error) {
+      summaryContent.innerHTML = `
+        <div style="color: #ff6b6b; padding: 20px; text-align: center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px;">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <div>Error al generar resumen: ${error.message}</div>
+        </div>
+      `;
+    }
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   function checkForEmailView() {
     // Buscar el contenedor de un correo abierto en Gmail
     const emailBody = document.querySelector('[data-message-id]');
@@ -464,7 +709,14 @@ Genera una respuesta profesional y cordial para este correo electrónico, incluy
     init();
   }
 
-  return {
-    init
+  // API pública
+  const publicAPI = {
+    init,
+    handleUnreadSummary
   };
+
+  // Hacer disponible globalmente
+  window.GmailModule = publicAPI;
+
+  return publicAPI;
 })();

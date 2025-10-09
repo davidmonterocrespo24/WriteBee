@@ -17,6 +17,7 @@ console.log('📜 side_panel.js loaded - starting execution');
   let isRecording = false;
   let mediaRecorder = null;
   let attachedImageFile = null;
+  let attachedPdfFile = null;
 
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
@@ -24,7 +25,9 @@ console.log('📜 side_panel.js loaded - starting execution');
   const newChatBtn = document.getElementById('newChatBtn');
   const voiceBtn = document.getElementById('voiceBtn');
   const attachImageBtn = document.getElementById('attachImageBtn');
+  const attachPdfBtn = document.getElementById('attachPdfBtn');
   const imageInput = document.getElementById('imageInput');
+  const pdfInput = document.getElementById('pdfInput');
   const chatAttachments = document.getElementById('chatAttachments');
   const recordingIndicator = document.getElementById('recordingIndicator');
 
@@ -33,8 +36,10 @@ console.log('📜 side_panel.js loaded - starting execution');
     chatInput: !!chatInput,
     sendBtn: !!sendBtn,
     imageInput: !!imageInput,
+    pdfInput: !!pdfInput,
     voiceBtn: !!voiceBtn,
-    attachImageBtn: !!attachImageBtn
+    attachImageBtn: !!attachImageBtn,
+    attachPdfBtn: !!attachPdfBtn
   });
 
   loadHistory();
@@ -66,6 +71,39 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.error('❌ newChatBtn not found');
   }
 
+    // Botón para limpiar PDF
+  const clearPdfBtn = document.getElementById('clearPdfBtn');
+  if (clearPdfBtn) {
+    clearPdfBtn.addEventListener('click', () => {
+      if (confirm('¿Quieres eliminar el PDF cargado? Esto no borrará el historial de chat.')) {
+        if (typeof WebChatModule !== 'undefined' && WebChatModule.clearPDF) {
+          WebChatModule.clearPDF();
+          updatePDFIndicator(null);
+        }
+      }
+    });
+    console.log('✅ Event listener added to clearPdfBtn');
+  } else {
+    console.error('❌ clearPdfBtn not found');
+  }
+
+  // Botón para limpiar Página
+  const clearPageBtn = document.getElementById('clearPageBtn');
+  if (clearPageBtn) {
+    clearPageBtn.addEventListener('click', () => {
+      if (confirm('¿Quieres salir del modo Chat con Página? Esto no borrará el historial de chat.')) {
+        if (typeof RAGEngine !== 'undefined') {
+          const ragEngine = RAGEngine.getInstance();
+          ragEngine.clear();
+          updatePageIndicator(null);
+        }
+      }
+    });
+    console.log('✅ Event listener added to clearPageBtn');
+  } else {
+    console.error('❌ clearPageBtn not found');
+  }
+
   if (voiceBtn) {
     voiceBtn.addEventListener('click', () => {
       console.log('🔵 Click on voiceBtn detected');
@@ -86,11 +124,28 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.error('❌ attachImageBtn not found');
   }
 
+  if (attachPdfBtn) {
+    attachPdfBtn.addEventListener('click', () => {
+      console.log('🔵 Click on attachPdfBtn detected');
+      pdfInput.click();
+    });
+    console.log('✅ Event listener added to attachPdfBtn');
+  } else {
+    console.error('❌ attachPdfBtn not found');
+  }
+
   if (imageInput) {
     imageInput.addEventListener('change', handleImageSelect);
     console.log('✅ Event listener added to imageInput');
   } else {
     console.error('❌ imageInput not found');
+  }
+
+  if (pdfInput) {
+    pdfInput.addEventListener('change', handlePdfSelect);
+    console.log('✅ Event listener added to pdfInput');
+  } else {
+    console.error('❌ pdfInput not found');
   }
 
   /**
@@ -101,6 +156,13 @@ console.log('📜 side_panel.js loaded - starting execution');
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         const suggestion = chip.dataset.suggestion;
+        
+        // Si es la sugerencia de subir PDF, abrir el selector de archivos
+        if (suggestion === 'Sube un PDF para chatear con él') {
+          pdfInput.click();
+          return;
+        }
+        
         chatInput.value = suggestion;
         chatInput.focus();
         handleInputChange();
@@ -115,7 +177,7 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.log('📨 Mensaje recibido en side panel:', request.action);
 
     if (request.action === 'chatData' && request.data) {
-      const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent, imageMode, imageUrl, imageAction, prompt } = request.data;
+      const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent, imageMode, imageUrl, imageAction, prompt, initialPrompt, context } = request.data;
 
       console.log('📥 Datos recibidos:', {
         selectedText: selectedText?.substring(0, 50) + '...',
@@ -128,12 +190,43 @@ console.log('📜 side_panel.js loaded - starting execution');
         pageContentLength: pageContent?.length,
         imageMode,
         imageAction,
-        imageUrl: imageUrl?.substring(0, 50) + '...'
+        imageUrl: imageUrl?.substring(0, 50) + '...',
+        initialPrompt: initialPrompt?.substring(0, 50) + '...',
+        context
       });
 
       // 🆕 NUEVA CONVERSACIÓN: Limpiar historial existente antes de agregar nuevo contexto
       console.log('🆕 Iniciando nueva conversación');
       conversationHistory = [];
+
+      // Si hay un prompt inicial (por ejemplo, desde el botón de resumen de página)
+      if (initialPrompt && context === 'page-summary') {
+        console.log('📄 Modo Resumen de Página activado');
+        
+        // Agregar el prompt del usuario
+        conversationHistory.push({
+          role: 'user',
+          content: initialPrompt,
+          timestamp: Date.now()
+        });
+
+        // Renderizar historial
+        renderChatHistory();
+        saveHistory();
+
+        // Hacer scroll al final
+        setTimeout(() => {
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+
+        // Procesar automáticamente el resumen
+        setTimeout(() => {
+          processMessage(initialPrompt);
+        }, 200);
+
+        sendResponse({ success: true });
+        return true;
+      }
 
       // Si es modo imagen (OCR, Explain, Describe)
       if (imageMode && imageUrl && prompt) {
@@ -178,24 +271,46 @@ console.log('📜 side_panel.js loaded - starting execution');
       if (webChatMode && pageContent) {
         console.log('💬 Modo Chat con Página activado - usando RAG');
 
+        // Mostrar indicador de página
+        updatePageIndicator({
+          title: pageTitle,
+          url: pageUrl
+        });
+
         // 🔥 NUEVO: Inicializar RAG en lugar de agregar contexto como mensaje del sistema
         (async () => {
           try {
             // Inicializar RAG Engine con el contenido de la página
-            if (window.WebChatModule && window.WebChatModule.initializeRAG) {
-              console.log('🚀 Inicializando RAG Engine...');
+            if (window.RAGEngine) {
+              console.log('🚀 Indexando página con RAG Engine...');
               
-              await window.WebChatModule.initializeRAG((progress) => {
-                console.log('📊 RAG Progress:', progress);
+              const ragEngine = RAGEngine.getInstance();
+              
+              // Clear previous index
+              ragEngine.clear();
+              
+              // Index current page
+              await ragEngine.indexPage(pageContent, {
+                title: pageTitle,
+                url: pageUrl,
+                source: 'current_page'
               });
 
-              console.log('✅ RAG Engine inicializado');
+              console.log('✅ Página indexada con RAG Engine');
             }
 
-            // Agregar mensaje de bienvenida del asistente
+            // Agregar mensaje de bienvenida del asistente con el resumen si existe
+            let welcomeMessage = `📄 **Modo: Chat con la Página**\n\n**${pageTitle}**\n\n`;
+            
+            if (currentAnswer) {
+              welcomeMessage += `**Resumen:**\n${currentAnswer}\n\n`;
+            }
+            
+            welcomeMessage += `¿Qué te gustaría saber sobre esta página?`;
+
             conversationHistory.push({
               role: 'assistant',
-              content: `I'm ready to help you with this page: **${pageTitle}**\n\nWhat would you like to know about it?${selectedText ? `\n\nI see you selected some text. Would you like me to explain it in the context of this page?` : ''}`,
+              content: welcomeMessage,
               timestamp: Date.now()
             });
 
@@ -210,16 +325,10 @@ console.log('📜 side_panel.js loaded - starting execution');
           } catch (error) {
             console.error('❌ Error inicializando RAG:', error);
             
-            // Fallback: usar método antiguo
-            conversationHistory.push({
-              role: 'system',
-              content: `You are chatting about this web page:\n\nTitle: ${pageTitle}\nURL: ${pageUrl}\n\nPage content:\n${pageContent}`,
-              timestamp: Date.now()
-            });
-
+            // Fallback: mensaje simple
             conversationHistory.push({
               role: 'assistant',
-              content: `I'm ready to help you with this page: **${pageTitle}**\n\nWhat would you like to know about it?${selectedText ? `\n\nI see you selected some text. Would you like me to explain it in the context of this page?` : ''}`,
+              content: `📄 **Modo: Chat con la Página**\n\n**${pageTitle}**\n\n${currentAnswer || 'Listo para ayudarte con esta página.'}\n\n¿Qué te gustaría saber?`,
               timestamp: Date.now()
             });
 
@@ -296,7 +405,7 @@ console.log('📜 side_panel.js loaded - starting execution');
     chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
 
     // Habilitar/deshabilitar botón enviar
-    sendBtn.disabled = !chatInput.value.trim() && !attachedImageFile;
+    sendBtn.disabled = !chatInput.value.trim() && !attachedImageFile && !attachedPdfFile;
   }
 
   /**
@@ -318,12 +427,12 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.log('📤 sendMessage llamado');
     const text = chatInput.value.trim();
 
-    if (!text && !attachedImageFile) {
-      console.log('⚠️ No hay texto ni imagen adjunta');
+    if (!text && !attachedImageFile && !attachedPdfFile) {
+      console.log('⚠️ No hay texto, imagen ni PDF adjunto');
       return;
     }
 
-    console.log('📝 Enviando mensaje:', { text: text.substring(0, 50), hasImage: !!attachedImageFile });
+    console.log('📝 Enviando mensaje:', { text: text.substring(0, 50), hasImage: !!attachedImageFile, hasPdf: !!attachedPdfFile });
 
     // Obtener acción seleccionada para imagen si existe
     let imageAction = null;
@@ -335,11 +444,12 @@ console.log('📜 side_panel.js loaded - starting execution');
     // Agregar mensaje del usuario
     const userMessage = {
       role: 'user',
-      content: text || `Imagen adjunta (${imageAction})`,
+      content: text || (attachedImageFile ? `Imagen adjunta (${imageAction})` : 'PDF adjunto'),
       timestamp: Date.now(),
       image: attachedImageFile ? URL.createObjectURL(attachedImageFile) : null,
       imageFile: attachedImageFile,
-      imageAction: imageAction
+      imageAction: imageAction,
+      pdfFile: attachedPdfFile
     };
 
     conversationHistory.push(userMessage);
@@ -353,23 +463,27 @@ console.log('📜 side_panel.js loaded - starting execution');
 
     // Guardar referencias antes de limpiar
     const imageFile = attachedImageFile;
+    const pdfFile = attachedPdfFile;
     const action = imageAction;
 
-    // Limpiar imagen adjunta
+    // Limpiar adjuntos
     if (attachedImageFile) {
       attachedImageFile = null;
-      chatAttachments.innerHTML = '';
-      chatAttachments.style.display = 'none';
     }
+    if (attachedPdfFile) {
+      attachedPdfFile = null;
+    }
+    chatAttachments.innerHTML = '';
+    chatAttachments.style.display = 'none';
 
     // Procesar mensaje con IA
-    await processMessage(text, action, imageFile);
+    await processMessage(text, action, imageFile, pdfFile);
   }
 
   /**
    * Procesar mensaje con IA
    */
-  async function processMessage(text, action = null, imageFile = null) {
+  async function processMessage(text, action = null, imageFile = null, pdfFile = null) {
     // Agregar mensaje temporal del asistente con typing indicator
     const assistantMessage = {
       role: 'assistant',
@@ -398,14 +512,44 @@ console.log('📜 side_panel.js loaded - starting execution');
         renderChatHistory();
       };
 
-      // Verificar si estamos en modo chat con página
+      // Verificar si estamos en modo chat con página o PDF
       const isWebChatMode = conversationHistory.some(msg => 
         msg.role === 'assistant' && 
-        msg.content.includes("I'm ready to help you with this page:")
+        (msg.content.includes("Modo: Chat con la Página") || msg.content.includes("I'm ready to help you with this page:"))
       );
+      
+      const hasPDF = typeof WebChatModule !== 'undefined' && WebChatModule.hasPDFLoaded && WebChatModule.hasPDFLoaded();
+      const hasRAGContent = isWebChatMode || hasPDF;
 
+      // Si hay PDF, procesarlo
+      if (pdfFile) {
+        console.log('📄 Procesando PDF:', pdfFile.name);
+        if (typeof WebChatModule !== 'undefined') {
+          // Subir PDF al chat
+          await WebChatModule.uploadPDF(pdfFile, onProgress);
+          
+          // Update PDF indicator
+          updatePDFIndicator({
+            filename: pdfFile.name,
+            size: pdfFile.size
+          });
+          
+          // Si hay texto, procesarlo como pregunta sobre el PDF
+          if (text && text.trim()) {
+            console.log('💬 Procesando pregunta sobre el PDF:', text);
+            result = await WebChatModule.chatWithPage(text, onProgress);
+            assistantMessage.content = result;
+          } else {
+            result = `✅ PDF "${pdfFile.name}" cargado exitosamente. Ahora puedes hacer preguntas sobre su contenido.`;
+            assistantMessage.content = result;
+          }
+          assistantMessage.isTyping = false;
+        } else {
+          throw new Error('WebChatModule no está disponible');
+        }
+      }
       // Si hay imagen, procesarla con multimodal según la acción
-      if (imageFile) {
+      else if (imageFile) {
         console.log('🖼️ Procesando imagen con acción:', action);
         if (typeof MultimodalModule !== 'undefined') {
           if (action && action !== 'describe') {
@@ -419,9 +563,9 @@ console.log('📜 side_panel.js loaded - starting execution');
           throw new Error('MultimodalModule no está disponible');
         }
       }
-      // Si estamos en modo chat con página, usar WebChatModule con RAG
-      else if (isWebChatMode && typeof WebChatModule !== 'undefined') {
-        console.log('🌐 Usando WebChatModule con RAG para responder');
+      // Si estamos en modo chat con página o PDF, usar RAG
+      else if (hasRAGContent && typeof WebChatModule !== 'undefined') {
+        console.log('🌐 Usando RAG para responder (Página o PDF)');
         result = await WebChatModule.chatWithPage(text, onProgress);
         assistantMessage.content = result;
         assistantMessage.isTyping = false;
@@ -536,6 +680,15 @@ console.log('📜 side_panel.js loaded - starting execution');
         <div class="message-content" data-index="${index}">
           ${msg.isTyping ? '<div class="typing-indicator"><span></span><span></span><span></span></div>' : ''}
         </div>
+        ${msg.pdfFile ? `<div class="message-attachment pdf-attachment">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <text x="7" y="17" font-size="6" fill="currentColor" font-weight="bold">PDF</text>
+          </svg>
+          <span>${msg.pdfFile.name}</span>
+          <span class="pdf-size">${(msg.pdfFile.size / 1024).toFixed(1)} KB</span>
+        </div>` : ''}
         ${msg.image ? `<img src="${msg.image}" class="message-image" alt="Imagen adjunta">` : ''}
       `;
 
@@ -625,6 +778,82 @@ console.log('📜 side_panel.js loaded - starting execution');
   }
 
   /**
+   * Update PDF indicator in header
+   */
+  function updatePDFIndicator(pdfInfo) {
+    const pdfIndicator = document.getElementById('pdfIndicator');
+    const pdfIndicatorText = document.getElementById('pdfIndicatorText');
+    const clearPdfBtn = document.getElementById('clearPdfBtn');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const clearPageBtn = document.getElementById('clearPageBtn');
+
+    if (pdfInfo) {
+      // Show PDF indicator, hide page indicator
+      if (pdfIndicator) {
+        pdfIndicator.style.display = 'inline-flex';
+        pdfIndicatorText.textContent = pdfInfo.filename || 'PDF';
+      }
+      if (clearPdfBtn) {
+        clearPdfBtn.style.display = 'block';
+      }
+      if (pageIndicator) {
+        pageIndicator.style.display = 'none';
+      }
+      if (clearPageBtn) {
+        clearPageBtn.style.display = 'none';
+      }
+      console.log('📄 PDF indicator updated:', pdfInfo.filename);
+    } else {
+      // Hide PDF indicator
+      if (pdfIndicator) {
+        pdfIndicator.style.display = 'none';
+      }
+      if (clearPdfBtn) {
+        clearPdfBtn.style.display = 'none';
+      }
+      console.log('📄 PDF indicator hidden');
+    }
+  }
+
+  /**
+   * Update Page indicator in header
+   */
+  function updatePageIndicator(pageInfo) {
+    const pageIndicator = document.getElementById('pageIndicator');
+    const pageIndicatorText = document.getElementById('pageIndicatorText');
+    const clearPageBtn = document.getElementById('clearPageBtn');
+    const pdfIndicator = document.getElementById('pdfIndicator');
+    const clearPdfBtn = document.getElementById('clearPdfBtn');
+
+    if (pageInfo) {
+      // Show page indicator, hide PDF indicator
+      if (pageIndicator) {
+        pageIndicator.style.display = 'inline-flex';
+        pageIndicatorText.textContent = pageInfo.title || 'Página';
+      }
+      if (clearPageBtn) {
+        clearPageBtn.style.display = 'block';
+      }
+      if (pdfIndicator) {
+        pdfIndicator.style.display = 'none';
+      }
+      if (clearPdfBtn) {
+        clearPdfBtn.style.display = 'none';
+      }
+      console.log('📄 Page indicator updated:', pageInfo.title);
+    } else {
+      // Hide page indicator
+      if (pageIndicator) {
+        pageIndicator.style.display = 'none';
+      }
+      if (clearPageBtn) {
+        clearPageBtn.style.display = 'none';
+      }
+      console.log('📄 Page indicator hidden');
+    }
+  }
+
+  /**
    * New conversation
    */
   function newConversation() {
@@ -632,6 +861,12 @@ console.log('📜 side_panel.js loaded - starting execution');
       conversationHistory = [];
       saveHistory();
       renderChatHistory();
+      
+      // Clear PDF if loaded
+      if (typeof WebChatModule !== 'undefined') {
+        WebChatModule.clearCurrentPDF();
+        updatePDFIndicator(null);
+      }
     }
   }
 
@@ -676,6 +911,112 @@ console.log('📜 side_panel.js loaded - starting execution');
     });
 
     sendBtn.disabled = false;
+  }
+
+  /**
+   * Manejar selección de PDF
+   */
+  function handlePdfSelect(e) {
+    console.log('📄 handlePdfSelect llamado');
+    const file = e.target.files[0];
+    if (!file) {
+      console.log('⚠️ No se seleccionó ningún archivo PDF');
+      return;
+    }
+
+    console.log('✅ PDF seleccionado:', file.name, file.type, file.size);
+    attachedPdfFile = file;
+
+    // Mostrar información del PDF
+    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+    chatAttachments.innerHTML = `
+      <div class="pdf-attachment">
+        <div class="pdf-attachment-icon">PDF</div>
+        <div class="pdf-attachment-info">
+          <div class="pdf-attachment-name">${file.name}</div>
+          <div class="pdf-attachment-details">${fileSize} MB</div>
+        </div>
+        <div class="pdf-attachment-actions">
+          <button class="pdf-attachment-btn" id="uploadPdfBtn">Subir</button>
+          <button class="pdf-attachment-btn" id="removePdfBtn">×</button>
+        </div>
+      </div>
+    `;
+    chatAttachments.style.display = 'flex';
+
+    // Event listeners para los botones
+    document.getElementById('uploadPdfBtn').addEventListener('click', async () => {
+      await uploadPdfToChat(file);
+    });
+
+    document.getElementById('removePdfBtn').addEventListener('click', () => {
+      attachedPdfFile = null;
+      chatAttachments.innerHTML = '';
+      chatAttachments.style.display = 'none';
+      pdfInput.value = '';
+      sendBtn.disabled = !chatInput.value.trim();
+    });
+
+    sendBtn.disabled = false;
+  }
+
+  /**
+   * Upload PDF to chat
+   */
+  async function uploadPdfToChat(pdfFile) {
+    try {
+      console.log('📤 Subiendo PDF al chat:', pdfFile.name);
+      
+      // Mostrar mensaje de progreso
+      const progressMessage = addMessage('assistant', 'Procesando PDF...', true);
+      
+      // Subir PDF usando WebChatModule
+      const result = await WebChatModule.uploadPDF(pdfFile, (progress) => {
+        updateMessageContent(progressMessage, progress);
+      });
+
+      // Actualizar mensaje final
+      updateMessageContent(progressMessage, `✅ PDF cargado exitosamente: ${result.filename} (${result.pages} páginas)`);
+      
+      // Actualizar UI para mostrar PDF cargado
+      updatePdfAttachmentUI(result);
+      
+      // Limpiar input
+      pdfInput.value = '';
+      
+      console.log('✅ PDF subido exitosamente:', result);
+    } catch (error) {
+      console.error('❌ Error subiendo PDF:', error);
+      addMessage('assistant', `❌ Error procesando PDF: ${error.message}`);
+    }
+  }
+
+  /**
+   * Update PDF attachment UI after successful upload
+   */
+  function updatePdfAttachmentUI(pdfInfo) {
+    chatAttachments.innerHTML = `
+      <div class="pdf-attachment" style="border-color: #10b981;">
+        <div class="pdf-attachment-icon" style="background: #10b981;">✓</div>
+        <div class="pdf-attachment-info">
+          <div class="pdf-attachment-name">${pdfInfo.filename}</div>
+          <div class="pdf-attachment-details">${pdfInfo.pages} páginas • Listo para chatear</div>
+        </div>
+        <div class="pdf-attachment-actions">
+          <button class="pdf-attachment-btn" id="clearPdfBtn">Limpiar</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('clearPdfBtn').addEventListener('click', () => {
+      WebChatModule.clearCurrentPDF();
+      attachedPdfFile = null;
+      chatAttachments.innerHTML = '';
+      chatAttachments.style.display = 'none';
+      pdfInput.value = '';
+      sendBtn.disabled = !chatInput.value.trim();
+      addMessage('assistant', '📄 PDF eliminado. Ahora puedes chatear con la página web actual.');
+    });
   }
 
   /**
@@ -824,6 +1165,14 @@ console.log('📜 side_panel.js loaded - starting execution');
       if (result.chatHistory) {
         conversationHistory = result.chatHistory;
         renderChatHistory();
+      }
+      
+      // Check if there's a PDF loaded
+      if (typeof WebChatModule !== 'undefined') {
+        const pdfInfo = WebChatModule.getCurrentPDFInfo();
+        if (pdfInfo) {
+          updatePDFIndicator(pdfInfo);
+        }
       }
     });
   }

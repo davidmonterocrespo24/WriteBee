@@ -599,6 +599,161 @@ Extrae los insights (puntos clave, conclusiones importantes, datos relevantes) d
     return await AIModule.aiAnswer(prompt);
   }
 
+  async function summarizeResults() {
+    console.log('🔍 Generando resumen de resultados de Google...');
+    
+    const results = getSearchResults();
+    
+    if (results.length === 0) {
+      alert('No se encontraron resultados para resumir');
+      return;
+    }
+    
+    // Crear diálogo de resumen
+    const dialog = createResultsSummaryDialog(results);
+    document.body.appendChild(dialog);
+    
+    // Generar resumen
+    await generateResultsSummary(dialog, results.slice(0, 4));
+  }
+
+  function createResultsSummaryDialog(results) {
+    const dialog = document.createElement('div');
+    dialog.className = 'ai-result-panel';
+    dialog.dataset.pinned = 'true';
+    
+    dialog.style.left = '50%';
+    dialog.style.top = '50%';
+    dialog.style.transform = 'translate(-50%, -50%)';
+    dialog.style.width = 'min(800px, 95vw)';
+    dialog.style.maxHeight = '90vh';
+    
+    dialog.innerHTML = `
+      <header class="ai-result-header ai-draggable">
+        <div class="ai-avatar" title="Resumen de Google">
+          <div class="eyes"><span></span><span></span></div>
+        </div>
+        <div class="title">Resumen de los Primeros 4 Resultados</div>
+        <div class="spacer"></div>
+        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </header>
+      
+      <div class="ai-result-body" style="max-height: calc(90vh - 60px); overflow-y: auto;">
+        <div class="ai-gmail-section">
+          <div class="ai-gmail-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>Resumen Consolidado</span>
+          </div>
+          <div class="ai-google-summary-content">
+            <div style="color: #a5a7b1; text-align: center; padding: 40px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;">
+                <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+                  <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                </path>
+              </svg>
+              <div>Analizando resultados de búsqueda...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Hacer arrastrable
+    const header = dialog.querySelector('.ai-draggable');
+    let isDragging = false;
+    let currentX, currentY, initialX, initialY;
+
+    header.addEventListener('mousedown', dragStart);
+
+    function dragStart(e) {
+      if (e.target.closest('button')) return;
+      isDragging = true;
+      initialX = e.clientX - (parseInt(dialog.style.left) || 0);
+      initialY = e.clientY - (parseInt(dialog.style.top) || 0);
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', dragEnd);
+    }
+
+    function drag(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      dialog.style.left = currentX + 'px';
+      dialog.style.top = currentY + 'px';
+      dialog.style.transform = 'none';
+    }
+
+    function dragEnd() {
+      isDragging = false;
+      document.removeEventListener('mousemove', drag);
+      document.removeEventListener('mouseup', dragEnd);
+    }
+    
+    // Eventos
+    const closeBtn = dialog.querySelector('.close-panel');
+    closeBtn.addEventListener('click', () => dialog.remove());
+    
+    return dialog;
+  }
+
+  async function generateResultsSummary(dialog, results) {
+    const summaryContent = dialog.querySelector('.ai-google-summary-content');
+    
+    try {
+      const resultsText = results.map((result, index) => {
+        return `Resultado ${index + 1}:
+Título: ${result.title}
+URL: ${result.url}
+Contenido: ${result.content}
+---`;
+      }).join('\n\n');
+      
+      const prompt = `Analiza los siguientes ${results.length} resultados de búsqueda de Google y genera un resumen consolidado que incluya:
+
+1. **Resumen General**: Una síntesis de la información más relevante
+2. **Puntos Clave**: Los datos más importantes encontrados
+3. **Conclusiones**: Qué podemos concluir de estos resultados
+4. **Recomendaciones**: Si aplica, qué acción tomar basándose en la información
+
+Resultados de búsqueda:
+
+${resultsText}
+
+Genera un resumen claro, bien estructurado y útil en español.`;
+
+      const summary = await AIModule.aiAnswer(prompt, (percent) => {
+        summaryContent.innerHTML = `
+          <div style="color: #a5a7b1; text-align: center; padding: 40px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;">
+              <circle cx="12" cy="12" r="10" opacity="0.3"/>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+                <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+              </path>
+            </svg>
+            <div>Analizando resultados... ${percent}%</div>
+          </div>
+        `;
+      });
+      
+      MarkdownRenderer.renderToElement(summaryContent, summary);
+      
+    } catch (error) {
+      summaryContent.innerHTML = `
+        <div style="color: #ff6b6b; padding: 20px; text-align: center;">
+          <div>Error al generar resumen: ${error.message}</div>
+        </div>
+      `;
+    }
+  }
+
   // Inicializar cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -606,7 +761,14 @@ Extrae los insights (puntos clave, conclusiones importantes, datos relevantes) d
     init();
   }
 
-  return {
-    init
+  // API pública
+  const publicAPI = {
+    init,
+    summarizeResults
   };
+
+  // Hacer disponible globalmente
+  window.GoogleModule = publicAPI;
+
+  return publicAPI;
 })();

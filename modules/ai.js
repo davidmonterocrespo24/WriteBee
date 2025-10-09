@@ -82,6 +82,60 @@ const AIModule = (function() {
     }
   }
 
+  async function aiPrompt(prompt, onProgress = null) {
+    try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🤖 AI PROMPT: Calling LanguageModel API');
+      console.log('📊 Prompt length:', prompt.length, 'characters');
+      
+      // Check if prompt is too large
+      if (prompt.length > 4000) {
+        console.warn('⚠️ AI PROMPT: Warning - Prompt is very large:', prompt.length, 'chars (recommended: < 4000)');
+      }
+      
+      console.log('📝 Prompt preview (first 300 chars):');
+      console.log(prompt.substring(0, 300) + '...');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      const service = getAIService();
+      // Use the LanguageModel API directly for general prompts
+      if (!('LanguageModel' in self)) {
+        throw new Error('LanguageModel API not available');
+      }
+      
+      console.log('🔧 AI PROMPT: Creating LanguageModel session...');
+      const session = await self.LanguageModel.create({
+        monitor: service.createMonitor(onProgress)
+      });
+      
+      console.log('✅ AI PROMPT: Session created, sending prompt...');
+      const result = await session.prompt(prompt);
+      
+      console.log('✅ AI PROMPT: Response received');
+      console.log('📊 Response length:', result.length, 'characters');
+      console.log('📝 Response preview (first 200 chars):');
+      console.log(result.substring(0, 200) + '...');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      session.destroy();
+      
+      return result;
+    } catch (error) {
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('❌ AI PROMPT: ERROR');
+      console.error('Error message:', error.message);
+      console.error('Error details:', error);
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      // Provide more helpful error messages
+      if (error.message && error.message.toLowerCase().includes('too larg')) {
+        throw new Error('The input is too large. The prompt has ' + prompt.length + ' characters. Please try a more specific question.');
+      }
+      
+      throw error;
+    }
+  }
+
   // Streaming functions
   async function aiSummarizeStream(text, onChunk, signal = null) {
     try {
@@ -162,6 +216,7 @@ const AIModule = (function() {
     aiExpand,
     aiAnswer,
     aiChat,
+    aiPrompt,
     // Streaming
     aiSummarizeStream,
     aiRewriteStream,
@@ -172,3 +227,8 @@ const AIModule = (function() {
     aiAnswerStream
   };
 })();
+
+// Export
+if (typeof window !== 'undefined') {
+  window.AIModule = AIModule;
+}

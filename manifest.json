@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI Text Assistant",
-  "version": "1.0",
+  "version": "1.1",
   "description": "AI-powered text assistant for Chrome",
   "permissions": [
     "activeTab",
@@ -12,7 +12,14 @@
     "contextMenus"
   ],
   "host_permissions": [
-    "https://web.whatsapp.com/*"
+    "https://web.whatsapp.com/*",
+    "file:///*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["libs/*"],
+      "matches": ["<all_urls>"]
+    }
   ],
   "side_panel": {
     "default_path": "side_panel.html"
@@ -25,7 +32,22 @@
   },
   "content_scripts": [
     {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": [
+        "modules/markdown.js",
+        "modules/aiService.js",
+        "modules/ai.js",
+        "modules/multimodal.js",
+        "modules/dialog.js",
+        "modules/whatsapp.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
       "matches": ["<all_urls>"],
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
       "js": [
         "modules/markdown.js",
         "modules/aiService.js",
@@ -42,6 +64,7 @@
         "modules/menus.js",
         "modules/toolbar.js",
         "modules/floatButton.js",
+        "modules/floatButtons.js",
         "modules/gmail.js",
         "modules/outlook.js",
         "modules/youtube.js",
@@ -49,7 +72,6 @@
         "modules/github.js",
         "modules/linkedin.js",
         "modules/twitter.js",
-        "modules/whatsapp.js",
         "content.js"
       ],
       "css": ["styles.css"]

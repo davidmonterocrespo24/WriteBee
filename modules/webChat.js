@@ -144,6 +144,14 @@ const WebChatModule = (function() {
    */
   async function summarizePage(onProgress = null) {
     try {
+      // Check if we have a PDF loaded
+      if (window.PDFModule && typeof PDFModule.hasPDFLoaded === 'function' && PDFModule.hasPDFLoaded()) {
+        console.log('📄 PDF detectado, usando PDFModule.summarizePDF');
+        return await PDFModule.summarizePDF(onProgress);
+      }
+
+      console.log('🌐 Resumiendo página web con RAG');
+
       // Initialize RAG
       if (!isIndexed) {
         await initializeRAG(onProgress);
@@ -186,20 +194,36 @@ const WebChatModule = (function() {
    */
   async function chatWithPage(question, onProgress = null) {
     try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('💬 WEB CHAT: Starting chat');
+      console.log('❓ Question:', question);
+      
+      // Check if we have a PDF loaded
+      if (window.PDFModule && typeof PDFModule.hasPDFLoaded === 'function' && PDFModule.hasPDFLoaded()) {
+        console.log('📄 WEB CHAT: Detected PDF loaded, delegating to PDFModule');
+        return await PDFModule.chatWithPDF(question, onProgress);
+      }
+
+      console.log('🌐 WEB CHAT: Using web page content');
+      
       // Initialize RAG if not already done
       if (!isIndexed) {
+        console.log('🔧 WEB CHAT: RAG not indexed, initializing...');
         await initializeRAG(onProgress);
       }
 
       // Index relevant links based on question
       if (onProgress) onProgress('Finding relevant content...');
+      console.log('🔗 WEB CHAT: Indexing relevant links...');
       await indexRelevantLinks(question, onProgress);
 
       // Retrieve relevant chunks
       if (onProgress) onProgress('Retrieving relevant information...');
+      console.log('🔍 WEB CHAT: Retrieving relevant chunks...');
       const relevantChunks = ragEngine.retrieve(question, 5);
 
       // Build context from retrieved chunks
+      console.log('📝 WEB CHAT: Building context...');
       const context = ragEngine.buildContext(relevantChunks);
 
       if (onProgress) onProgress('Generating answer...');
@@ -214,11 +238,22 @@ User question: ${question}
 
 Please provide a comprehensive and accurate answer based on the information above. If the information is not sufficient, say so.`;
 
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📤 WEB CHAT: SENDING PROMPT TO AI');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log(prompt);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📊 Prompt length:', prompt.length, 'characters');
+
       const answer = await AIModule.aiPrompt(prompt);
+
+      console.log('✅ WEB CHAT: Received answer from AI');
+      console.log('📊 Answer length:', answer.length, 'characters');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       return answer;
     } catch (error) {
-      console.error('❌ Error in chatWithPage:', error);
+      console.error('❌ WEB CHAT: Error in chatWithPage:', error);
       
       // Fallback to simple chat without RAG
       if (onProgress) onProgress('Using fallback method...');
@@ -229,6 +264,9 @@ Please provide a comprehensive and accurate answer based on the information abov
 
       const metadata = getPageMetadata();
       const context = `Based on this web page:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\nContent:\n${pageContent.substring(0, 8000)}\n\nQuestion: ${question}`;
+
+      console.log('⚠️ WEB CHAT: Using fallback prompt');
+      console.log('📤 Fallback prompt length:', context.length, 'characters');
 
       const answer = await AIModule.aiPrompt(context);
       return answer;
@@ -259,6 +297,11 @@ Please provide a comprehensive and accurate answer based on the information abov
    */
   async function extractKeyPoints(onProgress = null) {
     try {
+      // Check if we have a PDF loaded
+      if (window.PDFModule && typeof PDFModule.hasPDFLoaded === 'function' && PDFModule.hasPDFLoaded()) {
+        return await PDFModule.extractKeyPointsFromPDF(onProgress);
+      }
+
       // Initialize RAG
       if (!isIndexed) {
         await initializeRAG(onProgress);
@@ -336,6 +379,62 @@ Please provide a comprehensive and accurate answer based on the information abov
   }
 
   /**
+   * Upload and process PDF for chat
+   */
+  async function uploadPDF(pdfFile, onProgress = null) {
+    try {
+      if (!window.PDFModule) {
+        throw new Error('PDF Module not loaded');
+      }
+
+      if (onProgress) onProgress('Processing PDF...');
+      
+      // Process PDF for chat (this will clear previous content)
+      const result = await PDFModule.processPDFForChat(pdfFile, onProgress);
+      
+      // Reset page indexing since we now have PDF content
+      isIndexed = false;
+      pageContent = null;
+      pageSummary = null;
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Error uploading PDF:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get current PDF info
+   */
+  function getCurrentPDFInfo() {
+    if (window.PDFModule) {
+      return PDFModule.getCurrentPDFInfo();
+    }
+    return null;
+  }
+
+  /**
+   * Clear current PDF
+   */
+  function clearCurrentPDF() {
+    if (window.PDFModule) {
+      PDFModule.clearCurrentPDF();
+      // Reset page indexing
+      isIndexed = false;
+      pageContent = null;
+      pageSummary = null;
+    }
+  }
+
+  /**
+   * Check if PDF is currently loaded
+   */
+  function hasPDFLoaded() {
+    return window.PDFModule && typeof PDFModule.hasPDFLoaded === 'function' ? PDFModule.hasPDFLoaded() : false;
+  }
+
+  /**
    * Initialize web chat module
    */
   function init() {
@@ -356,6 +455,10 @@ Please provide a comprehensive and accurate answer based on the information abov
     extractKeyPoints,
     explainPage,
     translatePage,
+    uploadPDF,
+    getCurrentPDFInfo,
+    clearCurrentPDF,
+    hasPDFLoaded,
     init
   };
 })();
