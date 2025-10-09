@@ -650,7 +650,7 @@ const DialogModule = (function() {
 
             window.speechSynthesis.speak(utterance);
             isSpeaking = true;
-            speakBtn.style.color = '#8ab4ff';
+            speakBtn.style.color = '#ffd400';
           } else {
             alert('Your browser does not support speech synthesis');
           }

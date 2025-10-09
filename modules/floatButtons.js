@@ -1093,9 +1093,9 @@ etc.`;
           <div style="display: flex; gap: 12px;">
             <button class="ai-confirm-yes" style="
               flex: 1;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(135deg, #ffd400 0%, #ffb700 100%);
               border: none;
-              color: white;
+              color: #1a1a1a;
               padding: 12px;
               border-radius: 8px;
               cursor: pointer;
