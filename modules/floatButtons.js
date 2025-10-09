@@ -39,9 +39,9 @@ const FloatButtonsModule = (function() {
     translate: {
       id: 'translate',
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M5 8h14M5 8a2 2 0 1 1 0-4h14a2 2 0 1 1 0 4M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/>
-        <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
-        <path d="M7 21h10"/>
+        <path d="M5 8h6m-6 4h3m10-9a17.8 17.8 0 0 1-5 10m5-10L12 3m6 0a17.8 17.8 0 0 0-5 10m0 0H4m13 0a17.8 17.8 0 0 1 5 10m-5-10l6 9"/>
+        <path d="m2 21 4-9 4 9"/>
+        <path d="M3.5 18h5"/>
       </svg>`,
       label: 'Traducir Página',
       color: '#4285F4',
@@ -56,12 +56,21 @@ const FloatButtonsModule = (function() {
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         <circle cx="12" cy="11" r="3"/>
       </svg>`,
-      label: 'Outlook',
+      label: 'Resumir No Leídos',
       color: '#0078D4',
       urlPattern: 'outlook.live.com|outlook.office.com',
-      onClick: () => {
+      onClick: async () => {
+        console.log('🔘 Botón Outlook clickeado');
+        console.log('🔍 window.OutlookModule:', window.OutlookModule);
+        console.log('🔍 typeof OutlookModule.handleUnreadSummary:', typeof OutlookModule?.handleUnreadSummary);
+        
         if (window.OutlookModule && typeof OutlookModule.handleUnreadSummary === 'function') {
-          OutlookModule.handleUnreadSummary();
+          console.log('✅ Ejecutando OutlookModule.handleUnreadSummary()');
+          await OutlookModule.handleUnreadSummary();
+        } else {
+          console.error('❌ OutlookModule o handleUnreadSummary no está disponible');
+          console.error('window.OutlookModule:', window.OutlookModule);
+          alert('El módulo de Outlook no está cargado. Por favor recarga la página.');
         }
       }
     },
@@ -161,7 +170,6 @@ const FloatButtonsModule = (function() {
     button.className = 'ai-float-feature-btn';
     button.id = `ai-float-btn-${config.id}`;
     button.setAttribute('aria-label', config.label);
-    button.style.background = config.color;
     button.style.animationDelay = `${buttons.length * 0.05}s`;
 
     button.innerHTML = `

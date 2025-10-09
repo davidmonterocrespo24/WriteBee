@@ -2,6 +2,8 @@ const OutlookModule = (function() {
   let outlookButton = null;
   let isOutlook = false;
 
+  console.log('🔧 Módulo OutlookModule cargándose...');
+
   function init() {
     // Detectar si estamos en Outlook
     isOutlook = window.location.hostname.includes('outlook.live.com') || 
@@ -11,6 +13,8 @@ const OutlookModule = (function() {
     if (isOutlook) {
       console.log('📧 Outlook detectado, iniciando módulo...');
       observeOutlook();
+    } else {
+      console.log('ℹ️ No estamos en Outlook, módulo en espera');
     }
   }
 
@@ -489,6 +493,250 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
     console.log('✅ Texto insertado en el editor de Outlook');
   }
 
+  async function handleUnreadSummary() {
+    console.log('📬 Obteniendo correos no leídos de Outlook...');
+    
+    try {
+      const unreadEmails = await getUnreadEmails();
+      
+      if (unreadEmails.length === 0) {
+        alert('No hay correos no leídos 🎉');
+        return;
+      }
+      
+      console.log(`📧 ${unreadEmails.length} correos no leídos encontrados en Outlook`);
+      
+      // Crear diálogo de resumen
+      const dialog = createUnreadSummaryDialog(unreadEmails);
+      document.body.appendChild(dialog);
+      
+      // Generar resumen
+      await generateUnreadSummary(dialog, unreadEmails);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al obtener correos no leídos: ' + error.message);
+    }
+  }
+
+  async function getUnreadEmails() {
+    // Buscar todos los correos no leídos en Outlook
+    // Outlook usa diferentes selectores según la versión
+    const unreadRows = document.querySelectorAll(
+      '[aria-label*="No leído"], [aria-label*="Unread"], ' +
+      '.ms-List-cell[aria-label*="No leído"], ' +
+      '[role="row"][aria-label*="No leído"], ' +
+      '[data-is-focusable="true"][aria-label*="No leído"], ' +
+      '.allowTextSelection[aria-label*="No leído"]'
+    );
+    
+    const unreadEmails = [];
+    
+    for (const row of unreadRows) {
+      try {
+        const ariaLabel = row.getAttribute('aria-label') || '';
+        
+        // Extraer información del aria-label que contiene toda la info del correo
+        // Formato típico: "No leído, [Remitente], [Asunto], [Fecha], [Extracto]"
+        const parts = ariaLabel.split(',').map(p => p.trim());
+        
+        let sender = 'Desconocido';
+        let subject = 'Sin asunto';
+        let snippet = '';
+        
+        // Intentar extraer información del aria-label
+        if (parts.length > 1) {
+          sender = parts[1] || 'Desconocido';
+          subject = parts[2] || 'Sin asunto';
+          snippet = parts.slice(3).join(', ') || '';
+        } else {
+          // Intentar extraer de elementos internos
+          const senderElement = row.querySelector('[title]') || 
+                                row.querySelector('.customScrollBar span');
+          const subjectElement = row.querySelector('[id*="ConversationSubject"]') ||
+                                row.querySelector('[class*="subject"]');
+          const snippetElement = row.querySelector('[id*="ConversationPreview"]') ||
+                                row.querySelector('[class*="preview"]');
+          
+          sender = senderElement?.textContent?.trim() || 
+                  senderElement?.getAttribute('title') || 
+                  'Desconocido';
+          subject = subjectElement?.textContent?.trim() || 'Sin asunto';
+          snippet = snippetElement?.textContent?.trim() || '';
+        }
+        
+        // Limpiar texto
+        sender = sender.replace(/^(No leído|Unread)[,\s]*/i, '').trim();
+        
+        unreadEmails.push({
+          sender,
+          subject,
+          snippet,
+          row
+        });
+        
+        // Limitar a 20 correos para no sobrecargar
+        if (unreadEmails.length >= 20) break;
+        
+      } catch (error) {
+        console.error('Error procesando correo de Outlook:', error);
+      }
+    }
+    
+    return unreadEmails;
+  }
+
+  function createUnreadSummaryDialog(unreadEmails) {
+    const dialog = document.createElement('div');
+    dialog.className = 'ai-result-panel';
+    dialog.dataset.pinned = 'true';
+    
+    dialog.style.left = '50%';
+    dialog.style.top = '50%';
+    dialog.style.transform = 'translate(-50%, -50%)';
+    dialog.style.width = 'min(800px, 95vw)';
+    dialog.style.maxHeight = '90vh';
+    
+    dialog.innerHTML = `
+      <header class="ai-result-header ai-draggable">
+        <div class="ai-avatar" title="Resumen de No Leídos">
+          <div class="eyes"><span></span><span></span></div>
+        </div>
+        <div class="title">Resumen de ${unreadEmails.length} Correos No Leídos - Outlook</div>
+        <div class="spacer"></div>
+        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </header>
+      
+      <div class="ai-result-body" style="max-height: calc(90vh - 60px); overflow-y: auto;">
+        <div class="ai-outlook-section">
+          <div class="ai-outlook-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>Resumen General</span>
+          </div>
+          <div class="ai-unread-summary-content">
+            <div style="color: #a5a7b1; text-align: center; padding: 40px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;">
+                <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+                  <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                </path>
+              </svg>
+              <div>Analizando correos no leídos...</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ai-outlook-section">
+          <div class="ai-outlook-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span>Listado de Correos (${unreadEmails.length})</span>
+          </div>
+          <div class="ai-unread-list">
+            ${unreadEmails.map((email, index) => `
+              <div class="ai-unread-item" data-index="${index}">
+                <div class="ai-unread-item-header">
+                  <div class="ai-unread-sender">${escapeHtml(email.sender)}</div>
+                  <div class="ai-unread-number">#${index + 1}</div>
+                </div>
+                <div class="ai-unread-subject">${escapeHtml(email.subject)}</div>
+                ${email.snippet ? `<div class="ai-unread-snippet">${escapeHtml(email.snippet.substring(0, 150))}${email.snippet.length > 150 ? '...' : ''}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Hacer el diálogo arrastrable
+    makeDraggable(dialog);
+
+    // Botón cerrar
+    const closeBtn = dialog.querySelector('.close-panel');
+    closeBtn.addEventListener('click', () => {
+      dialog.remove();
+    });
+
+    return dialog;
+  }
+
+  async function generateUnreadSummary(dialog, unreadEmails) {
+    const summaryContent = dialog.querySelector('.ai-unread-summary-content');
+    
+    try {
+      // Crear el texto con todos los correos para el resumen
+      let emailsText = `Tengo ${unreadEmails.length} correos no leídos en Outlook:\n\n`;
+      
+      unreadEmails.forEach((email, index) => {
+        emailsText += `${index + 1}. De: ${email.sender}\n`;
+        emailsText += `   Asunto: ${email.subject}\n`;
+        if (email.snippet) {
+          emailsText += `   Extracto: ${email.snippet.substring(0, 200)}\n`;
+        }
+        emailsText += `\n`;
+      });
+
+      const prompt = `${emailsText}
+
+Por favor, genera un resumen ejecutivo de estos correos no leídos. Organiza el resumen por:
+1. Prioridad (urgentes, importantes, informativos)
+2. Categorías temáticas
+3. Acciones requeridas
+
+Sé conciso pero informativo.`;
+
+      // Generar resumen con progreso
+      summaryContent.innerHTML = `
+        <div style="color: #a5a7b1; text-align: center; padding: 40px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;">
+            <circle cx="12" cy="12" r="10" opacity="0.3"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </div>
+      `;
+
+      const summary = await AIModule.aiAnswer(prompt);
+
+      // Renderizar el resumen con markdown
+      summaryContent.innerHTML = '';
+      if (typeof MarkdownRenderer !== 'undefined' && MarkdownRenderer.renderToElement) {
+        MarkdownRenderer.renderToElement(summaryContent, summary);
+      } else {
+        // Fallback si no está disponible el renderizador
+        summaryContent.innerHTML = `<div style="padding: 16px; white-space: pre-wrap;">${escapeHtml(summary)}</div>`;
+      }
+
+    } catch (error) {
+      console.error('Error generando resumen:', error);
+      summaryContent.innerHTML = `
+        <div style="color: #ff6b6b; padding: 20px; text-align: center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px;">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <div>Error al generar el resumen: ${escapeHtml(error.message)}</div>
+        </div>
+      `;
+    }
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // Inicializar cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -496,7 +744,16 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
     init();
   }
 
-  return {
-    init
+  // API pública
+  const publicAPI = {
+    init,
+    handleUnreadSummary
   };
+
+  // Hacer disponible globalmente
+  window.OutlookModule = publicAPI;
+  
+  console.log('✅ OutlookModule cargado y exportado globalmente', publicAPI);
+
+  return publicAPI;
 })();

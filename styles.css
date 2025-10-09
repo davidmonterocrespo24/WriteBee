@@ -1402,6 +1402,112 @@
 }
 
 /* ========================================
+   UNREAD EMAILS LIST STYLES (Gmail/Outlook)
+   ======================================== */
+
+.ai-unread-summary-content {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 12px;
+  color: #eaeaf0;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 60px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ai-unread-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ai-unread-item {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.ai-unread-item:hover {
+  background: #2a2a2e;
+  border-color: #4a4a50;
+}
+
+.ai-unread-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.ai-unread-sender {
+  font-weight: 600;
+  color: #8ab4ff;
+  font-size: 14px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-unread-number {
+  font-size: 12px;
+  color: #a5a7b1;
+  background: #35353c;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.ai-unread-subject {
+  color: #eaeaf0;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-unread-snippet {
+  color: #a5a7b1;
+  font-size: 13px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ai-unread-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ai-unread-list::-webkit-scrollbar-track {
+  background: #1f1f23;
+  border-radius: 3px;
+}
+
+.ai-unread-list::-webkit-scrollbar-thumb {
+  background: #3a3a40;
+  border-radius: 3px;
+}
+
+.ai-unread-list::-webkit-scrollbar-thumb:hover {
+  background: #4a4a50;
+}
+
+/* ========================================
    YOUTUBE MODULE STYLES
    ======================================== */
 
@@ -4823,22 +4929,22 @@
 .ai-float-buttons-container {
   position: fixed !important;
   bottom: 80px !important;
-  right: 24px !important;
+  right: 8px !important;
   z-index: 9998 !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 12px !important;
+  gap: 8px !important;
   align-items: flex-end !important;
   pointer-events: auto !important;
 }
 
 .ai-float-feature-btn {
-  width: 48px !important;
-  height: 48px !important;
-  min-width: 48px !important;
-  min-height: 48px !important;
-  max-width: 48px !important;
-  max-height: 48px !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
   border-radius: 50% !important;
   border: none !important;
   cursor: pointer !important;
@@ -4846,7 +4952,8 @@
   align-items: center !important;
   justify-content: center !important;
   color: white !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  background: rgba(26, 29, 41, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: visible !important;
@@ -4863,7 +4970,8 @@
 
 .ai-float-feature-btn:hover {
   transform: scale(1.1) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  background: rgba(26, 29, 41, 1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
 }
 
 .ai-float-feature-btn:active {
@@ -4871,29 +4979,29 @@
 }
 
 .ai-float-feature-btn > div:first-child {
-  width: 24px !important;
-  height: 24px !important;
+  width: 18px !important;
+  height: 18px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
 .ai-float-feature-btn svg {
-  width: 24px !important;
-  height: 24px !important;
+  width: 18px !important;
+  height: 18px !important;
   flex-shrink: 0 !important;
 }
 
 .ai-float-tooltip {
   position: absolute !important;
-  right: 60px !important;
+  right: 48px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
   background: #1a1d29 !important;
   color: #e4e6eb !important;
-  padding: 8px 12px !important;
-  border-radius: 8px !important;
-  font-size: 12px !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
   font-weight: 500 !important;
   white-space: nowrap !important;
   pointer-events: none !important;

@@ -238,13 +238,12 @@ Genera un resumen claro, conciso y bien estructurado en español.`;
       const summary = await AIModule.aiAnswer(prompt, (percent) => {
         summaryContent.innerHTML = `
           <div style="color: #a5a7b1; text-align: center; padding: 40px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto; opacity: 0.5;">
               <circle cx="12" cy="12" r="10" opacity="0.3"/>
               <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
                 <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
               </path>
             </svg>
-            <div>Analizando correos... ${percent}%</div>
           </div>
         `;
       });
@@ -348,7 +347,16 @@ Genera un resumen claro, conciso y bien estructurado en español.`;
     try {
       // Generar resumen del correo
       const summary = await AIModule.aiSummarize(emailContent, (percent) => {
-        summaryDiv.innerHTML = `<div style="color: #a5a7b1; text-align: center; padding: 20px;">Analizando correo ${percent}%</div>`;
+        summaryDiv.innerHTML = `
+          <div style="color: #a5a7b1; text-align: center; padding: 20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto; opacity: 0.5;">
+              <circle cx="12" cy="12" r="10" opacity="0.3"/>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+                <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+              </path>
+            </svg>
+          </div>
+        `;
       });
 
       // Renderizar el resumen
