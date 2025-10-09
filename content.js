@@ -122,6 +122,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Check grammar on selected text
     handleGrammarCheck(request.text);
     sendResponse({ success: true });
+  } else if (request.action === 'extractPageContentForChat') {
+    // Extract page content and send to side panel
+    handleExtractPageContent();
+    sendResponse({ success: true });
   }
   return true;
 });
@@ -201,5 +205,35 @@ async function handleGrammarCheck(text) {
   } catch (error) {
     console.error('Error checking grammar:', error);
     alert('Error checking grammar: ' + error.message);
+  }
+}
+
+// Handle extract page content for chat (from context menu)
+async function handleExtractPageContent() {
+  try {
+    console.log('📄 Extrayendo contenido de la página para chat...');
+    
+    const pageContent = WebChatModule.extractPageContent();
+    const metadata = WebChatModule.getPageMetadata();
+
+    console.log('✅ Contenido extraído:', {
+      title: metadata.title,
+      url: metadata.url,
+      contentLength: pageContent.length
+    });
+
+    // Send to background to open side panel with the data
+    chrome.runtime.sendMessage({
+      action: 'openSidePanel',
+      data: {
+        context: 'page-chat',
+        webChatMode: true,
+        pageTitle: metadata.title,
+        pageUrl: metadata.url,
+        pageContent: pageContent.substring(0, 10000)
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error extrayendo contenido de página:', error);
   }
 }

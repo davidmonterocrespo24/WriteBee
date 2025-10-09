@@ -121,8 +121,16 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       text: info.selectionText
     });
   } else if (info.menuItemId === 'chat-with-page') {
-    // Open side panel with page context
-    chrome.sidePanel.open({ windowId: tab.windowId });
+    // Request page content from content script
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'extractPageContentForChat'
+    }).then(() => {
+      console.log('📄 Solicitado contenido de página para chat');
+    }).catch(error => {
+      console.error('❌ Error solicitando contenido:', error);
+      // Abrir panel de todas formas
+      chrome.sidePanel.open({ windowId: tab.windowId });
+    });
   } else if (info.menuItemId === 'pdf-summarize' || 
              info.menuItemId === 'pdf-translate' || 
              info.menuItemId === 'pdf-chat') {
@@ -165,35 +173,52 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.data) {
       pendingChatData = request.data;
       console.log('💾 Datos guardados temporalmente:', {
-        selectedText: request.data.selectedText?.substring(0, 50) + '...',
-        currentAnswer: request.data.currentAnswer?.substring(0, 50) + '...',
-        action: request.data.action
+        selectedText: request.data.selectedText?.substring(0, 50) || 'N/A',
+        currentAnswer: request.data.currentAnswer?.substring(0, 50) || 'N/A',
+        action: request.data.action,
+        context: request.data.context,
+        pageTitle: request.data.pageTitle
       });
     }
 
     // Abrir el side panel en la pestaña actual
     chrome.sidePanel.open({ windowId: sender.tab.windowId }).then(() => {
       console.log('✅ Side panel abierto correctamente');
-
-      // Enviar datos al side panel después de un pequeño delay
-      if (pendingChatData) {
-        setTimeout(() => {
-          console.log('📤 Enviando datos al side panel automáticamente');
-          chrome.runtime.sendMessage({
-            action: 'chatData',
-            data: pendingChatData
-          }).catch(err => {
-            console.log('⚠️ Error enviando datos (el panel puede no estar listo aún):', err);
-          });
-        }, 500); // Dar tiempo al side panel para cargar
-      }
-
       sendResponse({ success: true });
     }).catch((error) => {
       console.error('❌ Error abriendo side panel:', error);
       sendResponse({ success: false, error: error.message });
     });
     return true; // Mantener el canal abierto para sendResponse asíncrono
+  }
+
+  // Mensaje chatData desde content script (por ejemplo, desde floatButtons)
+  if (request.action === 'chatData') {
+    console.log('📨 Recibido mensaje chatData desde content script');
+    console.log('📦 Datos recibidos:', {
+      hasData: !!request.data,
+      context: request.data?.context,
+      pageTitle: request.data?.pageTitle,
+      hasSummary: !!request.data?.currentAnswer
+    });
+    
+    // Guardar los datos para que el side panel los pueda solicitar
+    pendingChatData = request.data;
+    
+    // Intentar enviar directamente al side panel si está abierto
+    chrome.runtime.sendMessage({
+      action: 'chatData',
+      data: request.data
+    }).then(() => {
+      console.log('✅ Datos enviados al side panel');
+      sendResponse({ success: true });
+    }).catch((error) => {
+      console.log('⚠️ No se pudo enviar directamente (side panel podría estar cargando):', error.message);
+      // Los datos quedan en pendingChatData para que el side panel los solicite
+      sendResponse({ success: true, pending: true });
+    });
+    
+    return true;
   }
 
   // El side panel solicita los datos pendientes

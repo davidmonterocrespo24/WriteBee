@@ -270,18 +270,48 @@ ${text}`;
         return;
       }
 
+      // 🔥 IMPORTANTE: Abrir el side panel PRIMERO (mientras el gesto del usuario aún es válido)
+      console.log('💬 Abriendo side panel ANTES de generar el resumen...');
+      
+      await new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({
+          action: 'openSidePanel',
+          data: {
+            context: 'page-summary-loading',
+            pageTitle: document.title,
+            pageUrl: window.location.href,
+            action: 'summarize',
+            isLoading: true
+          }
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('❌ Error al abrir side panel:', chrome.runtime.lastError);
+            reject(chrome.runtime.lastError);
+          } else if (!response || !response.success) {
+            console.error('❌ Error en respuesta:', response);
+            reject(new Error(response?.error || 'Error desconocido'));
+          } else {
+            console.log('✅ Side panel abierto correctamente');
+            resolve();
+          }
+        });
+      });
+
+      // Pequeño delay para asegurar que el side panel esté listo
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Ahora generar el resumen
       // Extraer el contenido principal de la página
       const pageContent = extractPageContent();
       
       if (!pageContent.text || pageContent.text.length < 50) {
-        alert('No se encontró suficiente contenido para resumir en esta página');
-        return;
+        throw new Error('No se pudo extraer suficiente contenido de la página');
       }
 
       console.log(`📝 Contenido extraído: ${pageContent.text.length} caracteres`);
 
       // Indexar la página con RAG Engine
-      console.log('� Indexando página con RAG Engine...');
+      console.log('🔍 Indexando página con RAG Engine...');
       if (typeof RAGEngine !== 'undefined') {
         const ragEngine = RAGEngine.getInstance();
         
@@ -301,34 +331,38 @@ ${text}`;
       }
 
       // Generar resumen inicial
-      console.log('� Generando resumen inicial...');
+      console.log('📊 Generando resumen inicial...');
       const summary = await WebChatModule.summarizePage((progress) => {
         console.log('📊 Progreso:', progress);
       });
 
       console.log('✅ Resumen generado:', summary.substring(0, 100) + '...');
+      console.log('📦 pageContent:', {
+        title: pageContent.title,
+        textLength: pageContent.text?.length,
+        headings: pageContent.headings?.length
+      });
+      console.log('� Summary length:', summary.length);
 
-      // Abrir el side panel mediante el background script
-      console.log('💬 Abriendo side panel con datos...');
-      
-      // Enviar mensaje al background para abrir el panel CON los datos
+      // Enviar el resumen al side panel que YA está abierto
+      console.log('� Enviando resumen al side panel...');
       chrome.runtime.sendMessage({
-        action: 'openSidePanel',
+        action: 'chatData',
         data: {
           webChatMode: true,
           pageTitle: pageContent.title,
           pageUrl: window.location.href,
           pageContent: pageContent.text,
-          selectedText: '', // No hay texto seleccionado
-          currentAnswer: summary, // El resumen como respuesta inicial
+          selectedText: '',
+          currentAnswer: summary,
           action: 'summarize',
           context: 'page-summary'
         }
       }, (response) => {
         if (chrome.runtime.lastError) {
-          console.error('❌ Error al abrir side panel:', chrome.runtime.lastError);
+          console.error('❌ Error al enviar datos:', chrome.runtime.lastError);
         } else {
-          console.log('✅ Side panel abierto correctamente');
+          console.log('✅ Datos enviados correctamente');
         }
       });
 

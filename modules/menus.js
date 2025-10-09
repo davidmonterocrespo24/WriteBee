@@ -122,6 +122,7 @@ const MenusModule = (function() {
           chrome.runtime.sendMessage({
             action: 'openSidePanel',
             data: {
+              context: 'page-chat', // Indicar que es chat con la página
               webChatMode: true,
               pageTitle: metadata.title,
               pageUrl: metadata.url,

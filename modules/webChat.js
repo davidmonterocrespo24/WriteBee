@@ -13,6 +13,7 @@ const WebChatModule = (function() {
 
     // Try to get article content first
     const article = document.querySelector('article, main, [role="main"]');
+    
     if (article) {
       content.push(article.innerText);
     } else {
@@ -74,32 +75,52 @@ const WebChatModule = (function() {
    */
   async function initializeRAG(onProgress = null) {
     try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🔧 INICIALIZANDO RAG ENGINE');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
       if (!window.RAGEngine) {
+        console.error('❌ RAG Engine NO está cargado en window');
         throw new Error('RAG Engine not loaded');
       }
+      
+      console.log('✅ RAG Engine está disponible en window');
 
       if (onProgress) onProgress('Initializing RAG Engine...');
       
       // Get or create RAG instance
       ragEngine = RAGEngine.getInstance();
+      console.log('✅ RAG Engine instance obtenida');
       
       // Clear previous index
       ragEngine.clear();
+      console.log('🧹 Índice anterior limpiado');
       
       // Extract content
       if (!pageContent) {
+        console.log('📄 Extrayendo contenido de la página...');
         pageContent = extractPageContent();
+        console.log('📊 Contenido extraído:', pageContent.length, 'caracteres');
+        console.log('📄 Primeros 200 chars:', pageContent.substring(0, 200));
+      } else {
+        console.log('✅ Usando pageContent ya extraído:', pageContent.length, 'caracteres');
       }
       
       if (onProgress) onProgress('Indexing current page...');
       
       // Index current page
       const metadata = getPageMetadata();
+      console.log('📋 Metadata de la página:', metadata);
+      console.log('🔄 Indexando página en RAG Engine...');
+      
       await ragEngine.indexPage(pageContent, metadata);
+      
+      console.log('✅ Página indexada exitosamente en RAG Engine');
       
       isIndexed = true;
       
       console.log('✅ RAG Engine initialized and page indexed');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return true;
     } catch (error) {
       console.error('❌ Error initializing RAG:', error);
@@ -456,6 +477,33 @@ Please provide a comprehensive and accurate answer based on the information abov
   }
 
   /**
+   * Clear page content and reset RAG
+   */
+  function clearPageContent() {
+    console.log('🧹 Limpiando contenido de página y RAG...');
+    isIndexed = false;
+    pageContent = null;
+    pageSummary = null;
+    // Limpiar RAG engine
+    if (typeof RAGEngine !== 'undefined') {
+      RAGEngine.clearContext();
+    }
+  }
+
+  /**
+   * Set page content manually (para cuando viene del side panel)
+   */
+  function setPageContent(content, metadata = null) {
+    console.log('📝 Estableciendo pageContent manualmente:', content?.length, 'caracteres');
+    pageContent = content;
+    if (metadata) {
+      console.log('📋 Metadata:', metadata);
+    }
+    // Reset indexing flag para forzar re-indexación
+    isIndexed = false;
+  }
+
+  /**
    * Initialize web chat module
    */
   function init() {
@@ -479,6 +527,8 @@ Please provide a comprehensive and accurate answer based on the information abov
     uploadPDF,
     getCurrentPDFInfo,
     clearCurrentPDF,
+    clearPageContent,
+    setPageContent,
     hasPDFLoaded,
     init
   };
