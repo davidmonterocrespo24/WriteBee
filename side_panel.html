@@ -154,14 +154,41 @@
     }
 
     .user-message .message-avatar {
-      background: linear-gradient(135deg, #8ab4ff 0%, #667eea 100%);
-      color: #ffffff;
+      background: linear-gradient(135deg, #ffd400 0%, #ffb700 100%);
+      color: #1a1a1a;
+      font-weight: 700;
     }
 
     .assistant-message .message-avatar {
-      background: var(--purple, #7a5cff);
+      background: #ffd400;
       color: #ffffff;
-      box-shadow: inset 0 0 0 2px #ffffff22;
+      overflow: visible;
+      position: relative;
+      box-shadow: inset 0 0 0 2px #1a1a1a, inset 0 0 0 4px #ffd400, inset 0 0 0 6px #1a1a1a;
+    }
+    
+    /* Antenas para el avatar del asistente */
+    .assistant-message .message-avatar::before,
+    .assistant-message .message-avatar::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 9px;
+      background: #ffffff;
+      border-radius: 2px;
+      top: -7px;
+    }
+    
+    .assistant-message .message-avatar::before {
+      left: 10px;
+      transform: rotate(-15deg);
+      box-shadow: 0 -5px 0 0 #ffffff;
+    }
+    
+    .assistant-message .message-avatar::after {
+      right: 10px;
+      transform: rotate(15deg);
+      box-shadow: 0 -5px 0 0 #ffffff;
     }
 
     /* Estilos para el avatar con ojos */
@@ -213,9 +240,9 @@
     }
 
     .user-message .message-content {
-      background: #8ab4ff;
-      border-color: #8ab4ff;
-      color: #ffffff;
+      background: #ffd400;
+      border-color: #ffd400;
+      color: #1e1e1e;
     }
 
     .message-image {
@@ -236,7 +263,7 @@
       margin-top: 8px;
       margin-left: 40px;
       font-size: 13px;
-      color: #8ab4ff;
+      color: #ffd400;
     }
 
     .message-attachment.pdf-attachment {
@@ -279,7 +306,7 @@
     .message-action-btn:hover {
       background: #3a3a40;
       color: #eaeaf0;
-      border-color: #8ab4ff;
+      border-color: #ffd400;
     }
 
     /* Input Area */
@@ -411,7 +438,7 @@
 
     .image-action-select:focus {
       outline: none;
-      border-color: #8ab4ff;
+      border-color: #ffd400;
     }
 
     /* Suggestion Chips */
@@ -438,7 +465,7 @@
 
     .suggestion-chip:hover {
       background: #3a3a40;
-      border-color: #8ab4ff;
+      border-color: #ffd400;
       transform: translateY(-2px);
     }
 
@@ -470,7 +497,7 @@
 
     .chat-input:focus {
       outline: none;
-      border-color: #8ab4ff;
+      border-color: #ffd400;
     }
 
     .chat-input::placeholder {
@@ -509,7 +536,7 @@
     }
 
     .send-btn {
-      background: #8ab4ff;
+      background: #ffd400;
       border: none;
       color: #ffffff;
       cursor: pointer;
@@ -523,7 +550,7 @@
     }
 
     .send-btn:hover {
-      background: #667eea;
+      background: #ffd400;
       transform: scale(1.05);
     }
 
@@ -648,7 +675,7 @@
     }
 
     .message-content a {
-      color: #8ab4ff;
+      color: #ffd400;
       text-decoration: none;
     }
 
@@ -666,7 +693,7 @@
     .typing-indicator span {
       width: 8px;
       height: 8px;
-      background: #8ab4ff;
+      background: #ffd400;
       border-radius: 50%;
       animation: typing-bounce 1.4s infinite ease-in-out;
     }
@@ -853,3 +880,6 @@
   </script>
 </body>
 </html>
+
+
+

@@ -812,7 +812,7 @@
 }
 
 .ai-send-btn:hover {
-  background: #7aa4ef;
+  background: #ffcc00;
 }
 
 .ai-send-btn:active {
@@ -1365,7 +1365,7 @@
 }
 
 .ai-gmail-insert-btn:hover {
-  background: #7aa4ef;
+  background: #ffcc00;
 }
 
 .ai-gmail-copy-btn,
@@ -1679,7 +1679,7 @@
 }
 
 .ai-youtube-summarize-btn:hover {
-  background: #7aa4ef;
+  background: #ffcc00;
 }
 
 .ai-youtube-summarize-btn:active {
@@ -2945,7 +2945,7 @@
 }
 
 .ai-outlook-insert-btn:hover {
-  background: #7aa4ef;
+  background: #ffcc00;
 }
 
 .ai-outlook-copy-btn,
@@ -4020,7 +4020,7 @@
 
 .user-message .ai-message-text {
   background: #ffd400;
-  color: #ffffff;
+  color: #1e1e1e;
   border-color: #ffd400;
 }
 
@@ -4874,7 +4874,7 @@
 }
 
 .ai-github-summarize-btn:hover {
-  background: #7aa4ef;
+  background: #ffcc00;
 }
 
 .ai-github-summarize-btn:active {
