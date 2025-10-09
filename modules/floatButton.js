@@ -6,7 +6,7 @@ const FloatButtonModule = (function() {
 
     floatButton = document.createElement('button');
     floatButton.className = 'ai-float-btn';
-    floatButton.setAttribute('aria-label', 'Open AI Chat');
+  floatButton.setAttribute('aria-label', 'Open WriteBee');
     floatButton.innerHTML = `
       <div class="ai-float-mascot" aria-hidden="true">
         <div class="ai-float-mascot-inner">

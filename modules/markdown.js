@@ -88,12 +88,11 @@ const MarkdownRenderer = (function() {
     return `<div class="code-block">
       <div class="code-header">
         <span class="code-language">${lang}</span>
-        <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.code)" data-code="${escapeHtml(code)}">
+        <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.code)" data-code="${escapeHtml(code)}" title="Copiar código">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
-          Copiar
         </button>
       </div>
       <pre><code class="language-${lang}">${highlighted}</code></pre>
@@ -148,18 +147,28 @@ const MarkdownRenderer = (function() {
   function render(markdown) {
     if (!markdown) return '';
 
+    // Array para almacenar bloques de código y protegerlos del procesamiento
+    const codeBlocks = [];
+    const inlineCodes = [];
+    
     let html = markdown;
 
-    // Bloques de código con triple backtick
+    // 1. PROTEGER bloques de código: reemplazarlos con placeholders
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-      return renderCodeBlock(code.trim(), lang);
+      const placeholder = `___CODEBLOCK_${codeBlocks.length}___`;
+      codeBlocks.push(renderCodeBlock(code.trim(), lang));
+      return placeholder;
     });
 
-    // Código inline
+    // 2. PROTEGER código inline: reemplazarlo con placeholders
     html = html.replace(/`([^`]+)`/g, (match, code) => {
-      return renderInlineCode(code);
+      const placeholder = `___INLINECODE_${inlineCodes.length}___`;
+      inlineCodes.push(renderInlineCode(code));
+      return placeholder;
     });
 
+    // 3. PROCESAR el resto del markdown (ahora sin afectar el código)
+    
     // Headers
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
@@ -217,6 +226,16 @@ const MarkdownRenderer = (function() {
     // Saltos de línea (doble espacio o \n\n)
     html = html.replace(/\n\n/g, '<br><br>');
     html = html.replace(/  \n/g, '<br>');
+
+    // 4. RESTAURAR código inline primero
+    inlineCodes.forEach((code, index) => {
+      html = html.replace(`___INLINECODE_${index}___`, code);
+    });
+
+    // 5. RESTAURAR bloques de código al final
+    codeBlocks.forEach((block, index) => {
+      html = html.replace(`___CODEBLOCK_${index}___`, block);
+    });
 
     return html;
   }
