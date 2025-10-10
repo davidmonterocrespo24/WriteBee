@@ -13,22 +13,30 @@ const MarkdownRenderer = (function() {
   }
 
   /**
+   * Escapa atributos HTML (para data-code)
+   */
+  function escapeAttribute(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  /**
    * Detecta el lenguaje del bloque de código
    */
   function detectLanguage(code) {
-    // Detectar JavaScript
     if (/\b(function|const|let|var|=>|async|await|import|export)\b/.test(code)) {
       return 'javascript';
     }
-    // Detectar Python
     if (/\b(def|import|from|class|if __name__|print)\b/.test(code)) {
       return 'python';
     }
-    // Detectar HTML
     if (/<\/?[a-z][\s\S]*>/i.test(code)) {
       return 'html';
     }
-    // Detectar CSS
     if (/[.#][a-z-]+\s*\{[\s\S]*\}/i.test(code)) {
       return 'css';
     }
@@ -36,46 +44,74 @@ const MarkdownRenderer = (function() {
   }
 
   /**
-   * Resalta sintaxis de código
+   * Resalta sintaxis de código usando un approach de tokenización
    */
   function highlightCode(code, language) {
     const lang = language || detectLanguage(code);
+    
+    // Escapar HTML primero
+    let escaped = escapeHtml(code);
+    
+    // Usar placeholders únicos para evitar conflictos
+    const PLACEHOLDER = '___PLACEHOLDER___';
+    let placeholderIndex = 0;
+    const replacements = [];
 
-    // Mapeo de palabras clave por lenguaje
+    function addReplacement(html) {
+      const placeholder = `${PLACEHOLDER}${placeholderIndex}${PLACEHOLDER}`;
+      placeholderIndex++;
+      replacements.push({ placeholder, html });
+      return placeholder;
+    }
+
+    // Orden de procesamiento: comentarios -> strings -> keywords -> números
+    // Esto evita que se solapen los regex
+
+    // 1. Procesar comentarios primero
+    if (lang === 'javascript' || lang === 'css') {
+      escaped = escaped.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, match => {
+        return addReplacement(`<span class="comment">${match}</span>`);
+      });
+    } else if (lang === 'python') {
+      escaped = escaped.replace(/(#.*$)/gm, match => {
+        return addReplacement(`<span class="comment">${match}</span>`);
+      });
+    }
+
+    // 2. Procesar strings
+    escaped = escaped.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g, match => {
+      // No procesar si ya está dentro de un placeholder
+      if (match.includes(PLACEHOLDER)) return match;
+      return addReplacement(`<span class="string">${match}</span>`);
+    });
+
+    // 3. Procesar palabras clave
     const keywords = {
       javascript: /\b(function|const|let|var|if|else|for|while|return|async|await|import|export|class|extends|new|this|try|catch|throw|typeof|instanceof|null|undefined|true|false)\b/g,
       python: /\b(def|class|if|elif|else|for|while|return|import|from|as|try|except|finally|with|lambda|yield|async|await|True|False|None|self|and|or|not|in|is)\b/g,
-      html: /(&lt;\/?[a-z][^&]*&gt;)/gi,
-      css: /([.#][a-z-]+|\b[a-z-]+\s*:)/gi
     };
 
-    const strings = /("([^"\\]|\\.)*"|'([^'\\]|\\.)*'|`([^`\\]|\\.)*`)/g;
-    const comments = {
-      javascript: /(\/\/.*$|\/\*[\s\S]*?\*\/)/gm,
-      python: /(#.*$)/gm,
-      css: /(\/\*[\s\S]*?\*\/)/gm
-    };
-    const numbers = /\b(\d+\.?\d*)\b/g;
-
-    let highlighted = escapeHtml(code);
-
-    // Resaltar comentarios
-    if (comments[lang]) {
-      highlighted = highlighted.replace(comments[lang], '<span class="comment">$1</span>');
-    }
-
-    // Resaltar strings
-    highlighted = highlighted.replace(strings, '<span class="string">$1</span>');
-
-    // Resaltar palabras clave
     if (keywords[lang]) {
-      highlighted = highlighted.replace(keywords[lang], '<span class="keyword">$1</span>');
+      escaped = escaped.replace(keywords[lang], match => {
+        // No procesar si ya está dentro de un placeholder
+        if (match.includes(PLACEHOLDER)) return match;
+        return addReplacement(`<span class="keyword">${match}</span>`);
+      });
     }
 
-    // Resaltar números
-    highlighted = highlighted.replace(numbers, '<span class="number">$1</span>');
+    // 4. Procesar números
+    escaped = escaped.replace(/\b(\d+\.?\d*)\b/g, match => {
+      // No procesar si ya está dentro de un placeholder
+      if (match.includes(PLACEHOLDER)) return match;
+      return addReplacement(`<span class="number">${match}</span>`);
+    });
 
-    return highlighted;
+    // Restaurar todos los placeholders
+    replacements.forEach(({ placeholder, html }) => {
+      escaped = escaped.replace(placeholder, html);
+    });
+
+    return escaped;
   }
 
   /**
@@ -88,11 +124,12 @@ const MarkdownRenderer = (function() {
     return `<div class="code-block">
       <div class="code-header">
         <span class="code-language">${lang}</span>
-        <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.code)" data-code="${escapeHtml(code)}" title="Copiar código">
+        <button class="code-copy-btn" onclick="navigator.clipboard.writeText(decodeURIComponent(this.dataset.code))" data-code="${encodeURIComponent(code)}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
+          Copiar
         </button>
       </div>
       <pre><code class="language-${lang}">${highlighted}</code></pre>
@@ -112,17 +149,15 @@ const MarkdownRenderer = (function() {
   function renderTable(header, rows) {
     let html = '<table class="markdown-table"><thead><tr>';
 
-    // Header
     header.forEach(cell => {
-      html += `<th>${cell}</th>`;
+      html += `<th>${escapeHtml(cell)}</th>`;
     });
     html += '</tr></thead><tbody>';
 
-    // Rows
     rows.forEach(row => {
       html += '<tr>';
       row.forEach(cell => {
-        html += `<td>${cell}</td>`;
+        html += `<td>${escapeHtml(cell)}</td>`;
       });
       html += '</tr>';
     });
@@ -135,8 +170,6 @@ const MarkdownRenderer = (function() {
    * Renderiza expresiones matemáticas LaTeX (simplificado)
    */
   function renderMath(expression, inline = false) {
-    // Para matemáticas completas, se podría integrar KaTeX o MathJax
-    // Por ahora, renderizado básico
     const className = inline ? 'math-inline' : 'math-block';
     return `<span class="${className}">${escapeHtml(expression)}</span>`;
   }
@@ -147,28 +180,18 @@ const MarkdownRenderer = (function() {
   function render(markdown) {
     if (!markdown) return '';
 
-    // Array para almacenar bloques de código y protegerlos del procesamiento
-    const codeBlocks = [];
-    const inlineCodes = [];
-    
     let html = markdown;
 
-    // 1. PROTEGER bloques de código: reemplazarlos con placeholders
+    // Bloques de código con triple backtick
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-      const placeholder = `___CODEBLOCK_${codeBlocks.length}___`;
-      codeBlocks.push(renderCodeBlock(code.trim(), lang));
-      return placeholder;
+      return renderCodeBlock(code.trim(), lang);
     });
 
-    // 2. PROTEGER código inline: reemplazarlo con placeholders
+    // Código inline
     html = html.replace(/`([^`]+)`/g, (match, code) => {
-      const placeholder = `___INLINECODE_${inlineCodes.length}___`;
-      inlineCodes.push(renderInlineCode(code));
-      return placeholder;
+      return renderInlineCode(code);
     });
 
-    // 3. PROCESAR el resto del markdown (ahora sin afectar el código)
-    
     // Headers
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
@@ -227,16 +250,6 @@ const MarkdownRenderer = (function() {
     html = html.replace(/\n\n/g, '<br><br>');
     html = html.replace(/  \n/g, '<br>');
 
-    // 4. RESTAURAR código inline primero
-    inlineCodes.forEach((code, index) => {
-      html = html.replace(`___INLINECODE_${index}___`, code);
-    });
-
-    // 5. RESTAURAR bloques de código al final
-    codeBlocks.forEach((block, index) => {
-      html = html.replace(`___CODEBLOCK_${index}___`, block);
-    });
-
     return html;
   }
 
@@ -245,7 +258,6 @@ const MarkdownRenderer = (function() {
    */
   function renderToElement(element, markdown) {
     if (!element) return;
-    // Almacenar el markdown anterior para evitar re-renders innecesarios
     const prevMarkdown = element.dataset.markdown || '';
     if (prevMarkdown !== markdown) {
       element.dataset.markdown = markdown;
