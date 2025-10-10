@@ -12,12 +12,12 @@ class AIService {
   async checkAvailability(apiName) {
     try {
       if (!self[apiName]) {
-        console.warn(`❌ API ${apiName} no disponible`);
+        console.warn(`❌ API ${apiName} not available`);
         return false;
       }
       const availability = await self[apiName].availability();
-      console.log(`📊 ${apiName} availability:`, availability);
-      return availability === 'available' || availability === 'downloadable';
+  console.log(`📊 ${apiName} availability:`, availability);
+  return availability === 'available' || availability === 'downloadable';
     } catch (error) {
       console.error(`Error checking ${apiName}:`, error);
       return false;
@@ -45,7 +45,7 @@ class AIService {
   async summarize(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('Summarizer')) {
-        throw new Error('La API Summarizer no está disponible en este navegador.');
+  throw new Error('The Summarizer API is not available in this browser.');
       }
 
       const summarizer = await self.Summarizer.create({
@@ -60,7 +60,7 @@ class AIService {
 
       return result;
     } catch (error) {
-      console.error('Error en summarize:', error);
+  console.error('Error in summarize:', error);
       throw error;
     }
   }
@@ -71,7 +71,7 @@ class AIService {
   async summarizeStream(text, onChunk, signal = null) {
     try {
       if (!await this.checkAvailability('Summarizer')) {
-        throw new Error('La API Summarizer no está disponible en este navegador.');
+  throw new Error('The Summarizer API is not available in this browser.');
       }
 
       const summarizer = await self.Summarizer.create({
@@ -95,7 +95,7 @@ class AIService {
       if (signal?.aborted) {
         throw new Error('Streaming canceled');
       }
-      console.error('Error en summarizeStream:', error);
+  console.error('Error in summarizeStream:', error);
       throw error;
     }
   }
@@ -106,10 +106,10 @@ class AIService {
   async translate(text, targetLang, onProgress = null) {
     try {
       if (!await this.checkAvailability('Translator')) {
-        throw new Error('La API Translator no está disponible en este navegador.');
+  throw new Error('The Translator API is not available in this browser.');
       }
 
-      // Detect source language
+  // Detect source language
       let sourceLang = 'en';
       if (await this.checkAvailability('LanguageDetector')) {
         const detector = await self.LanguageDetector.create({
@@ -129,7 +129,7 @@ class AIService {
       });
 
       if (availability !== 'available' && availability !== 'downloadable') {
-        throw new Error(`El par de idiomas ${sourceLang} -> ${targetLang} no está disponible.`);
+  throw new Error(`The language pair ${sourceLang} -> ${targetLang} is not available.`);
       }
 
       const translator = await self.Translator.create({
@@ -143,7 +143,7 @@ class AIService {
 
       return result;
     } catch (error) {
-      console.error('Error en translate:', error);
+  console.error('Error in translate:', error);
       throw error;
     }
   }
@@ -154,20 +154,20 @@ class AIService {
   async explain(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('LanguageModel')) {
-        throw new Error('La Prompt API no está disponible en este navegador.');
+  throw new Error('The Prompt API is not available in this browser.');
       }
 
       const session = await self.LanguageModel.create({
         monitor: this.createMonitor(onProgress)
       });
 
-      const prompt = `Explica de manera clara y concisa el siguiente texto:\n\n${text}`;
+  const prompt = `Explain the following text clearly and concisely:\n\n${text}`;
       const result = await session.prompt(prompt);
 
       session.destroy();
       return result;
     } catch (error) {
-      console.error('Error en explain:', error);
+  console.error('Error in explain:', error);
       throw error;
     }
   }
@@ -178,7 +178,7 @@ class AIService {
   async rewrite(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('Rewriter')) {
-        throw new Error('La API Rewriter no está disponible en este navegador.');
+  throw new Error('The Rewriter API is not available in this browser.');
       }
 
       const rewriter = await self.Rewriter.create({
@@ -192,7 +192,7 @@ class AIService {
 
       return result;
     } catch (error) {
-      console.error('Error en rewrite:', error);
+  console.error('Error in rewrite:', error);
       throw error;
     }
   }
@@ -203,7 +203,7 @@ class AIService {
   async expand(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('Writer')) {
-        throw new Error('La API Writer no está disponible en este navegador.');
+  throw new Error('The Writer API is not available in this browser.');
       }
 
       const writer = await self.Writer.create({
@@ -212,13 +212,13 @@ class AIService {
         monitor: this.createMonitor(onProgress)
       });
 
-      const prompt = `Expande el siguiente texto con más detalles y ejemplos:\n\n${text}`;
+  const prompt = `Expand the following text with more details and examples:\n\n${text}`;
       const result = await writer.write(prompt);
       writer.destroy();
 
       return result;
     } catch (error) {
-      console.error('Error en expand:', error);
+  console.error('Error in expand:', error);
       throw error;
     }
   }
@@ -229,20 +229,20 @@ class AIService {
   async answer(text, onProgress = null) {
     try {
       if (!await this.checkAvailability('LanguageModel')) {
-        throw new Error('La Prompt API no está disponible en este navegador.');
+  throw new Error('The Prompt API is not available in this browser.');
       }
 
       const session = await self.LanguageModel.create({
         monitor: this.createMonitor(onProgress)
       });
 
-      const prompt = `Responde la siguiente pregunta de manera clara y precisa:\n\n${text}`;
+  const prompt = `Answer the following question clearly and precisely:\n\n${text}`;
       const result = await session.prompt(prompt);
 
       session.destroy();
       return result;
     } catch (error) {
-      console.error('Error en answer:', error);
+  console.error('Error in answer:', error);
       throw error;
     }
   }
@@ -253,7 +253,7 @@ class AIService {
   async chat(conversationHistory, onProgress = null) {
     try {
       if (!await this.checkAvailability('LanguageModel')) {
-        throw new Error('La Prompt API no está disponible en este navegador.');
+  throw new Error('The Prompt API is not available in this browser.');
       }
 
       const session = await self.LanguageModel.create({
@@ -262,15 +262,15 @@ class AIService {
 
       // Build the conversation context
       const context = conversationHistory.map(msg =>
-        `${msg.role === 'user' ? 'Usuario' : 'Asistente'}: ${msg.content}`
+        `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
       ).join('\n\n');
 
-      const result = await session.prompt(context + '\n\nAsistente:');
+      const result = await session.prompt(context + '\n\nAssistant:');
 
       session.destroy();
       return result;
     } catch (error) {
-      console.error('Error en chat:', error);
+  console.error('Error in chat:', error);
       throw error;
     }
   }
@@ -281,7 +281,7 @@ class AIService {
   async *streamResponse(text, action) {
     try {
       if (!await this.checkAvailability('LanguageModel')) {
-        throw new Error('La Prompt API no está disponible en este navegador.');
+  throw new Error('The Prompt API is not available in this browser.');
       }
 
       const session = await self.LanguageModel.create({
@@ -291,10 +291,10 @@ class AIService {
       let prompt = '';
       switch (action) {
         case 'resumir':
-          prompt = `Resume el siguiente texto:\n\n${text}`;
+          prompt = `Summarize the following text:\n\n${text}`;
           break;
         case 'explicar':
-          prompt = `Explica de manera clara:\n\n${text}`;
+          prompt = `Explain clearly:\n\n${text}`;
           break;
         default:
           prompt = text;
@@ -307,7 +307,7 @@ class AIService {
 
       session.destroy();
     } catch (error) {
-      console.error('Error en streamResponse:', error);
+  console.error('Error in streamResponse:', error);
       throw error;
     }
   }
@@ -318,10 +318,10 @@ class AIService {
   async translateStream(text, targetLang, onChunk, signal = null) {
     try {
       if (!await this.checkAvailability('Translator')) {
-        throw new Error('La API Translator no está disponible en este navegador.');
+  throw new Error('The Translator API is not available in this browser.');
       }
 
-      // Detectar idioma de origen
+  // Detect source language
       let sourceLang = 'en';
       if (await this.checkAvailability('LanguageDetector')) {
         const detector = await self.LanguageDetector.create();
@@ -351,7 +351,7 @@ class AIService {
       if (signal?.aborted) {
         throw new Error('Streaming canceled');
       }
-      console.error('Error en translateStream:', error);
+      console.error('Error in translateStream:', error);
       throw error;
     }
   }
@@ -362,11 +362,11 @@ class AIService {
   async explainStream(text, onChunk, signal = null) {
     try {
       if (!('LanguageModel' in self)) {
-        throw new Error('La API Prompt no está disponible en este navegador.');
+        throw new Error('The Prompt API is not available in this browser.');
       }
 
       const session = await self.LanguageModel.create();
-      const prompt = `Explica el siguiente texto de forma clara y concisa en 3 puntos clave:\n\n${text}`;
+      const prompt = `Explain the following text clearly and concisely in 3 key points:\n\n${text}`;
       const stream = session.promptStreaming(prompt, signal ? { signal } : {});
       let fullText = '';
 
@@ -381,7 +381,7 @@ class AIService {
       if (signal?.aborted) {
         throw new Error('Streaming canceled');
       }
-      console.error('Error en explainStream:', error);
+      console.error('Error in explainStream:', error);
       throw error;
     }
   }
@@ -392,7 +392,7 @@ class AIService {
   async expandStream(text, onChunk, signal = null) {
     try {
       if (!await this.checkAvailability('Writer')) {
-        throw new Error('La API Writer no está disponible en este navegador.');
+  throw new Error('The Writer API is not available in this browser.');
       }
 
       const writer = await self.Writer.create({
@@ -400,12 +400,12 @@ class AIService {
         length: 'long'
       });
 
-      const prompt = `Amplía el siguiente texto con más detalles y ejemplos:\n\n${text}`;
+  const prompt = `Expand the following text with more details and examples:\n\n${text}`;
       const stream = writer.writeStreaming(prompt, signal ? { signal } : {});
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText += chunk; // Acumular deltas
+        fullText += chunk; // Accumulate deltas
         if (onChunk) onChunk(fullText);
       }
 
@@ -415,7 +415,7 @@ class AIService {
       if (signal?.aborted) {
         throw new Error('Streaming canceled');
       }
-      console.error('Error en expandStream:', error);
+      console.error('Error in expandStream:', error);
       throw error;
     }
   }
@@ -426,11 +426,11 @@ class AIService {
   async answerStream(text, onChunk, signal = null) {
     try {
       if (!('LanguageModel' in self)) {
-        throw new Error('La API Prompt no está disponible en este navegador.');
+        throw new Error('The Prompt API is not available in this browser.');
       }
 
       const session = await self.LanguageModel.create();
-      const prompt = `Responde de forma breve y precisa a la siguiente pregunta:\n\n${text}`;
+      const prompt = `Answer the following question briefly and precisely:\n\n${text}`;
       const stream = session.promptStreaming(prompt, signal ? { signal } : {});
       let fullText = '';
 
@@ -445,7 +445,7 @@ class AIService {
       if (signal?.aborted) {
         throw new Error('Streaming canceled');
       }
-      console.error('Error en answerStream:', error);
+      console.error('Error in answerStream:', error);
       throw error;
     }
   }
@@ -456,7 +456,7 @@ class AIService {
   async rewriteStream(text, onChunk, signal = null) {
     try {
       if (!await this.checkAvailability('Rewriter')) {
-        throw new Error('La API Rewriter no está disponible en este navegador.');
+  throw new Error('The Rewriter API is not available in this browser.');
       }
 
       const rewriter = await self.Rewriter.create();
@@ -474,7 +474,7 @@ class AIService {
       if (signal?.aborted) {
         throw new Error('Streaming canceled');
       }
-      console.error('Error en rewriteStream:', error);
+      console.error('Error in rewriteStream:', error);
       throw error;
     }
   }
@@ -485,7 +485,7 @@ class AIService {
   async writeStream(prompt, onChunk, signal = null) {
     try {
       if (!await this.checkAvailability('Writer')) {
-        throw new Error('La API Writer no está disponible en este navegador.');
+  throw new Error('The Writer API is not available in this browser.');
       }
 
       const writer = await self.Writer.create();
@@ -493,7 +493,7 @@ class AIService {
       let fullText = '';
 
       for await (const chunk of stream) {
-        fullText += chunk; // Acumular deltas
+        fullText += chunk; // Accumulate deltas
         if (onChunk) onChunk(fullText);
       }
 
@@ -503,7 +503,7 @@ class AIService {
       if (signal?.aborted) {
         throw new Error('Streaming canceled');
       }
-      console.error('Error en writeStream:', error);
+      console.error('Error in writeStream:', error);
       throw error;
     }
   }
