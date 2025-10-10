@@ -4,17 +4,17 @@ const LinkedInModule = (function() {
   let currentContext = null; // 'comment' | 'post'
 
   function init() {
-    // Detectar si estamos en LinkedIn
+    // Detect if we are on LinkedIn
     isLinkedIn = window.location.hostname.includes('linkedin.com');
 
     if (isLinkedIn) {
-      console.log('💼 LinkedIn detectado, iniciando módulo...');
+      console.log('💼 LinkedIn detected, starting module...');
       observeLinkedIn();
     }
   }
 
   function observeLinkedIn() {
-    // Observar cambios en el DOM para detectar áreas de comentarios y publicaciones
+    // Observe DOM changes to detect comment and post areas
     const observer = new MutationObserver(() => {
       checkForCommentArea();
       checkForPostArea();
@@ -25,7 +25,7 @@ const LinkedInModule = (function() {
       subtree: true
     });
 
-    // Verificar inmediatamente
+    // Check immediately
     setTimeout(() => {
       checkForCommentArea();
       checkForPostArea();
@@ -33,22 +33,22 @@ const LinkedInModule = (function() {
   }
 
   function checkForCommentArea() {
-    // Buscar solo el área principal de escritura de comentarios (no los comentarios existentes)
+    // Only look for the main comment writing area (not existing comments)
     const commentForms = document.querySelectorAll('.comments-comment-box__form');
 
-    console.log('💼 LinkedIn: Buscando formularios de comentarios...', commentForms.length);
+    console.log('💼 LinkedIn: Looking for comment forms...', commentForms.length);
 
     commentForms.forEach(form => {
-      // Buscar si ya existe el botón en este formulario específico
+      // Check if the button already exists in this specific form
       if (!form.querySelector('.ai-linkedin-btn-comment')) {
-        console.log('💼 LinkedIn: Insertando botón en formulario');
+        console.log('💼 LinkedIn: Inserting button in form');
         insertCommentButton(form);
       }
     });
   }
 
   function checkForPostArea() {
-    // Buscar el footer del área de creación de posts
+    // Look for the footer of the post creation area
     const postFooter = document.querySelector('.share-creation-state__footer .share-creation-state__schedule-and-post-container');
 
     if (postFooter && !postFooter.querySelector('.ai-linkedin-btn-post')) {
@@ -57,67 +57,67 @@ const LinkedInModule = (function() {
   }
 
   function insertCommentButton(commentForm) {
-    console.log('💼 LinkedIn: Creando botón de comentario...');
+  console.log('💼 LinkedIn: Creating comment button...');
 
     const btn = document.createElement('button');
     btn.className = 'ai-linkedin-btn-comment';
-    btn.setAttribute('aria-label', 'Respuesta AI');
+  btn.setAttribute('aria-label', 'AI Reply');
     btn.setAttribute('type', 'button');
     btn.innerHTML = `
-      <span class="artdeco-button__text">Respuesta AI</span>
+      <span class="artdeco-button__text">AI Reply</span>
     `;
 
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
 
-      // Prevenir múltiples diálogos
+      // Prevent multiple dialogs
       if (document.querySelector('.ai-linkedin-dialog')) {
-        console.log('💼 LinkedIn: Ya hay un diálogo abierto');
+        console.log('💼 LinkedIn: A dialog is already open');
         return;
       }
 
-      console.log('💼 LinkedIn: Click en botón de comentario');
+      console.log('💼 LinkedIn: Click on comment button');
       handleCommentResponse(commentForm, btn);
     });
 
-    // Buscar el contenedor de botones en la parte inferior derecha
+    // Find the button container at the bottom right
     const bottomRightContainer = commentForm.querySelector('.display-flex.justify-space-between .display-flex.align-items-center');
 
-    console.log('💼 LinkedIn: bottomRightContainer encontrado:', bottomRightContainer);
+    console.log('💼 LinkedIn: bottomRightContainer found:', bottomRightContainer);
 
     if (bottomRightContainer) {
       bottomRightContainer.appendChild(btn);
-      console.log('💼 LinkedIn: Botón insertado correctamente');
+      console.log('💼 LinkedIn: Button inserted successfully');
     } else {
-      console.log('💼 LinkedIn: No se encontró contenedor derecho');
+      console.log('💼 LinkedIn: No right container found');
     }
   }
 
   function insertPostButton(postFooterContainer) {
     const btn = document.createElement('button');
     btn.className = 'ai-linkedin-btn-post';
-    btn.setAttribute('aria-label', 'Generar con AI');
+  btn.setAttribute('aria-label', 'Generate with AI');
     btn.setAttribute('type', 'button');
     btn.style.cssText = 'margin-right: 8px;';
     btn.innerHTML = `
-      <span class="artdeco-button__text">Generar con AI</span>
+      <span class="artdeco-button__text">Generate with AI</span>
     `;
 
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
 
-      // Prevenir múltiples diálogos
+      // Prevent multiple dialogs
       if (document.querySelector('.ai-linkedin-dialog')) {
-        console.log('💼 LinkedIn: Ya hay un diálogo abierto');
+        console.log('💼 LinkedIn: A dialog is already open');
         return;
       }
 
       handleCreatePost();
     });
 
-    // Insertar antes del botón de programar (reloj)
+    // Insert before the schedule (clock) button
     const scheduleBtn = postFooterContainer.querySelector('.share-creation-state__schedule-clock-btn');
     if (scheduleBtn) {
       postFooterContainer.insertBefore(btn, scheduleBtn);
@@ -127,44 +127,44 @@ const LinkedInModule = (function() {
   }
 
   async function handleCommentResponse(commentBox, buttonElement) {
-    console.log('💬 Generando respuesta de comentario...');
+  console.log('💬 Generating comment reply...');
 
-    // Extraer el contexto del post/comentario
+    // Extract the context of the post/comment
     const postContent = extractPostContent(commentBox);
-    console.log('💬 Contenido extraído:', postContent);
+    console.log('💬 Extracted content:', postContent);
 
     if (!postContent) {
-      console.log('❌ No se pudo extraer contenido');
-      alert('No se pudo extraer el contenido del post');
+      console.log('❌ Could not extract content');
+      alert('Could not extract post content');
       return;
     }
 
-    // Crear diálogo para responder comentarios
-    console.log('💬 Creando diálogo...');
+    // Create dialog to reply to comments
+    console.log('💬 Creating dialog...');
     const dialog = createCommentDialog(postContent, buttonElement);
-    console.log('💬 Diálogo creado:', dialog);
+    console.log('💬 Dialog created:', dialog);
     document.body.appendChild(dialog);
-    console.log('💬 Diálogo añadido al body');
+    console.log('💬 Dialog added to body');
   }
 
   function handleCreatePost() {
-    console.log('📝 Creando publicación...');
+  console.log('📝 Creating post...');
 
-    // Crear diálogo para crear publicación
-    const dialog = createPostDialog();
-    document.body.appendChild(dialog);
+  // Create dialog to create post
+  const dialog = createPostDialog();
+  document.body.appendChild(dialog);
   }
 
   function extractPostContent(commentBox) {
-    // Intentar extraer el contenido del post padre
+    // Try to extract the content of the parent post
     const postContainer = commentBox.closest('.feed-shared-update-v2, .occludable-update');
 
     if (postContainer) {
       const content = postContainer.querySelector('.feed-shared-text, .break-words');
-      return content ? content.innerText : 'Post de LinkedIn';
+      return content ? content.innerText : 'LinkedIn post';
     }
 
-    return 'Post de LinkedIn';
+    return 'LinkedIn post';
   }
 
   function createCommentDialog(postContext, buttonElement) {
@@ -218,14 +218,14 @@ const LinkedInModule = (function() {
         <div class="ai-avatar" title="LinkedIn AI">
           <div class="eyes"><span></span><span></span></div>
         </div>
-        <div class="title">Respuesta de AI</div>
+        <div class="title">AI Reply</div>
         <div class="spacer"></div>
-        <button class="ai-iconbtn pin-btn" aria-label="Fijar">
+        <button class="ai-iconbtn pin-btn" aria-label="Pin">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 17v5M9 3l6 0M8 7l8 0M6 7c0 3 2 6 6 6s6-3 6-6"/>
           </svg>
         </button>
-        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+        <button class="ai-iconbtn close-panel" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -234,39 +234,39 @@ const LinkedInModule = (function() {
 
       <div class="ai-result-body">
         <div class="ai-linkedin-context">
-          <div class="ai-linkedin-context-label">📌 Contexto del post:</div>
+          <div class="ai-linkedin-context-label">📌 Post context:</div>
           <div class="ai-linkedin-context-content">${postContext.substring(0, 200)}${postContext.length > 200 ? '...' : ''}</div>
         </div>
 
         <div class="ai-linkedin-input-section">
           <textarea
             class="ai-linkedin-textarea"
-            placeholder="Dime cómo quieres modificarlo"
+            placeholder="Describe your modification"
             rows="4"
           ></textarea>
         </div>
 
         <div class="ai-linkedin-actions">
           <button class="ai-linkedin-chip" data-tone="support">
-            <span class="emoji">🧠</span>Apoyar
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Support
           </button>
           <button class="ai-linkedin-chip" data-tone="oppose">
-            <span class="emoji">🪪</span>Oponerse
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/></svg>Oppose
           </button>
           <button class="ai-linkedin-chip" data-tone="discuss">
-            <span class="emoji">💬</span>Discutir
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Discuss
           </button>
           <button class="ai-linkedin-chip" data-tone="question">
-            <span class="emoji">❓</span>Preguntar
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 1 1 5.82 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>Question
           </button>
           <div class="spacer"></div>
           <div class="ai-linkedin-lang">
             <span>🌐</span>
             <select class="ai-linkedin-lang-select">
-              <option value="es">español</option>
+              <option value="es">spanish</option>
               <option value="en">english</option>
-              <option value="fr">français</option>
-              <option value="de">deutsch</option>
+              <option value="fr">french</option>
+              <option value="de">german</option>
             </select>
           </div>
         </div>
@@ -276,7 +276,7 @@ const LinkedInModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <span>Respuesta generada</span>
+            <span>Generated reply</span>
           </div>
           <div class="ai-linkedin-response-content" contenteditable="true"></div>
           <div class="ai-linkedin-response-actions">
@@ -284,20 +284,20 @@ const LinkedInModule = (function() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              Insertar
+              Insert
             </button>
             <button class="ai-linkedin-copy-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <rect x="9" y="9" width="10" height="10" rx="2"></rect>
                 <rect x="5" y="5" width="10" height="10" rx="2"></rect>
               </svg>
-              Copiar
+              Copy
             </button>
             <button class="ai-linkedin-regenerate-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
-              Regenerar
+              Regenerate
             </button>
           </div>
         </div>
@@ -309,7 +309,7 @@ const LinkedInModule = (function() {
             <path d="M22 2L11 13"/>
             <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
           </svg>
-          Generar
+          Generate
         </button>
       </div>
     `;
@@ -335,9 +335,9 @@ const LinkedInModule = (function() {
         <div class="ai-avatar" title="LinkedIn AI">
           <div class="eyes"><span></span><span></span></div>
         </div>
-        <div class="title">Publicación AI</div>
+        <div class="title">AI Post</div>
         <div class="spacer"></div>
-        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+        <button class="ai-iconbtn close-panel" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -347,35 +347,35 @@ const LinkedInModule = (function() {
       <div class="ai-linkedin-toolbar">
         <div class="ai-linkedin-dropdown">
           <button class="ai-linkedin-dropdown-trigger">
-            <span class="selected-template">Seleccionar Plantilla</span>
+            <span class="selected-template">Select Template</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="m6 9 6 6 6-6"/>
             </svg>
           </button>
           <div class="ai-linkedin-dropdown-menu">
             <button class="ai-linkedin-template-item" data-template="insights">
-              <div class="template-icon">🚀</div>
-              <div class="template-name">Compartir percepciones profesionales</div>
+              <div class="template-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2v8h8"/><path d="M13 10l9-9"/><circle cx="12" cy="12" r="10"/></svg></div>
+              <div class="template-name">Share professional insights</div>
             </button>
             <button class="ai-linkedin-template-item" data-template="milestone">
-              <div class="template-icon">🎉</div>
-              <div class="template-name">Celebrar un hito profesional</div>
+              <div class="template-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 17l4-4 4 4"/><path d="M12 13V7"/></svg></div>
+              <div class="template-name">Celebrate a milestone</div>
             </button>
             <button class="ai-linkedin-template-item" data-template="learning">
-              <div class="template-icon">📚</div>
-              <div class="template-name">Compartir aprendizajes</div>
+              <div class="template-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/></svg></div>
+              <div class="template-name">Share learnings</div>
             </button>
             <button class="ai-linkedin-template-item" data-template="question">
-              <div class="template-icon">💭</div>
-              <div class="template-name">Hacer una pregunta a la comunidad</div>
+              <div class="template-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 1 1 5.82 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg></div>
+              <div class="template-name">Ask the community</div>
             </button>
             <button class="ai-linkedin-template-item" data-template="announcement">
-              <div class="template-icon">📢</div>
-              <div class="template-name">Anunciar algo importante</div>
+              <div class="template-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/></svg></div>
+              <div class="template-name">Announce something important</div>
             </button>
             <button class="ai-linkedin-template-item" data-template="tips">
-              <div class="template-icon">💡</div>
-              <div class="template-name">Compartir consejos útiles</div>
+              <div class="template-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+              <div class="template-name">Share useful tips</div>
             </button>
           </div>
         </div>
@@ -385,7 +385,7 @@ const LinkedInModule = (function() {
         <div class="ai-linkedin-input-section">
           <textarea
             class="ai-linkedin-textarea ai-linkedin-post-textarea"
-            placeholder="Dime qué quieres escribir"
+            placeholder="Describe your post idea"
             rows="6"
           ></textarea>
         </div>
@@ -395,7 +395,7 @@ const LinkedInModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            <span>Publicación generada</span>
+            <span>Generated post</span>
           </div>
           <div class="ai-linkedin-response-content" contenteditable="true"></div>
           <div class="ai-linkedin-response-actions">
@@ -403,20 +403,20 @@ const LinkedInModule = (function() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              Insertar
+              Insert
             </button>
             <button class="ai-linkedin-copy-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <rect x="9" y="9" width="10" height="10" rx="2"></rect>
                 <rect x="5" y="5" width="10" height="10" rx="2"></rect>
               </svg>
-              Copiar
+              Copy
             </button>
             <button class="ai-linkedin-regenerate-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
-              Regenerar
+              Regenerate
             </button>
           </div>
         </div>
@@ -426,10 +426,10 @@ const LinkedInModule = (function() {
         <div class="ai-linkedin-lang">
           <span>🌐</span>
           <select class="ai-linkedin-lang-select">
-            <option value="es">español</option>
             <option value="en">english</option>
-            <option value="fr">français</option>
-            <option value="de">deutsch</option>
+            <option value="es">spanish</option>
+            <option value="fr">french</option>
+            <option value="de">german</option>
           </select>
         </div>
         <button class="ai-linkedin-generate-btn">
@@ -437,7 +437,7 @@ const LinkedInModule = (function() {
             <path d="M22 2L11 13"/>
             <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
           </svg>
-          Generar
+          Generate
         </button>
       </div>
     `;
@@ -497,7 +497,7 @@ const LinkedInModule = (function() {
 
     let selectedTone = '';
 
-    // Cerrar
+    // Close
     closeBtn.addEventListener('click', () => dialog.remove());
 
     // Pin
@@ -511,7 +511,7 @@ const LinkedInModule = (function() {
       }
     });
 
-    // Chips de tono
+    // Tone chips
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         chips.forEach(c => c.classList.remove('active'));
@@ -520,7 +520,7 @@ const LinkedInModule = (function() {
       });
     });
 
-    // Generar
+    // Generate
     generateBtn.addEventListener('click', async () => {
       const userInput = textarea.value.trim();
       const language = langSelect.value;
@@ -539,7 +539,7 @@ const LinkedInModule = (function() {
             <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
           </path>
         </svg>
-        Generando...
+        Generating...
       `;
 
       try {
@@ -549,10 +549,10 @@ const LinkedInModule = (function() {
         responseSection.style.display = 'block';
         textarea.value = '';
 
-        // Hacer scroll automático hacia la respuesta generada
+        // Auto-scroll to generated response
         setTimeout(() => {
           responseSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          // También enfocar el contenido editable para que el usuario pueda editarlo inmediatamente
+          // Also focus the editable content so user can edit immediately
           responseContent.focus();
         }, 100);
       } catch (error) {
@@ -569,7 +569,7 @@ const LinkedInModule = (function() {
       insertBtn.addEventListener('click', () => {
         const text = responseContent.innerText;
 
-        // Buscar el editor de texto del comentario
+        // Find the comment text editor
         const commentForm = document.querySelector('.comments-comment-box__form');
         if (commentForm) {
           const editor = commentForm.querySelector('.ql-editor');
@@ -577,19 +577,19 @@ const LinkedInModule = (function() {
             editor.innerHTML = `<p>${text}</p>`;
             editor.focus();
 
-            // Feedback visual
+            // Visual feedback
             const originalHTML = insertBtn.innerHTML;
             insertBtn.innerHTML = `
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 6L9 17l-5-5"/>
               </svg>
-              Insertado
+              Inserted
             `;
             setTimeout(() => {
               insertBtn.innerHTML = originalHTML;
             }, 2000);
 
-            // Cerrar el diálogo después de insertar
+            // Close dialog after inserting
             setTimeout(() => {
               dialog.remove();
             }, 1000);
@@ -609,7 +609,7 @@ const LinkedInModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 6L9 17l-5-5"/>
             </svg>
-            Copiado
+            Copied
           `;
           setTimeout(() => {
             copyBtn.innerHTML = originalHTML;
@@ -664,7 +664,7 @@ const LinkedInModule = (function() {
 
     let selectedTemplate = null;
 
-    // Cerrar
+    // Close
     closeBtn.addEventListener('click', () => dialog.remove());
 
     // Dropdown
@@ -691,12 +691,12 @@ const LinkedInModule = (function() {
       });
     });
 
-    // Habilitar generar cuando hay texto o plantilla seleccionada
+    // Enable generate when there is text or template selected
     textarea.addEventListener('input', () => {
       generateBtn.disabled = false;
     });
 
-    // Generar
+    // Generate
     generateBtn.addEventListener('click', async () => {
       const userInput = textarea.value.trim();
       const language = langSelect.value;
@@ -715,7 +715,7 @@ const LinkedInModule = (function() {
             <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
           </path>
         </svg>
-        Generando...
+        Generating...
       `;
 
       try {
@@ -739,7 +739,7 @@ const LinkedInModule = (function() {
       insertBtn.addEventListener('click', () => {
         const text = responseContent.innerText;
 
-        // Buscar el editor de texto de la publicación de LinkedIn
+        // Find the LinkedIn post text editor
         const shareBox = document.querySelector('.share-creation-state__text-editor');
         if (shareBox) {
           const editor = shareBox.querySelector('.ql-editor');
@@ -747,19 +747,19 @@ const LinkedInModule = (function() {
             editor.innerHTML = `<p>${text}</p>`;
             editor.focus();
 
-            // Feedback visual
+            // Visual feedback
             const originalHTML = insertBtn.innerHTML;
             insertBtn.innerHTML = `
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 6L9 17l-5-5"/>
               </svg>
-              Insertado
+              Inserted
             `;
             setTimeout(() => {
               insertBtn.innerHTML = originalHTML;
             }, 2000);
 
-            // Cerrar el diálogo después de insertar
+            // Close dialog after inserting
             setTimeout(() => {
               dialog.remove();
             }, 1000);
@@ -779,7 +779,7 @@ const LinkedInModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 6L9 17l-5-5"/>
             </svg>
-            Copiado
+            Copied
           `;
           setTimeout(() => {
             copyBtn.innerHTML = originalHTML;
@@ -824,32 +824,32 @@ const LinkedInModule = (function() {
 
     switch (tone) {
       case 'support':
-        toneInstruction = 'Escribe un comentario de apoyo y positivo.';
+        toneInstruction = 'Write a supportive and positive comment.';
         break;
       case 'oppose':
-        toneInstruction = 'Escribe un comentario educado pero que exprese desacuerdo.';
+        toneInstruction = 'Write a polite comment that expresses disagreement.';
         break;
       case 'discuss':
-        toneInstruction = 'Escribe un comentario que invite a la discusión constructiva.';
+        toneInstruction = 'Write a comment that invites constructive discussion.';
         break;
       case 'question':
-        toneInstruction = 'Escribe un comentario con preguntas relevantes.';
+        toneInstruction = 'Write a comment with relevant questions.';
         break;
       default:
-        toneInstruction = 'Escribe un comentario profesional y reflexivo.';
+        toneInstruction = 'Write a professional and thoughtful comment.';
     }
 
-    const prompt = `Contexto del post de LinkedIn:
+    const prompt = `LinkedIn post context:
 ${postContext}
 
-Instrucciones del usuario:
-${userInput || 'Genera un comentario apropiado'}
+User instructions:
+${userInput || 'Generate an appropriate comment'}
 
 ${toneInstruction}
 
-Idioma: ${language}
+Language: ${language}
 
-Genera un comentario profesional para LinkedIn que sea auténtico, conciso (2-4 oraciones) y apropiado para una red profesional. Evita ser demasiado formal o robótico.`;
+Generate a professional LinkedIn comment that is authentic, concise (2-4 sentences), and appropriate for a professional network. Avoid being too formal or robotic.`;
 
     const response = await AIModule.aiAnswer(prompt);
     return response;
@@ -860,43 +860,43 @@ Genera un comentario profesional para LinkedIn que sea auténtico, conciso (2-4 
 
     switch (template) {
       case 'insights':
-        templateInstruction = 'Estructura: Insight principal → Explicación breve → Conclusión/Llamado a la acción';
+        templateInstruction = 'Structure: Main insight → Brief explanation → Conclusion/Call to action';
         break;
       case 'milestone':
-        templateInstruction = 'Estructura: Logro/Hito → Contexto/Camino → Agradecimientos → Siguiente paso';
+        templateInstruction = 'Structure: Achievement/Milestone → Context/Path → Acknowledgments → Next step';
         break;
       case 'learning':
-        templateInstruction = 'Estructura: Aprendizaje clave → Historia/Ejemplo → Lecciones aplicables';
+        templateInstruction = 'Structure: Key learning → Story/Example → Applicable lessons';
         break;
       case 'question':
-        templateInstruction = 'Estructura: Contexto breve → Pregunta clara → ¿Por qué es importante?';
+        templateInstruction = 'Structure: Brief context → Clear question → Why is it important?';
         break;
       case 'announcement':
-        templateInstruction = 'Estructura: Anuncio principal → Detalles clave → Impacto/Valor';
+        templateInstruction = 'Structure: Main announcement → Key details → Impact/Value';
         break;
       case 'tips':
-        templateInstruction = 'Estructura: Introducción → Lista de consejos (3-5) → Conclusión';
+        templateInstruction = 'Structure: Introduction → List of tips (3-5) → Conclusion';
         break;
       default:
-        templateInstruction = 'Estructura clara y profesional';
+        templateInstruction = 'Clear and professional structure';
     }
 
-    const prompt = `Tema/Idea de publicación:
+    const prompt = `Post topic/idea:
 ${userInput}
 
-Plantilla: ${template || 'general'}
+Template: ${template || 'general'}
 ${templateInstruction}
 
-Idioma: ${language}
+Language: ${language}
 
-Genera una publicación profesional para LinkedIn que sea:
-- Auténtica y personal
-- Bien estructurada con párrafos cortos
-- Incluya emojis sutiles donde sea apropiado (máximo 2-3)
-- Termine con una pregunta o llamado a la interacción
-- Longitud: 150-300 palabras
+Generate a professional LinkedIn post that is:
+- Authentic and personal
+- Well-structured with short paragraphs
+- Includes subtle emojis where appropriate (max 2-3)
+- Ends with a question or call to interaction
+- Length: 150-300 words
 
-No uses hashtags excesivos, máximo 3-5 al final si son relevantes.`;
+Do not use excessive hashtags, max 3-5 at the end if relevant.`;
 
     const response = await AIModule.aiAnswer(prompt);
     return response;
