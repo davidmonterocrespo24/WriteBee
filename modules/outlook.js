@@ -2,24 +2,24 @@ const OutlookModule = (function() {
   let outlookButton = null;
   let isOutlook = false;
 
-  console.log('🔧 Módulo OutlookModule cargándose...');
+  console.log('🔧 OutlookModule loading...');
 
   function init() {
-    // Detectar si estamos en Outlook
+  // Detect if we are in Outlook
     isOutlook = window.location.hostname.includes('outlook.live.com') || 
                 window.location.hostname.includes('outlook.office.com') ||
                 window.location.hostname.includes('outlook.office365.com');
     
     if (isOutlook) {
-      console.log('📧 Outlook detectado, iniciando módulo...');
+  console.log('📧 Outlook detected, starting module...');
       observeOutlook();
     } else {
-      console.log('ℹ️ No estamos en Outlook, módulo en espera');
+  console.log('ℹ️ Not in Outlook, module on standby');
     }
   }
 
   function observeOutlook() {
-    // Observar cambios en el DOM para detectar cuando se abre un correo
+  // Observe DOM changes to detect when an email is opened
     const observer = new MutationObserver(() => {
       checkForEmailView();
     });
@@ -29,45 +29,45 @@ const OutlookModule = (function() {
       subtree: true
     });
 
-    // Verificar inmediatamente
+  // Check immediately
     setTimeout(checkForEmailView, 1000);
   }
 
   function checkForEmailView() {
-    // Buscar específicamente el editor de composición/respuesta de Outlook
-    // Solo mostrar el botón cuando se está redactando un correo
+  // Specifically look for the Outlook compose/reply editor
+  // Only show the button when composing an email
     const composeEditor = document.querySelector('[role="textbox"][aria-label*="Cuerpo"]') ||
                           document.querySelector('[role="textbox"][contenteditable="true"]') ||
                           document.querySelector('.elementToProof[contenteditable="true"]') ||
                           document.querySelector('div[contenteditable="true"][aria-label]');
     
     if (composeEditor && !outlookButton) {
-      console.log('✍️ Editor de composición detectado en Outlook');
+  console.log('✍️ Compose editor detected in Outlook');
       insertAIButton(composeEditor);
     } else if (!composeEditor && outlookButton) {
-      // Si ya no está el editor activo, remover el botón
+  // If the editor is no longer active, remove the button
       removeAIButton();
     }
   }
 
   function insertAIButton(composeEditor) {
-    // Buscar el área donde está el editor de composición
+  // Find the area where the compose editor is
     const editorContainer = composeEditor.closest('[role="main"]') || 
                            composeEditor.closest('.customScrollBar') ||
                            composeEditor.parentElement;
     
     if (!editorContainer) {
-      console.log('⚠️ No se encontró contenedor del editor');
+  console.log('⚠️ Editor container not found');
       return;
     }
 
-    // Buscar la barra de herramientas del editor (botones de formato, adjuntar, etc.)
+  // Find the editor toolbar (formatting, attach, etc. buttons)
     const toolbar = editorContainer.querySelector('[role="toolbar"]') ||
                     editorContainer.querySelector('[data-app-section="ComposeToolbar"]') ||
                     editorContainer.querySelector('.ms-FocusZone');
     
     if (toolbar) {
-      // Crear botón de AI para la toolbar
+  // Create AI button for the toolbar
       outlookButton = document.createElement('button');
       outlookButton.className = 'ai-outlook-button';
       outlookButton.innerHTML = `
@@ -75,7 +75,7 @@ const OutlookModule = (function() {
           <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           <path d="M8 10h8M8 14h4"/>
         </svg>
-        <span>AI Asistente</span>
+        <span>AI WriteBee</span>
       `;
 
       outlookButton.addEventListener('click', (e) => {
@@ -85,15 +85,15 @@ const OutlookModule = (function() {
       });
 
       toolbar.appendChild(outlookButton);
-      console.log('✅ Botón AI insertado en toolbar de composición');
+  console.log('✅ AI button inserted in compose toolbar');
     } else {
-      // Si no hay toolbar, crear botón flotante cerca del editor
+  // If no toolbar, create floating button near the editor
       createFloatingButton(editorContainer, composeEditor);
     }
   }
 
   function createFloatingButton(editorContainer, composeEditor) {
-    // Crear un botón flotante cerca del editor de composición
+  // Create a floating button near the compose editor
     outlookButton = document.createElement('div');
     outlookButton.className = 'ai-outlook-floating-button';
     outlookButton.innerHTML = `
@@ -101,7 +101,7 @@ const OutlookModule = (function() {
         <div class="ai-avatar" style="width: 20px; height: 20px; font-size: 10px;">
           <div class="eyes"><span></span><span></span></div>
         </div>
-        <span>AI Asistente</span>
+        <span>AI WriteBee</span>
       </button>
     `;
 
@@ -113,7 +113,7 @@ const OutlookModule = (function() {
 
     // Insertar antes del editor
     editorContainer.insertBefore(outlookButton, composeEditor);
-    console.log('✅ Botón flotante AI insertado cerca del editor');
+  console.log('✅ Floating AI button inserted near the editor');
   }
 
   function removeAIButton() {
@@ -124,44 +124,44 @@ const OutlookModule = (function() {
   }
 
   async function handleAIAssistant(composeEditor) {
-    console.log('🤖 Asistente AI activado para Outlook...');
+  console.log('🤖 AI WriteBee AI activated for Outlook...');
 
-    // Intentar extraer el contexto del correo original (si se está respondiendo)
+  // Try to extract the context of the original email (if replying)
     let originalEmailContent = null;
     
-    // Buscar el contenido del correo original en la ventana de respuesta
+  // Find the content of the original email in the reply window
     const originalMessage = document.querySelector('[aria-label*="Mensaje original"]') ||
                            document.querySelector('.rps_b91e') ||
                            document.querySelector('[data-app-section="ReadingPaneBody"]');
     
     if (originalMessage) {
       originalEmailContent = originalMessage.innerText || originalMessage.textContent;
-      console.log('📧 Contexto del correo original encontrado');
+  console.log('📧 Original email context found');
     }
 
-    // Crear el diálogo de asistente
+  // Create the assistant dialog
     const dialog = createOutlookDialog(composeEditor, originalEmailContent);
     document.body.appendChild(dialog);
 
-    // Si hay un correo original, generar resumen automáticamente
+  // If there is an original email, generate summary automatically
     if (originalEmailContent) {
       const summaryDiv = dialog.querySelector('.ai-outlook-summary-content');
-      summaryDiv.innerHTML = '<div style="color: #a5a7b1; text-align: center; padding: 20px;">Analizando contexto...</div>';
+  summaryDiv.innerHTML = '<div style="color: #a5a7b1; text-align: center; padding: 20px;">Analyzing context...</div>';
 
       try {
         const summary = await AIModule.aiSummarize(originalEmailContent, (percent) => {
-          summaryDiv.innerHTML = `<div style="color: #a5a7b1; text-align: center; padding: 20px;">Analizando contexto ${percent}%</div>`;
+    summaryDiv.innerHTML = `<div style="color: #a5a7b1; text-align: center; padding: 20px;">Analyzing context ${percent}%</div>`;
         });
 
         MarkdownRenderer.renderToElement(summaryDiv, summary);
       } catch (error) {
-        summaryDiv.innerHTML = `<div style="color: #ff6b6b; padding: 12px;">Error: ${error.message}</div>`;
+  summaryDiv.innerHTML = `<div style="color: #ff6b6b; padding: 12px;">Error: ${error.message}</div>`;
       }
     }
   }
 
   function extractEmailContent(emailContainer) {
-    // Intentar extraer el texto del correo en Outlook
+  // Try to extract the email text in Outlook
     const contentDiv = emailContainer.querySelector('[role="document"]') || 
                        emailContainer.querySelector('.elementToProof') ||
                        emailContainer.querySelector('[data-app-section="ReadingPaneBody"]') ||
@@ -172,7 +172,7 @@ const OutlookModule = (function() {
       return contentDiv.innerText || contentDiv.textContent;
     }
 
-    // Si no se encuentra un selector específico, intentar con todo el contenedor
+  // If no specific selector is found, try the whole container
     return emailContainer.innerText || emailContainer.textContent;
   }
 
@@ -181,22 +181,22 @@ const OutlookModule = (function() {
     dialog.className = 'ai-result-panel';
     dialog.dataset.pinned = 'true';
 
-    // Centrar en la pantalla
+  // Center on the screen
     dialog.style.left = '50%';
     dialog.style.top = '50%';
     dialog.style.transform = 'translate(-50%, -50%)';
     dialog.style.width = 'min(680px, 92vw)';
 
-    const hasContext = originalEmailContent && originalEmailContent.trim().length > 0;
+  const hasContext = originalEmailContent && originalEmailContent.trim().length > 0;
 
     dialog.innerHTML = `
       <header class="ai-result-header ai-draggable">
         <div class="ai-avatar" title="Outlook AI">
           <div class="eyes"><span></span><span></span></div>
         </div>
-        <div class="title">Asistente de Outlook</div>
+        <div class="title">AI WriteBee - Outlook</div>
         <div class="spacer"></div>
-        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+        <button class="ai-iconbtn close-panel" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -210,7 +210,7 @@ const OutlookModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            <span>Contexto del mensaje</span>
+            <span>Message context</span>
           </div>
           <div class="ai-outlook-summary-content"></div>
         </div>
@@ -222,14 +222,14 @@ const OutlookModule = (function() {
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
-            <span>Redactar con AI</span>
+            <span>Write with AI</span>
           </div>
           <div class="ai-followup" style="margin-bottom: 12px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <input type="text" class="ai-outlook-input" placeholder="${hasContext ? '¿Qué quieres incluir en tu respuesta?' : '¿Qué quieres escribir?'}" />
-            <button class="ai-send-btn ai-outlook-generate-btn" aria-label="Generar">
+            <input type="text" class="ai-outlook-input" placeholder="${hasContext ? 'What do you want to include in your reply?' : 'What do you want to write?'}" />
+            <button class="ai-send-btn ai-outlook-generate-btn" aria-label="Generate">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 2L11 13"/>
                 <path d="M22 2L15 22L11 13L2 9L22 2z"/>
@@ -243,7 +243,7 @@ const OutlookModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <span>Texto generado</span>
+            <span>Generated text</span>
           </div>
           <div class="ai-outlook-response-content" contenteditable="true"></div>
           <div class="ai-outlook-response-actions">
@@ -251,30 +251,30 @@ const OutlookModule = (function() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              Insertar en Outlook
+              Insert into Outlook
             </button>
             <button class="ai-outlook-copy-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <rect x="9" y="9" width="10" height="10" rx="2"></rect>
                 <rect x="5" y="5" width="10" height="10" rx="2"></rect>
               </svg>
-              Copiar
+              Copy
             </button>
             <button class="ai-outlook-regenerate-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
-              Regenerar
+              Regenerate
             </button>
           </div>
         </div>
       </div>
     `;
 
-    // Hacer el diálogo arrastrable
+  // Make the dialog draggable
     makeDraggable(dialog);
 
-    // Eventos del diálogo
+  // Dialog events
     setupOutlookDialogEvents(dialog, composeEditor, originalEmailContent);
 
     return dialog;
@@ -321,13 +321,13 @@ const OutlookModule = (function() {
   }
 
   function setupOutlookDialogEvents(dialog, composeEditor, originalEmailContent) {
-    // Botón cerrar
+  // Close button
     const closeBtn = dialog.querySelector('.close-panel');
     closeBtn.addEventListener('click', () => {
       dialog.remove();
     });
 
-    // Botón generar respuesta
+  // Generate response button
     const generateBtn = dialog.querySelector('.ai-outlook-generate-btn');
     const userInput = dialog.querySelector('.ai-outlook-input');
     const responseSection = dialog.querySelector('.ai-outlook-response');
@@ -362,7 +362,7 @@ const OutlookModule = (function() {
         // Limpiar input
         userInput.value = '';
       } catch (error) {
-        alert('Error al generar el texto: ' + error.message);
+  alert('Error generating text: ' + error.message);
       } finally {
         generateBtn.disabled = false;
         generateBtn.innerHTML = originalHTML;
@@ -371,7 +371,7 @@ const OutlookModule = (function() {
 
     generateBtn.addEventListener('click', generateResponse);
 
-    // Permitir Enter para generar
+  // Allow Enter to generate
     userInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -379,7 +379,7 @@ const OutlookModule = (function() {
       }
     });
 
-    // Botón copiar
+  // Copy button
     const copyBtn = dialog.querySelector('.ai-outlook-copy-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
@@ -390,7 +390,7 @@ const OutlookModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 6L9 17l-5-5"/>
             </svg>
-            Copiado
+            Copied
           `;
           setTimeout(() => {
             copyBtn.innerHTML = originalHTML;
@@ -399,11 +399,11 @@ const OutlookModule = (function() {
       });
     }
 
-    // Botón regenerar
+  // Regenerate button
     const regenerateBtn = dialog.querySelector('.ai-outlook-regenerate-btn');
     if (regenerateBtn) {
       regenerateBtn.addEventListener('click', async () => {
-        const userContent = userInput.value.trim() || 'Genera un texto profesional';
+  const userContent = userInput.value.trim() || 'Generate a professional text';
 
         regenerateBtn.disabled = true;
         const originalHTML = regenerateBtn.innerHTML;
@@ -420,7 +420,7 @@ const OutlookModule = (function() {
           const response = await generateEmailText(originalEmailContent, userContent);
           MarkdownRenderer.renderToElement(responseContent, response);
         } catch (error) {
-          alert('Error al regenerar: ' + error.message);
+          alert('Error regenerating: ' + error.message);
         } finally {
           regenerateBtn.disabled = false;
           regenerateBtn.innerHTML = originalHTML;
@@ -428,13 +428,13 @@ const OutlookModule = (function() {
       });
     }
 
-    // Botón insertar en Outlook
+  // Insert into Outlook button
     const insertBtn = dialog.querySelector('.ai-outlook-insert-btn');
     if (insertBtn) {
       insertBtn.addEventListener('click', () => {
         const text = responseContent.innerText;
         insertTextIntoOutlookEditor(composeEditor, text);
-        dialog.remove();
+  dialog.remove();
       });
     }
   }
@@ -443,21 +443,21 @@ const OutlookModule = (function() {
     let prompt;
     
     if (originalEmailContent && originalEmailContent.trim().length > 0) {
-      // Si hay contexto de un correo original, generar una respuesta
-      prompt = `Correo original:
+  // If there is context from an original email, generate a reply
+  prompt = `Original email:
 ${originalEmailContent}
 
-Instrucciones para la respuesta:
+Instructions for the reply:
 ${userContent}
 
-Genera una respuesta profesional y cordial para este correo electrónico, siguiendo las instrucciones del usuario. La respuesta debe ser clara, bien estructurada y apropiada para un correo electrónico profesional.`;
+Generate a professional and cordial reply to this email, following the user's instructions. The reply should be clear, well-structured, and appropriate for a professional email.`;
     } else {
-      // Si no hay contexto, generar texto desde cero
-      prompt = `Redacta un correo electrónico profesional con el siguiente contenido:
+  // If there is no context, generate text from scratch
+  prompt = `Write a professional email with the following content:
 
 ${userContent}
 
-El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
+The email should be clear, cordial, and appropriate for a professional context.`;
     }
 
     const response = await AIModule.aiAnswer(prompt);
@@ -466,62 +466,62 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
 
   function insertTextIntoOutlookEditor(composeEditor, text) {
     if (!composeEditor) {
-      // Fallback: copiar al portapapeles
+  // Fallback: copy to clipboard
       navigator.clipboard.writeText(text).then(() => {
-        alert('Texto copiado al portapapeles. Pégalo en el editor (Ctrl+V).');
+  alert('Text copied to clipboard. Paste it into the editor (Ctrl+V).');
       });
       return;
     }
 
-    // Insertar el texto en el editor
+  // Insert the text into the editor
     composeEditor.focus();
     
-    // Método 1: Intentar con execCommand
+  // Method 1: Try with execCommand
     const success = document.execCommand('insertText', false, text);
     
-    // Método 2: Si no funciona, insertar directamente en el HTML
+  // Method 2: If it doesn't work, insert directly into the HTML
     if (!success || !composeEditor.innerText.includes(text.substring(0, 20))) {
       const p = document.createElement('p');
       p.textContent = text;
       composeEditor.appendChild(p);
     }
     
-    // Disparar eventos para que Outlook detecte el cambio
+  // Trigger events so Outlook detects the change
     composeEditor.dispatchEvent(new Event('input', { bubbles: true }));
     composeEditor.dispatchEvent(new Event('change', { bubbles: true }));
     
-    console.log('✅ Texto insertado en el editor de Outlook');
+  console.log('✅ Text inserted into Outlook editor');
   }
 
   async function handleUnreadSummary() {
-    console.log('📬 Obteniendo correos no leídos de Outlook...');
+  console.log('📬 Getting unread emails from Outlook...');
     
     try {
       const unreadEmails = await getUnreadEmails();
       
       if (unreadEmails.length === 0) {
-        alert('No hay correos no leídos 🎉');
+  alert('No unread emails 🎉');
         return;
       }
       
-      console.log(`📧 ${unreadEmails.length} correos no leídos encontrados en Outlook`);
+  console.log(`📧 ${unreadEmails.length} unread emails found in Outlook`);
       
-      // Crear diálogo de resumen
+  // Create summary dialog
       const dialog = createUnreadSummaryDialog(unreadEmails);
       document.body.appendChild(dialog);
       
-      // Generar resumen
+  // Generate summary
       await generateUnreadSummary(dialog, unreadEmails);
       
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al obtener correos no leídos: ' + error.message);
+  alert('Error getting unread emails: ' + error.message);
     }
   }
 
   async function getUnreadEmails() {
-    // Buscar todos los correos no leídos en Outlook
-    // Outlook usa diferentes selectores según la versión
+  // Find all unread emails in Outlook
+  // Outlook uses different selectors depending on the version
     const unreadRows = document.querySelectorAll(
       '[aria-label*="No leído"], [aria-label*="Unread"], ' +
       '.ms-List-cell[aria-label*="No leído"], ' +
@@ -536,21 +536,21 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
       try {
         const ariaLabel = row.getAttribute('aria-label') || '';
         
-        // Extraer información del aria-label que contiene toda la info del correo
-        // Formato típico: "No leído, [Remitente], [Asunto], [Fecha], [Extracto]"
+  // Extract info from aria-label containing all the email info
+  // Typical format: "Unread, [Sender], [Subject], [Date], [Snippet]"
         const parts = ariaLabel.split(',').map(p => p.trim());
         
         let sender = 'Desconocido';
         let subject = 'Sin asunto';
         let snippet = '';
         
-        // Intentar extraer información del aria-label
+  // Try to extract info from aria-label
         if (parts.length > 1) {
           sender = parts[1] || 'Desconocido';
           subject = parts[2] || 'Sin asunto';
           snippet = parts.slice(3).join(', ') || '';
         } else {
-          // Intentar extraer de elementos internos
+          // Try to extract from internal elements
           const senderElement = row.querySelector('[title]') || 
                                 row.querySelector('.customScrollBar span');
           const subjectElement = row.querySelector('[id*="ConversationSubject"]') ||
@@ -565,7 +565,7 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
           snippet = snippetElement?.textContent?.trim() || '';
         }
         
-        // Limpiar texto
+  // Clean text
         sender = sender.replace(/^(No leído|Unread)[,\s]*/i, '').trim();
         
         unreadEmails.push({
@@ -575,11 +575,11 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
           row
         });
         
-        // Limitar a 20 correos para no sobrecargar
+  // Limit to 20 emails to avoid overload
         if (unreadEmails.length >= 20) break;
         
       } catch (error) {
-        console.error('Error procesando correo de Outlook:', error);
+  console.error('Error processing Outlook email:', error);
       }
     }
     
@@ -599,12 +599,12 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
     
     dialog.innerHTML = `
       <header class="ai-result-header ai-draggable">
-        <div class="ai-avatar" title="Resumen de No Leídos">
+        <div class="ai-avatar" title="Unread Summary">
           <div class="eyes"><span></span><span></span></div>
         </div>
-        <div class="title">Resumen de ${unreadEmails.length} Correos No Leídos - Outlook</div>
+        <div class="title">Summary of ${unreadEmails.length} Unread Emails - Outlook</div>
         <div class="spacer"></div>
-        <button class="ai-iconbtn close-panel" aria-label="Cerrar">
+        <button class="ai-iconbtn close-panel" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -617,7 +617,7 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            <span>Resumen General</span>
+            <span>General Summary</span>
           </div>
           <div class="ai-unread-summary-content">
             <div style="color: #a5a7b1; text-align: center; padding: 40px;">
@@ -627,7 +627,7 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
                   <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
                 </path>
               </svg>
-              <div>Analizando correos no leídos...</div>
+              <div>Analyzing unread emails...</div>
             </div>
           </div>
         </div>
@@ -638,7 +638,7 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
-            <span>Listado de Correos (${unreadEmails.length})</span>
+            <span>Email List (${unreadEmails.length})</span>
           </div>
           <div class="ai-unread-list">
             ${unreadEmails.map((email, index) => `
@@ -656,10 +656,10 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
       </div>
     `;
 
-    // Hacer el diálogo arrastrable
+  // Make the dialog draggable
     makeDraggable(dialog);
 
-    // Botón cerrar
+  // Close button
     const closeBtn = dialog.querySelector('.close-panel');
     closeBtn.addEventListener('click', () => {
       dialog.remove();
@@ -672,11 +672,11 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
     const summaryContent = dialog.querySelector('.ai-unread-summary-content');
     
     try {
-      // Crear el texto con todos los correos para el resumen
-      let emailsText = `Tengo ${unreadEmails.length} correos no leídos en Outlook:\n\n`;
+      // Create the text with all emails for the summary
+        let emailsText = `I have ${unreadEmails.length} unread emails in Outlook:\n\n`;
       
-      unreadEmails.forEach((email, index) => {
-        emailsText += `${index + 1}. De: ${email.sender}\n`;
+        unreadEmails.forEach((email, index) => {
+          emailsText += `${index + 1}. From: ${email.sender}\n`;
         emailsText += `   Asunto: ${email.subject}\n`;
         if (email.snippet) {
           emailsText += `   Extracto: ${email.snippet.substring(0, 200)}\n`;
@@ -684,14 +684,14 @@ El correo debe ser claro, cordial y apropiado para un contexto profesional.`;
         emailsText += `\n`;
       });
 
-      const prompt = `${emailsText}
+  const prompt = `${emailsText}
 
-Por favor, genera un resumen ejecutivo de estos correos no leídos. Organiza el resumen por:
-1. Prioridad (urgentes, importantes, informativos)
-2. Categorías temáticas
-3. Acciones requeridas
+Please generate an executive summary of these unread emails. Organize the summary by:
+1. Priority (urgent, important, informative)
+2. Thematic categories
+3. Required actions
 
-Sé conciso pero informativo.`;
+Be concise but informative.`;
 
       // Generar resumen con progreso
       summaryContent.innerHTML = `
@@ -717,7 +717,6 @@ Sé conciso pero informativo.`;
       }
 
     } catch (error) {
-      console.error('Error generando resumen:', error);
       summaryContent.innerHTML = `
         <div style="color: #ff6b6b; padding: 20px; text-align: center;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 16px;">
@@ -725,7 +724,7 @@ Sé conciso pero informativo.`;
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <div>Error al generar el resumen: ${escapeHtml(error.message)}</div>
+          <div>Error to generate summary: ${escapeHtml(error.message)}</div>
         </div>
       `;
     }
@@ -753,7 +752,7 @@ Sé conciso pero informativo.`;
   // Hacer disponible globalmente
   window.OutlookModule = publicAPI;
   
-  console.log('✅ OutlookModule cargado y exportado globalmente', publicAPI);
+  console.log('✅ OutlookModule loaded and exported globally', publicAPI);
 
   return publicAPI;
 })();

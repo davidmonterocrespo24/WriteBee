@@ -549,10 +549,10 @@ const GoogleModule = (function() {
       if (contentElement) {
         const text = contentElement.innerText || contentElement.textContent;
         const cleanText = text.trim().replace(/\s+/g, ' ');
-        console.log(`✅ Contenido obtenido: ${cleanText.length} caracteres`);
+  console.log(`✅ Content obtained: ${cleanText.length} characters`);
         
-        // Limitar a 8000 caracteres para no sobrecargar la IA
-        return cleanText.substring(0, 8000);
+  // Limit to 8000 characters to not overload the AI
+  return cleanText.substring(0, 8000);
       }
       
       throw new Error('No se pudo extraer contenido');
