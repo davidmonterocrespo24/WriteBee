@@ -118,10 +118,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Describe image
     handleDescribeImage(request.imageUrl);
     sendResponse({ success: true });
-  } else if (request.action === 'checkGrammar') {
-    // Check grammar on selected text
-    handleGrammarCheck(request.text);
-    sendResponse({ success: true });
   } else if (request.action === 'extractPageContentForChat') {
     // Extract page content and send to side panel
     handleExtractPageContent();
@@ -235,27 +231,6 @@ async function handleDescribeImage(imageUrl) {
   } catch (error) {
     console.error('Error describing image:', error);
     alert('Error describing image: ' + error.message);
-  }
-}
-
-// Handle grammar check request
-async function handleGrammarCheck(text) {
-  try {
-    // Create a temporary dialog with grammar check
-    const loadingDialog = DialogModule.showLoadingDialog(null);
-    loadingDialog.querySelector('.ai-loading').textContent = 'Checking grammar...';
-    document.body.appendChild(loadingDialog);
-
-    const result = await AIModule.aiGrammar(text);
-
-    loadingDialog.remove();
-
-    const grammarDialog = DialogModule.createDialog('grammar', result, text, null);
-    document.body.appendChild(grammarDialog);
-    grammarDialog.adjustPosition?.();
-  } catch (error) {
-    console.error('Error checking grammar:', error);
-    alert('Error checking grammar: ' + error.message);
   }
 }
 

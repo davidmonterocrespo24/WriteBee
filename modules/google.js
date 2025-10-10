@@ -353,9 +353,9 @@ const GoogleModule = (function() {
 
       // Mostrar información de la fuente
       sourceInfo.innerHTML = `
-        <div style="font-size: 12px; color: #333; margin-bottom: 12px; padding: 8px; background: #e8e8e8; border-radius: 6px; border: 1px solid #ccc;">
-          <strong>Fuente:</strong> ${firstResult.title}<br>
-          <a href="${firstResult.url}" target="_blank" style="color: #1a73e8; text-decoration: none;">${firstResult.url}</a>
+        <div style="font-size: 12px; color: #333; margin-bottom: 12px; padding: 8px; background: #e8e8e8; border-radius: 6px; border: 1px solid #ccc; max-width: 100%; overflow: hidden;">
+          <strong>Fuente:</strong> <span style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;" title="${firstResult.title}">${firstResult.title}</span>
+          <a href="${firstResult.url}" target="_blank" style="color: #1a73e8; text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;" title="${firstResult.url}">${firstResult.url}</a>
         </div>
       `;
 

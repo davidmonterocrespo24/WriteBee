@@ -131,7 +131,6 @@ const MultimodalModule = (function() {
       explain: "Explica qué muestra esta imagen de forma detallada.",
       expand: "Describe esta imagen en detalle, expandiendo sobre todos los elementos visibles.",
       answer: `Responde esta pregunta sobre la imagen: ${context}`,
-      grammar: "Identifica y corrige cualquier error de gramática u ortografía visible en el texto de esta imagen.",
       rewrite: "Reescribe el texto visible en esta imagen de forma más clara y profesional.",
       alttext: "Genera un alt text corto y descriptivo para esta imagen (máximo 125 caracteres)."
     };
@@ -204,7 +203,6 @@ const MultimodalModule = (function() {
         explain: "Transcribe el audio y explica los conceptos principales mencionados.",
         expand: "Transcribe el audio y expande sobre los puntos principales mencionados.",
         answer: `Transcribe el audio y responde: ${context}`,
-        grammar: "Transcribe el audio y corrige cualquier error gramatical.",
         rewrite: "Transcribe el audio y reescríbelo de forma más clara y profesional.",
         transcribe: "Transcribe fielmente el audio."
       };

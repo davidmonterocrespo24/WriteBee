@@ -32,16 +32,6 @@ const AIModule = (function() {
     }
   }
 
-  async function aiGrammar(text, onProgress = null) {
-    try {
-      const service = getAIService();
-      return await service.checkGrammar(text, onProgress);
-    } catch (error) {
-      console.error('Error in aiGrammar:', error);
-      return `✕ Error checking grammar: ${error.message}`;
-    }
-  }
-
   async function aiRewrite(text, onProgress = null) {
     try {
       const service = getAIService();
@@ -211,7 +201,6 @@ const AIModule = (function() {
     aiSummarize,
     aiTranslate,
     aiExplain,
-    aiGrammar,
     aiRewrite,
     aiExpand,
     aiAnswer,

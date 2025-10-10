@@ -57,13 +57,6 @@ const PromptLibraryModule = (function() {
         category: 'text'
       },
       {
-        id: 'grammar',
-        name: 'Fix Grammar',
-        icon: '📚',
-        prompt: 'Check and correct grammar and spelling in the following text:',
-        category: 'text'
-      },
-      {
         id: 'professional',
         name: 'Make Professional',
         icon: '💼',

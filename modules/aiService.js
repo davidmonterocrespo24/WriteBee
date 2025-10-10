@@ -173,41 +173,6 @@ class AIService {
   }
 
   /**
-   * Checks grammar using Proofreader API
-   */
-  async checkGrammar(text, onProgress = null) {
-    try {
-      if (!await this.checkAvailability('Proofreader')) {
-        throw new Error('La API Proofreader no está disponible en este navegador.');
-      }
-
-      const proofreader = await self.Proofreader.create({
-        expectedInputLanguages: ['en', 'es'],
-        monitor: this.createMonitor(onProgress)
-      });
-
-      const result = await proofreader.proofread(text);
-      proofreader.destroy();
-
-      // Format the result
-      if (result.corrections.length === 0) {
-        return '✅ No se encontraron errores gramaticales.';
-      }
-
-      let output = `**Texto corregido:**\n${result.corrected}\n\n**Correcciones:**\n`;
-      for (const correction of result.corrections) {
-        const original = text.substring(correction.startIndex, correction.endIndex);
-        output += `- "${original}" → "${correction.correction}"\n`;
-      }
-
-      return output;
-    } catch (error) {
-      console.error('Error en checkGrammar:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Rewrites text using Rewriter API
    */
   async rewrite(text, onProgress = null) {

@@ -8,7 +8,6 @@ AI-powered text assistant for Chrome that helps you work with text on any websit
 - **Summarize** - Summarize any selected text
 - **Translate** - Translate to multiple languages
 - **Explain** - Explain complex concepts
-- **Grammar** - Review and correct errors
 - **Rewrite** - Improve writing
 - **Expand** - Add more details
 - **Answer** - Answer questions

@@ -93,10 +93,6 @@ const ActionsModule = (function() {
         case 'explain':
           result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
           break;
-        case 'grammar':
-          result = await AIModule.aiGrammar(selectedText);
-          if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
-          break;
         case 'expand':
           result = await AIModule.aiExpandStream(selectedText, onChunk, abortController.signal);
           break;

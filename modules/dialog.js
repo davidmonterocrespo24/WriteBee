@@ -107,10 +107,6 @@ const DialogModule = (function() {
               <span class="icon">💡</span>
               Explain
             </div>
-            <div class="ai-mode-dropdown-item ${action === 'grammar' ? 'active' : ''}" data-mode="grammar">
-              <span class="icon">📚</span>
-              Grammar
-            </div>
             <div class="ai-mode-dropdown-item ${action === 'rewrite' ? 'active' : ''}" data-mode="rewrite">
               <span class="icon">✏️</span>
               Rewrite
@@ -408,11 +404,6 @@ const DialogModule = (function() {
               case 'explain':
                 result = await AIModule.aiExplainStream(selectedText, onChunk, abortController.signal);
                 break;
-              case 'grammar':
-                // No streaming available - use existing implementation
-                result = await AIModule.aiGrammar(selectedText);
-                if (answerDiv) MarkdownRenderer.renderToElement(answerDiv, result);
-                break;
               case 'rewrite':
                 result = await AIModule.aiRewriteStream(selectedText, onChunk, abortController.signal);
                 break;
@@ -569,11 +560,6 @@ const DialogModule = (function() {
               break;
             case 'explain':
               result = await AIModule.aiExplainStream(selectedText, onChunk);
-              break;
-            case 'grammar':
-              // Grammar doesn't have streaming
-              result = await AIModule.aiGrammar(selectedText);
-              MarkdownRenderer.renderToElement(answerDiv, result);
               break;
             case 'rewrite':
               result = await AIModule.aiRewriteStream(selectedText, onChunk);
@@ -835,7 +821,6 @@ const DialogModule = (function() {
       'summarize': 'Summarize',
       'translate': 'Translate',
       'explain': 'Explain this',
-      'grammar': 'Grammar',
       'rewrite': 'Rewrite',
       'expand': 'Expand',
       'answer': 'Answer this question'
