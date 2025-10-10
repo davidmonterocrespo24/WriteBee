@@ -512,355 +512,604 @@ ${text}`;
     };
   }
 
-  async function translateFullPage() {
-    if (isTranslating) {
-      // Si ya está traducido, revertir
-      revertTranslation();
-      return;
+  // Reemplaza la función translateFullPage() en FloatButtonsModule
+
+async function translateFullPage() {
+  if (isTranslating) {
+    // Si ya está traducido, revertir
+    revertTranslation();
+    return;
+  }
+
+  console.log('🌐 Iniciando traducción de página...');
+
+  // Verificar soporte de Translator API
+  if (!('Translator' in self)) {
+    alert('La API de traducción no está disponible en este navegador. Se requiere Chrome con soporte para Translator API.');
+    return;
+  }
+
+  // Preguntar al usuario a qué idioma quiere traducir
+  const targetLanguage = await showLanguageSelectionDialog();
+  
+  if (!targetLanguage) {
+    console.log('❌ Traducción cancelada');
+    return;
+  }
+
+  currentTargetLanguage = targetLanguage;
+  console.log('🎯 Idioma objetivo:', targetLanguage.name);
+
+  // Cambiar botón a estado "procesando"
+  const translateBtn = document.getElementById('ai-float-btn-translate');
+  if (translateBtn) {
+    translateBtn.style.background = '#FFA726';
+    translateBtn.querySelector('div:first-child').innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" opacity="0.3"/>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+          <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+    `;
+  }
+
+  try {
+    // Detectar idioma de la página usando solo LanguageDetector API
+    const pageLanguage = await detectPageLanguage();
+    console.log('📄 Idioma detectado:', pageLanguage);
+
+    // Verificar si es necesario traducir
+    if (pageLanguage.toLowerCase() === targetLanguage.code.toLowerCase()) {
+      const shouldContinue = await showConfirmationDialog(
+        '¿Continuar con la traducción?',
+        `La página parece estar en ${targetLanguage.name}. ¿Deseas traducir de todas formas?`,
+        'Sí, traducir',
+        'Cancelar'
+      );
+      
+      if (!shouldContinue) {
+        resetTranslateButton(translateBtn);
+        return;
+      }
     }
 
-    console.log('🌐 Iniciando proceso de traducción...');
-
-    // Preguntar al usuario a qué idioma quiere traducir
-    const targetLanguage = await showLanguageSelectionDialog();
+    // Seleccionar elementos a traducir
+    const elementsToTranslate = selectElementsToTranslate();
     
-    if (!targetLanguage) {
-      console.log('❌ Traducción cancelada por el usuario');
+    if (elementsToTranslate.length === 0) {
+      alert('No se encontró texto para traducir');
+      resetTranslateButton(translateBtn);
       return;
     }
 
-    currentTargetLanguage = targetLanguage;
-    console.log('🎯 Idioma objetivo seleccionado:', targetLanguage);
+    console.log(`📝 ${elementsToTranslate.length} elementos para traducir`);
 
-    // Cambiar el ícono del botón para indicar que está procesando
-    const translateBtn = document.getElementById('ai-float-btn-translate');
+    // Mostrar progreso
+    showTranslationProgress(0, elementsToTranslate.length, targetLanguage.name);
+
+    // Crear instancia del Translator con manejo de descarga
+    const translator = await createTranslatorWithDownload(pageLanguage, targetLanguage.code);
+    
+    if (!translator) {
+      throw new Error('No se pudo crear el traductor');
+    }
+
+    // Traducir elementos de manera optimizada
+    await translateElementsOptimized(translator, elementsToTranslate, targetLanguage.name);
+
+    // Destruir translator
+    translator.destroy();
+
+    console.log('✅ Traducción completada');
+    hideTranslationProgress();
+
+    isTranslating = true;
+
+    // Actualizar botón
     if (translateBtn) {
-      translateBtn.style.background = '#FFA726';
+      translateBtn.style.background = '#4CAF50';
       translateBtn.querySelector('div:first-child').innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+      `;
+      const tooltip = translateBtn.querySelector('.ai-float-tooltip');
+      if (tooltip) tooltip.textContent = `Revertir (${targetLanguage.name})`;
+    }
+
+  } catch (error) {
+    console.error('❌ Error en traducción:', error);
+    alert('Error al traducir: ' + error.message);
+    hideTranslationProgress();
+    resetTranslateButton(translateBtn);
+  }
+}// Seleccionar elementos a traducir (versión mejorada)
+function selectElementsToTranslate() {
+  const elements = [];
+
+  // Selectores más amplios y prioritarios
+  const selectors = [
+    // Contenido principal
+    'main p', 'main h1, main h2, main h3, main h4, main h5, main h6',
+    'article p', 'article h1, article h2, article h3, article h4, article h5, article h6',
+    '[role="main"] p', '[role="main"] h1, [role="main"] h2, [role="main"] h3, [role="main"] h4, [role="main"] h5, [role="main"] h6',
+    '.content p', '.content h1, .content h2, .content h3, .content h4, .content h5, .content h6',
+    '.post p', '.post h1, .post h2, .post h3, .post h4, .post h5, .post h6',
+    '.entry p', '.entry h1, .entry h2, .entry h3, .entry h4, .entry h5, .entry h6',
+
+    // Elementos del body si no hay contenido principal estructurado
+    'body > p', 'body > h1, body > h2, body > h3, body > h4, body > h5, body > h6',
+
+    // Contenedores comunes
+    '.container p', '.wrapper p', '.page p', '.site-content p',
+    '.container h1, .container h2, .container h3, .container h4, .container h5, .container h6',
+    '.wrapper h1, .wrapper h2, .wrapper h3, .wrapper h4, .wrapper h5, .wrapper h6',
+
+    // Listas y otros elementos de contenido
+    'main li', 'article li', '[role="main"] li',
+    'main td, main th', 'article td, article th', '[role="main"] td, [role="main"] th',
+
+    // Elementos con clases comunes de contenido
+    '.content li', '.post li', '.entry li',
+    '.content td, .content th', '.post td, .post th', '.entry td, .entry th',
+
+    // Párrafos en secciones comunes
+    'section p', '.section p', '.block p',
+    'section h1, section h2, section h3, section h4, section h5, section h6',
+    '.section h1, .section h2, .section h3, .section h4, .section h5, .section h6'
+  ];
+
+  const foundElements = new Set();
+
+  selectors.forEach(selector => {
+    try {
+      const nodes = document.querySelectorAll(selector);
+      nodes.forEach(element => {
+        // Evitar duplicados y elementos no deseados
+        if (foundElements.has(element) ||
+            element.closest('[class*="ai-"]') ||
+            element.closest('script') ||
+            element.closest('style') ||
+            element.closest('nav') ||
+            element.closest('header') ||
+            element.closest('footer') ||
+            element.closest('.sidebar') ||
+            element.closest('.widget') ||
+            element.closest('.advertisement') ||
+            element.closest('.ads') ||
+            element.closest('.ad') ||
+            element.closest('[class*="menu"]') ||
+            element.closest('[class*="nav"]') ||
+            element.closest('[id*="menu"]') ||
+            element.closest('[id*="nav"]')) {
+          return;
+        }
+
+        // Verificar visibilidad
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' ||
+            style.visibility === 'hidden' ||
+            style.opacity === '0') {
+          return;
+        }
+
+        // Obtener texto completo del elemento (incluyendo hijos)
+        let text = getFullText(element);
+
+        if (!text || text.length < 3) return;
+        if (text.match(/^[\d\s\W]+$/)) return; // Solo números/símbolos
+        if (text.includes('http://') || text.includes('https://')) return;
+
+        elements.push({
+          element: element,
+          text: text
+        });
+
+        foundElements.add(element);
+      });
+    } catch (e) {
+      console.warn('Error con selector:', selector, e);
+    }
+  });
+
+  return elements;
+}
+
+// Obtener todo el texto de un elemento (incluyendo elementos hijos)
+function getFullText(element) {
+  return element.textContent.trim();
+}
+
+// Reemplazar texto del elemento preservando estructura HTML
+function replaceElementText(element, newText) {
+  // Si el elemento solo tiene nodos de texto directos, reemplazarlos
+  const childNodes = Array.from(element.childNodes);
+  const hasOnlyTextNodes = childNodes.every(node => node.nodeType === Node.TEXT_NODE);
+
+  if (hasOnlyTextNodes && childNodes.length > 0) {
+    // Preservar espacios iniciales/finales del primer y último nodo
+    const firstNode = childNodes[0];
+    const lastNode = childNodes[childNodes.length - 1];
+
+    if (firstNode.nodeType === Node.TEXT_NODE) {
+      const leadingSpace = firstNode.textContent.match(/^\s*/)[0];
+      const trailingSpace = lastNode.textContent.match(/\s*$/)[0];
+
+      // Reemplazar todo el contenido
+      element.textContent = leadingSpace + newText + trailingSpace;
+    }
+    return;
+  }
+
+  // Si tiene elementos HTML complejos, usar una estrategia diferente
+  // Guardar la estructura HTML y reemplazar solo el texto
+  const originalHTML = element.innerHTML;
+  const textNodes = [];
+
+  // Recolectar todos los nodos de texto
+  function collectTextNodes(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      textNodes.push(node);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      for (let child of node.childNodes) {
+        collectTextNodes(child);
+      }
+    }
+  }
+
+  collectTextNodes(element);
+
+  if (textNodes.length === 1) {
+    // Un solo nodo de texto, fácil de reemplazar
+    const node = textNodes[0];
+    const leadingSpace = node.textContent.match(/^\s*/)[0];
+    const trailingSpace = node.textContent.match(/\s*$/)[0];
+    node.textContent = leadingSpace + newText + trailingSpace;
+  } else if (textNodes.length > 1) {
+    // Múltiples nodos de texto, reemplazar el contenido completo
+    // pero preservar la estructura HTML externa
+    element.innerHTML = newText;
+  } else {
+    // No hay nodos de texto, usar textContent
+    element.textContent = newText;
+  }
+}
+
+// Crear traductor con manejo de descarga optimizado
+async function createTranslatorWithDownload(sourceLang, targetLang) {
+  try {
+    // Normalizar códigos de idioma
+    sourceLang = sourceLang.substring(0, 2).toLowerCase();
+    targetLang = targetLang.substring(0, 2).toLowerCase();
+
+    console.log(`🔧 Creando traductor: ${sourceLang} -> ${targetLang}`);
+
+    // Verificar disponibilidad
+    const availability = await self.Translator.availability({
+      sourceLanguage: sourceLang,
+      targetLanguage: targetLang
+    });
+
+    console.log('📊 Disponibilidad:', availability);
+
+    if (availability === 'no') {
+      throw new Error(`Par de idiomas ${sourceLang}->${targetLang} no soportado`);
+    }
+
+    if (availability === 'available') {
+      // Ya disponible, crear directamente
+      return await self.Translator.create({
+        sourceLanguage: sourceLang,
+        targetLanguage: targetLang
+      });
+    }
+
+    // Si es 'downloadable', mostrar progreso de descarga
+    if (availability === 'downloadable') {
+      showDownloadProgress();
+
+      const translator = await self.Translator.create({
+        sourceLanguage: sourceLang,
+        targetLanguage: targetLang,
+        monitor(m) {
+          m.addEventListener('downloadprogress', (e) => {
+            updateDownloadProgress(e.loaded);
+          });
+        },
+      });
+
+      hideDownloadProgress();
+      console.log('✅ Traductor creado y descargado');
+      return translator;
+    }
+
+    throw new Error('Estado de disponibilidad desconocido');
+
+  } catch (error) {
+    console.error('❌ Error creando traductor:', error);
+    hideDownloadProgress();
+    throw error;
+  }
+}
+
+// Función optimizada para traducir elementos
+async function translateElementsOptimized(translator, elements, languageName) {
+  let translatedCount = 0;
+  const totalElements = elements.length;
+
+  // Procesar en lotes más grandes para mejor rendimiento
+  const batchSize = 5; // Aumentado de 3 a 5
+
+  for (let i = 0; i < elements.length; i += batchSize) {
+    const batch = elements.slice(i, i + batchSize);
+
+    // Usar Promise.allSettled para mejor manejo de errores
+    const results = await Promise.allSettled(
+      batch.map(async (item) => {
+        const translatedText = await translateTextOptimized(translator, item.text);
+
+        // Guardar texto original
+        if (!originalTexts.has(item.element)) {
+          originalTexts.set(item.element, item.text);
+        }
+
+        // Reemplazar texto
+        replaceElementText(item.element, translatedText);
+        translatedElements.add(item.element);
+
+        return true;
+      })
+    );
+
+    // Contar exitos
+    const successful = results.filter(r => r.status === 'fulfilled').length;
+    translatedCount += successful;
+
+    // Actualizar progreso
+    showTranslationProgress(translatedCount, totalElements, languageName);
+
+    // Log de errores si los hay
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      console.warn(`⚠️ ${failed.length} elementos fallaron en este lote`);
+    }
+
+    // Pequeña pausa para no sobrecargar (reducida)
+    if (i + batchSize < elements.length) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+  }
+}
+
+// Función optimizada para traducir texto individual
+async function translateTextOptimized(translator, text) {
+  // Para textos largos, usar streaming
+  if (text.length > 1000) {
+    const stream = translator.translateStreaming(text);
+    let result = '';
+    for await (const chunk of stream) {
+      result = chunk; // El último chunk es el resultado completo
+    }
+    return result;
+  } else {
+    // Para textos cortos, usar traducción normal
+    return await translator.translate(text);
+  }
+}
+
+// Detectar idioma de la página usando solo LanguageDetector API
+async function detectPageLanguage() {
+  // 1. Intentar con atributo lang del documento
+  const htmlLang = document.documentElement.lang;
+  if (htmlLang && htmlLang.length >= 2) {
+    return htmlLang.substring(0, 2).toLowerCase();
+  }
+
+  // 2. Usar LanguageDetector API
+  try {
+    if ('LanguageDetector' in self) {
+      const detector = await self.LanguageDetector.create();
+
+      // Obtener texto de muestra más eficiente
+      const sampleText = getSampleText();
+
+      if (sampleText) {
+        const results = await detector.detect(sampleText);
+        detector.destroy();
+
+        if (results && results.length > 0 && results[0].confidence > 0.5) {
+          return results[0].detectedLanguage.substring(0, 2).toLowerCase();
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('Error detectando idioma con LanguageDetector:', error);
+  }
+
+  // 3. Fallback simple basado en navegador
+  const browserLang = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
+  return browserLang.toLowerCase();
+}
+
+// Obtener texto de muestra para detección
+function getSampleText() {
+  const paragraphs = document.querySelectorAll('p, h1, h2, h3');
+  let text = '';
+  
+  for (let i = 0; i < Math.min(5, paragraphs.length); i++) {
+    const t = paragraphs[i].textContent.trim();
+    if (t.length > 20) {
+      text += t + ' ';
+      if (text.length > 300) break;
+    }
+  }
+  
+  return text.trim();
+}
+
+// Revertir traducción
+function revertTranslation() {
+  console.log('🔄 Revirtiendo traducción...');
+
+  let revertedCount = 0;
+
+  originalTexts.forEach((originalText, element) => {
+    try {
+      replaceElementText(element, originalText);
+      revertedCount++;
+    } catch (error) {
+      console.warn('⚠️ Error revirtiendo:', error);
+    }
+  });
+
+  console.log(`✅ ${revertedCount} elementos revertidos`);
+
+  originalTexts.clear();
+  translatedElements.clear();
+  isTranslating = false;
+  currentTargetLanguage = null;
+
+  hideTranslationProgress();
+
+  const translateBtn = document.getElementById('ai-float-btn-translate');
+  if (translateBtn) {
+    resetTranslateButton(translateBtn);
+    const tooltip = translateBtn.querySelector('.ai-float-tooltip');
+    if (tooltip) tooltip.textContent = 'Traducir Página';
+  }
+}
+
+// Helpers para progreso visual
+function showTranslationProgress(current, total, languageName) {
+  let progressDiv = document.getElementById('ai-translation-progress');
+  
+  if (!progressDiv) {
+    progressDiv = document.createElement('div');
+    progressDiv.id = 'ai-translation-progress';
+    progressDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(26, 29, 41, 0.95);
+      color: #e4e6eb;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(66, 133, 244, 0.3);
+    `;
+    document.body.appendChild(progressDiv);
+  }
+
+  const percentage = Math.round((current / total) * 100);
+  progressDiv.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+        <circle cx="12" cy="12" r="10" opacity="0.3"/>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+          <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+      <div>
+        <div>Traduciendo a ${languageName}...</div>
+        <div style="font-size: 12px; color: #a5a7b1; margin-top: 4px;">
+          ${current} / ${total} (${percentage}%)
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function hideTranslationProgress() {
+  const progressDiv = document.getElementById('ai-translation-progress');
+  if (progressDiv) progressDiv.remove();
+}
+
+// Funciones para progreso de descarga del modelo
+function showDownloadProgress() {
+  let progressDiv = document.getElementById('ai-download-progress');
+
+  if (!progressDiv) {
+    progressDiv = document.createElement('div');
+    progressDiv.id = 'ai-download-progress';
+    progressDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(26, 29, 41, 0.95);
+      color: #e4e6eb;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      z-index: 10001;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    `;
+    document.body.appendChild(progressDiv);
+  }
+
+  progressDiv.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+        <circle cx="12" cy="12" r="10" opacity="0.3"/>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
+          <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+      <div>
+        <div>Descargando modelo de traducción...</div>
+        <div style="font-size: 12px; color: #a5a7b1; margin-top: 4px;">
+          Esto puede tomar unos momentos
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateDownloadProgress(percentage) {
+  const progressDiv = document.getElementById('ai-download-progress');
+  if (progressDiv) {
+    const percent = Math.round(percentage * 100);
+    progressDiv.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
           <circle cx="12" cy="12" r="10" opacity="0.3"/>
           <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round">
             <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
           </path>
         </svg>
-      `;
-    }
-
-    try {
-      // Detectar el idioma de la página
-      const pageLanguage = await detectPageLanguage();
-      console.log('📄 Idioma detectado de la página:', pageLanguage);
-
-      const detectedLang = pageLanguage.toLowerCase();
-      const targetLang = targetLanguage.code.toLowerCase();
-
-      console.log('📝 Idioma de la página:', detectedLang);
-
-      // Verificar si la página ya está en el idioma objetivo
-      // Pero permitir al usuario continuar si lo desea
-      if (detectedLang === targetLang) {
-        console.log('⚠️ La página parece estar en el idioma objetivo');
-        
-        // Crear diálogo de confirmación
-        const shouldContinue = await showConfirmationDialog(
-          '¿Continuar con la traducción?',
-          `La página parece estar parcialmente en ${targetLanguage.name}. ¿Deseas traducir de todas formas? Esto puede ayudar a traducir contenido mixto o mal detectado.`,
-          'Sí, traducir',
-          'Cancelar'
-        );
-        
-        if (!shouldContinue) {
-          console.log('❌ Usuario canceló la traducción');
-          if (translateBtn) {
-            translateBtn.style.background = '#4285F4';
-            resetTranslateButton(translateBtn);
-          }
-          return;
-        }
-        
-        console.log('✅ Usuario decidió continuar con la traducción');
-      }
-
-      // Seleccionar elementos de texto de forma más inteligente
-      // Estrategia: Procesar elementos "hoja" (sin hijos de texto) primero
-      const allTextElements = document.querySelectorAll(`
-        p, h1, h2, h3, h4, h5, h6, 
-        li, td, th, 
-        span, a, button, label, 
-        div, section, article, 
-        dt, dd, figcaption, caption,
-        blockquote, q, cite,
-        strong, em, b, i, u,
-        small, mark, del, ins, sub, sup,
-        code, pre, kbd, samp, var,
-        time, address,
-        [role="heading"],
-        [role="text"],
-        [role="paragraph"]
-      `);
-      
-      const textsToTranslate = [];
-      const elementsToTranslate = [];
-
-      // Recopilar textos que necesitan traducción
-      allTextElements.forEach(element => {
-        // Evitar traducir elementos de nuestra extensión
-        if (element.closest('.ai-result-panel') || 
-            element.closest('.ai-float-btn') ||
-            element.closest('.ai-float-buttons-container') ||
-            element.closest('.ai-language-dialog') ||
-            element.closest('.ai-confirmation-dialog') ||
-            element.closest('[class*="ai-"]') ||
-            element.closest('script') ||
-            element.closest('style') ||
-            element.closest('noscript') ||
-            translatedElements.has(element)) {
-          return;
-        }
-
-        // Verificar si el elemento tiene texto visible
-        const computedStyle = window.getComputedStyle(element);
-        if (computedStyle.display === 'none' || 
-            computedStyle.visibility === 'hidden' ||
-            computedStyle.opacity === '0') {
-          return;
-        }
-
-        // Verificar si algún hijo ya fue marcado para traducción
-        // Esto evita traducir el contenedor si ya traducimos los hijos
-        let hasChildInList = false;
-        for (let i = 0; i < elementsToTranslate.length; i++) {
-          if (element.contains(elementsToTranslate[i])) {
-            hasChildInList = true;
-            break;
-          }
-        }
-        if (hasChildInList) {
-          return;
-        }
-
-        // Obtener TODO el texto visible del elemento usando innerText
-        // innerText respeta la visibilidad CSS y el formato
-        let fullText = element.innerText?.trim() || element.textContent?.trim() || '';
-        
-        // Filtros para evitar traducir contenido no válido
-        if (!fullText || fullText.length < 2) {
-          return;
-        }
-
-        // Evitar solo números, símbolos o fechas
-        if (fullText.match(/^[\d\s\W]+$/) || 
-            fullText.match(/^\d+$/) ||
-            fullText.match(/^[^a-zA-Z]+$/)) {
-          return;
-        }
-
-        // Evitar URLs y emails
-        if (fullText.includes('http://') || 
-            fullText.includes('https://') ||
-            fullText.includes('www.') ||
-            fullText.includes('@')) {
-          return;
-        }
-
-        // Guardar el texto completo y el elemento
-        textsToTranslate.push(fullText);
-        elementsToTranslate.push(element);
-      });
-
-      if (textsToTranslate.length === 0) {
-        alert('No se encontró texto para traducir en esta página');
-        if (translateBtn) {
-          translateBtn.style.background = '#4285F4';
-          resetTranslateButton(translateBtn);
-        }
-        return;
-      }
-
-      console.log(`📝 ${textsToTranslate.length} elementos de texto encontrados`);
-
-      // Mostrar notificación
-      showTranslationProgress(0, textsToTranslate.length, targetLanguage.name);
-
-      // Traducir en lotes para optimizar
-      const batchSize = 5; // Reducido a 5 para mejor precisión
-      let translatedCount = 0;
-
-      for (let i = 0; i < textsToTranslate.length; i += batchSize) {
-        const batch = textsToTranslate.slice(i, i + batchSize);
-        const batchElements = elementsToTranslate.slice(i, i + batchSize);
-
-        // Crear prompt para el lote con instrucciones muy claras
-        const batchText = batch.map((text, idx) => `[${idx}]${text}`).join('\n');
-        
-        const prompt = `Eres un traductor profesional. Tu ÚNICA tarea es traducir los siguientes textos a ${targetLanguage.name}.
-
-INSTRUCCIONES CRÍTICAS:
-- Traduce TODO el texto, sin excepción
-- Mantén EXACTAMENTE el formato [número] antes de cada traducción
-- NO omitas ninguna línea
-- NO agregues explicaciones ni comentarios
-- Si un texto ya está en ${targetLanguage.name}, tradúcelo de todas formas para asegurar consistencia
-- Traduce incluso palabras técnicas si tienen equivalente en ${targetLanguage.name}
-
-TEXTOS A TRADUCIR:
-${batchText}
-
-FORMATO DE RESPUESTA REQUERIDO:
-[0]texto traducido
-[1]texto traducido
-[2]texto traducido
-etc.`;
-
-        try {
-          const translations = await AIModule.aiAnswer(prompt);
-          
-          // Parsear las traducciones con mejor manejo de errores
-          const translationLines = translations.split('\n').filter(line => line.trim());
-          
-          // Procesar cada línea
-          for (let lineIdx = 0; lineIdx < translationLines.length; lineIdx++) {
-            const line = translationLines[lineIdx];
-            
-            // Buscar el patrón [número]texto
-            const match = line.match(/^\[(\d+)\]\s*(.+)$/);
-            if (match) {
-              const idx = parseInt(match[1]);
-              let translatedText = match[2].trim();
-              
-              if (idx < batchElements.length) {
-                const element = batchElements[idx];
-                const originalText = batch[idx];
-                
-                // Guardar texto original solo si no existe
-                if (!originalTexts.has(element)) {
-                  originalTexts.set(element, originalText);
-                }
-                
-                // Estrategia de reemplazo:
-                // 1. Si el elemento tiene solo texto (sin hijos HTML), usar textContent
-                // 2. Si tiene hijos HTML, usar innerText para preservar estructura
-                let replaced = false;
-                
-                try {
-                  // Verificar si el elemento tiene solo texto
-                  const hasOnlyText = Array.from(element.childNodes).every(
-                    node => node.nodeType === Node.TEXT_NODE || 
-                           (node.nodeType === Node.ELEMENT_NODE && node.childNodes.length === 0)
-                  );
-                  
-                  if (hasOnlyText && element.childNodes.length === 1 && element.childNodes[0].nodeType === Node.TEXT_NODE) {
-                    // Caso simple: un solo nodo de texto
-                    const node = element.childNodes[0];
-                    const leadingSpace = node.textContent.match(/^\s+/)?.[0] || '';
-                    const trailingSpace = node.textContent.match(/\s+$/)?.[0] || '';
-                    node.textContent = leadingSpace + translatedText + trailingSpace;
-                    replaced = true;
-                  } else {
-                    // Caso complejo: usar innerText para reemplazar todo el contenido visible
-                    // Pero preservar la estructura HTML interna si es posible
-                    const currentInnerText = element.innerText?.trim() || element.textContent?.trim();
-                    
-                    if (currentInnerText === originalText) {
-                      // Si el innerText coincide exactamente, podemos reemplazar todo
-                      element.innerText = translatedText;
-                      replaced = true;
-                    } else {
-                      // Fallback: buscar y reemplazar en nodos de texto
-                      const walker = document.createTreeWalker(
-                        element,
-                        NodeFilter.SHOW_TEXT,
-                        null,
-                        false
-                      );
-                      
-                      let allText = '';
-                      const textNodes = [];
-                      let node;
-                      
-                      while (node = walker.nextNode()) {
-                        const text = node.textContent.trim();
-                        if (text) {
-                          textNodes.push(node);
-                          allText += (allText ? ' ' : '') + text;
-                        }
-                      }
-                      
-                      // Si el texto combinado coincide con el original, reemplazar el primer nodo
-                      if (allText === originalText && textNodes.length > 0) {
-                        const leadingSpace = textNodes[0].textContent.match(/^\s+/)?.[0] || '';
-                        const trailingSpace = textNodes[textNodes.length - 1].textContent.match(/\s+$/)?.[0] || '';
-                        
-                        // Limpiar todos los nodos excepto el primero
-                        for (let i = 1; i < textNodes.length; i++) {
-                          textNodes[i].textContent = '';
-                        }
-                        
-                        // Poner toda la traducción en el primer nodo
-                        textNodes[0].textContent = leadingSpace + translatedText + trailingSpace;
-                        replaced = true;
-                      }
-                    }
-                  }
-                } catch (error) {
-                  console.warn('⚠️ Error al reemplazar texto:', error);
-                }
-                
-                // Marcar como traducido solo si se reemplazó exitosamente
-                if (replaced) {
-                  translatedElements.add(element);
-                } else {
-                  console.warn('⚠️ No se pudo reemplazar:', {
-                    element,
-                    originalText: originalText.substring(0, 50),
-                    translatedText: translatedText.substring(0, 50)
-                  });
-                }
-              }
-            }
-          }
-
-          translatedCount += batch.length;
-          console.log(`✅ Traducidos ${translatedCount}/${textsToTranslate.length} elementos`);
-          
-          // Actualizar progreso
-          showTranslationProgress(translatedCount, textsToTranslate.length, targetLanguage.name);
-
-        } catch (error) {
-          console.error('Error traduciendo lote:', error);
-          // Continuar con el siguiente lote aunque haya error
-        }
-
-        // Pausa entre lotes
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
-
-      console.log('🎉 Traducción completada');
-      hideTranslationProgress();
-
-      isTranslating = true;
-
-      // Actualizar botón para mostrar que está traducido
-      if (translateBtn) {
-        translateBtn.style.background = '#4CAF50';
-        translateBtn.querySelector('div:first-child').innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 6L9 17l-5-5"/>
-          </svg>
-        `;
-        const tooltip = translateBtn.querySelector('.ai-float-tooltip');
-        if (tooltip) tooltip.textContent = `Revertir (${targetLanguage.name})`;
-      }
-
-    } catch (error) {
-      console.error('❌ Error en traducción:', error);
-      alert('Error al traducir la página: ' + error.message);
-      hideTranslationProgress();
-      if (translateBtn) {
-        resetTranslateButton(translateBtn);
-      }
-    }
+        <div>
+          <div>Descargando modelo de traducción...</div>
+          <div style="font-size: 12px; color: #a5a7b1; margin-top: 4px;">
+            ${percent}% completado
+          </div>
+        </div>
+      </div>
+    `;
   }
+}
+
+function hideDownloadProgress() {
+  const progressDiv = document.getElementById('ai-download-progress');
+  if (progressDiv) progressDiv.remove();
+}
+
+function resetTranslateButton(btn) {
+  if (btn) {
+    btn.style.background = '#4285F4';
+    btn.querySelector('div:first-child').innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M5 8h6m-6 4h3m10-9a17.8 17.8 0 0 1-5 10m5-10L12 3m6 0a17.8 17.8 0 0 0-5 10m0 0H4m13 0a17.8 17.8 0 0 1 5 10m-5-10l6 9"/>
+        <path d="m2 21 4-9 4 9"/>
+        <path d="M3.5 18h5"/>
+      </svg>
+    `;
+  }
+}
 
   async function showLanguageSelectionDialog() {
     return new Promise((resolve) => {
@@ -1170,42 +1419,6 @@ etc.`;
       };
       document.addEventListener('keydown', handleEsc);
     });
-  }
-
-  async function detectPageLanguage() {
-    // Obtener texto de muestra de la página
-    const sampleTexts = [];
-    const elements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6');
-    
-    for (let i = 0; i < Math.min(5, elements.length); i++) {
-      const text = elements[i].textContent.trim();
-      if (text.length > 20) {
-        sampleTexts.push(text.substring(0, 200));
-      }
-    }
-
-    if (sampleTexts.length === 0) {
-      // Fallback: intentar con el atributo lang
-      return document.documentElement.lang || 'en';
-    }
-
-    const sampleText = sampleTexts.join(' ');
-
-    // Usar IA para detectar el idioma
-    const prompt = `Detecta el idioma del siguiente texto y responde ÚNICAMENTE con el código de idioma de 2 letras (ej: 'es' para español, 'en' para inglés, 'fr' para francés, etc.).
-No agregues explicaciones, solo el código de idioma.
-
-Texto:
-${sampleText.substring(0, 500)}`;
-
-    try {
-      const detectedLang = await AIModule.aiAnswer(prompt);
-      return detectedLang.trim().toLowerCase().substring(0, 2);
-    } catch (error) {
-      console.error('Error detectando idioma:', error);
-      // Fallback al atributo lang del documento
-      return (document.documentElement.lang || 'en').substring(0, 2);
-    }
   }
 
   function getLanguageName(langCode) {
