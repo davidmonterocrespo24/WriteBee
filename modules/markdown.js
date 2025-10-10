@@ -3,6 +3,239 @@
  */
 const MarkdownRenderer = (function() {
 
+  // Inyectar estilos CSS automáticamente
+  const styles = `
+    /* Estilos para el resaltado de sintaxis */
+    .ai-bee .code-block {
+      background: #1e1e1e;
+      border-radius: 8px;
+      margin: 16px 0;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .ai-bee .code-header {
+      background: #2d2d2d;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #3d3d3d;
+    }
+
+    .ai-bee .code-language {
+      color: #9cdcfe;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .ai-bee .code-copy-btn {
+      background: #3d3d3d;
+      border: none;
+      color: #cccccc;
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .ai-bee .code-copy-btn:hover {
+      background: #505050;
+      color: #ffffff;
+    }
+
+    .ai-bee .code-copy-btn:active {
+      transform: scale(0.95);
+    }
+
+    .ai-bee .code-block pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      background: #1e1e1e;
+    }
+
+    .ai-bee .code-block code {
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #d4d4d4;
+    }
+
+    /* Resaltado de sintaxis - tema oscuro tipo VS Code */
+    .ai-bee .keyword {
+      color: #569cd6;
+      font-weight: 500;
+    }
+
+    .ai-bee .string {
+      color: #ce9178;
+    }
+
+    .ai-bee .comment {
+      color: #6a9955;
+      font-style: italic;
+    }
+
+    .ai-bee .number {
+      color: #b5cea8;
+    }
+
+    /* Código inline */
+    .ai-bee .inline-code {
+      background: #f4f4f4;
+      color: #e01e5a;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.9em;
+      border: 1px solid #e0e0e0;
+    }
+
+    /* Tablas Markdown */
+    .ai-bee .markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    .ai-bee .markdown-table th {
+      background: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      border: 1px solid #dee2e6;
+      color: #333;
+    }
+
+    .ai-bee .markdown-table td {
+      padding: 10px 12px;
+      border: 1px solid #dee2e6;
+      color: #555;
+    }
+
+    .ai-bee .markdown-table tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    .ai-bee .markdown-table tr:hover {
+      background: #e9ecef;
+    }
+
+    /* Matemáticas */
+    .ai-bee .math-inline {
+      font-family: 'Times New Roman', serif;
+      font-style: italic;
+      color: #0066cc;
+      padding: 0 4px;
+    }
+
+    .ai-bee .math-block {
+      display: block;
+      font-family: 'Times New Roman', serif;
+      font-style: italic;
+      color: #0066cc;
+      text-align: center;
+      margin: 16px 0;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+
+    /* Headers */
+    .ai-bee h1 {
+      font-size: 24px;
+      margin: 20px 0 12px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .ai-bee h2 {
+      font-size: 20px;
+      margin: 18px 0 10px;
+      color: #444;
+      font-weight: 600;
+    }
+
+    .ai-bee h3 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    /* Listas */
+    .ai-bee ul {
+      margin: 12px 0;
+      padding-left: 24px;
+    }
+
+    .ai-bee li {
+      margin: 6px 0;
+      line-height: 1.6;
+    }
+
+    /* Blockquotes */
+    .ai-bee blockquote {
+      border-left: 4px solid #0084ff;
+      padding: 8px 16px;
+      margin: 16px 0;
+      background: #f8f9fa;
+      color: #555;
+      font-style: italic;
+    }
+
+    /* Links */
+    .ai-bee a {
+      color: #0084ff;
+      text-decoration: none;
+    }
+
+    .ai-bee a:hover {
+      text-decoration: underline;
+    }
+
+    /* Líneas horizontales */
+    .ai-bee hr {
+      border: none;
+      border-top: 2px solid #e0e0e0;
+      margin: 24px 0;
+    }
+
+    /* Strong y em */
+    .ai-bee strong {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .ai-bee em {
+      font-style: italic;
+    }
+
+    /* Imágenes */
+    .ai-bee img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+  `;
+
+  // Inyectar los estilos en el documento si no existen ya
+  if (!document.getElementById('ai-bee-markdown-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'ai-bee-markdown-styles';
+    styleElement.textContent = styles;
+    document.head.appendChild(styleElement);
+  }
+
   /**
    * Escapa HTML para prevenir XSS
    */
