@@ -4,17 +4,17 @@ const YoutubeModule = (function() {
   let currentVideoId = null;
 
   function init() {
-    // Detectar si estamos en YouTube
+    // Detect if we are on YouTube
     isYoutube = window.location.hostname.includes('youtube.com');
     
     if (isYoutube) {
-      console.log('📺 YouTube detectado, iniciando módulo...');
+      console.log('📺 YouTube detected, starting module...');
       observeYoutube();
     }
   }
 
   function observeYoutube() {
-    // Observar cambios en la URL (YouTube es SPA)
+    // Observe URL changes (YouTube is SPA)
     let lastUrl = location.href;
     new MutationObserver(() => {
       const url = location.href;
@@ -24,7 +24,7 @@ const YoutubeModule = (function() {
       }
     }).observe(document, { subtree: true, childList: true });
 
-    // Verificar inmediatamente
+    // Verify immediately
     setTimeout(onUrlChange, 1000);
   }
 
@@ -33,7 +33,7 @@ const YoutubeModule = (function() {
     
     if (videoId && videoId !== currentVideoId) {
       currentVideoId = videoId;
-      console.log('📹 Nuevo video detectado:', videoId);
+      console.log('📹 New video detected:', videoId);
       insertYoutubePanel();
     } else if (!videoId && youtubePanel) {
       removeYoutubePanel();
@@ -47,18 +47,18 @@ const YoutubeModule = (function() {
   }
 
   function insertYoutubePanel() {
-    // Remover panel anterior si existe
+    // Remove previous panel if it exists
     removeYoutubePanel();
 
-    // Buscar el contenedor de videos relacionados (secondary)
+    // Find the related videos container (secondary)
     const secondary = document.querySelector('#secondary');
     
     if (!secondary) {
-      console.log('⚠️ No se encontró el contenedor #secondary');
+      console.log('⚠️ #secondary container not found');
       return;
     }
 
-    // Crear panel de resumen
+    // Create summary panel
     youtubePanel = document.createElement('div');
     youtubePanel.className = 'ai-youtube-panel';
     youtubePanel.innerHTML = `
@@ -69,10 +69,10 @@ const YoutubeModule = (function() {
           </div>
         </div>
         <div class="ai-youtube-title">
-          <strong>Asistente AI</strong>
-          <span>Resume este video</span>
+          <strong>AI Assistant</strong>
+          <span>Summarize this video</span>
         </div>
-        <button class="ai-youtube-toggle" aria-label="Expandir/Contraer">
+        <button class="ai-youtube-toggle" aria-label="Expand/Collapse">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M6 9l6 6 6-6"/>
           </svg>
@@ -81,17 +81,17 @@ const YoutubeModule = (function() {
 
       <div class="ai-youtube-content">
         <div class="ai-youtube-info">
-          Genera un resumen inteligente de este video usando los subtítulos disponibles.
+          Generate an intelligent summary of this video using available subtitles.
         </div>
 
         <div class="ai-youtube-options">
           <label class="ai-youtube-checkbox">
             <input type="checkbox" id="ai-yt-timestamps" checked />
-            <span>Incluir marcas de tiempo</span>
+            <span>Include timestamps</span>
           </label>
           <label class="ai-youtube-checkbox">
             <input type="checkbox" id="ai-yt-keypoints" checked />
-            <span>Puntos clave</span>
+            <span>Key points</span>
           </label>
         </div>
 
@@ -99,20 +99,20 @@ const YoutubeModule = (function() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
           </svg>
-          Generar Resumen del Video
+          Generate Video Summary
         </button>
 
         <div class="ai-youtube-result" style="display: none;">
           <div class="ai-youtube-result-header">
-            <span>📋 Resumen del video:</span>
+            <span>📋 Video summary:</span>
             <div class="ai-youtube-result-actions">
-              <button class="ai-youtube-copy-btn" title="Copiar">
+              <button class="ai-youtube-copy-btn" title="Copy">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                   <rect x="9" y="9" width="10" height="10" rx="2"></rect>
                   <rect x="5" y="5" width="10" height="10" rx="2"></rect>
                 </svg>
               </button>
-              <button class="ai-youtube-regenerate-btn" title="Regenerar">
+              <button class="ai-youtube-regenerate-btn" title="Regenerate">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                   <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
                 </svg>
@@ -124,9 +124,9 @@ const YoutubeModule = (function() {
       </div>
     `;
 
-    // Insertar el panel al inicio del secondary
+    // Insert the panel at the beginning of secondary
     secondary.insertBefore(youtubePanel, secondary.firstChild);
-    console.log('✅ Panel de YouTube insertado');
+    console.log('✅ YouTube panel inserted');
 
     setupYoutubePanelEvents(youtubePanel);
   }
@@ -150,7 +150,7 @@ const YoutubeModule = (function() {
       toggleBtn.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
     });
 
-    // Botón generar resumen
+    // Generate summary button
     const summarizeBtn = panel.querySelector('.ai-youtube-summarize-btn');
     const resultDiv = panel.querySelector('.ai-youtube-result');
     const resultContent = panel.querySelector('.ai-youtube-result-content');
@@ -159,7 +159,7 @@ const YoutubeModule = (function() {
       await generateVideoSummary(summarizeBtn, resultDiv, resultContent);
     });
 
-    // Botón copiar
+    // Copy button
     const copyBtn = panel.querySelector('.ai-youtube-copy-btn');
     copyBtn.addEventListener('click', () => {
       const text = resultContent.innerText;
@@ -172,7 +172,7 @@ const YoutubeModule = (function() {
       });
     });
 
-    // Botón regenerar
+    // Regenerate button
     const regenerateBtn = panel.querySelector('.ai-youtube-regenerate-btn');
     regenerateBtn.addEventListener('click', async () => {
       await generateVideoSummary(summarizeBtn, resultDiv, resultContent);
@@ -184,20 +184,20 @@ const YoutubeModule = (function() {
     const includeKeypoints = document.getElementById('ai-yt-keypoints').checked;
 
     btn.disabled = true;
-    btn.innerHTML = '<span style="opacity: 0.6;">Obteniendo subtítulos...</span>';
+    btn.innerHTML = '<span style="opacity: 0.6;">Getting subtitles...</span>';
     resultDiv.style.display = 'none';
 
     try {
-      // Obtener los subtítulos del video
+      // Get the video subtitles
       const subtitles = await getVideoSubtitles();
       
       if (!subtitles || subtitles.length === 0) {
-        throw new Error('No se encontraron subtítulos disponibles para este video. El video debe tener subtítulos activados.');
+        throw new Error('No subtitles available for this video. The video must have subtitles enabled.');
       }
 
-      btn.innerHTML = '<span style="opacity: 0.6;">Generando resumen...</span>';
+      btn.innerHTML = '<span style="opacity: 0.6;">Generating summary...</span>';
 
-      // Preparar el texto de los subtítulos
+      // Prepare the subtitle text
       let subtitleText = '';
       if (includeTimestamps) {
         subtitleText = subtitles.map(s => `[${formatTime(s.start)}] ${s.text}`).join('\n');
@@ -205,21 +205,21 @@ const YoutubeModule = (function() {
         subtitleText = subtitles.map(s => s.text).join(' ');
       }
 
-      // Generar el resumen usando AI
+      // Generate the summary using AI
       const prompt = includeKeypoints 
-        ? `Resume el siguiente contenido de video de YouTube extrayendo los puntos clave más importantes. Organiza el resumen en formato markdown con secciones claras:\n\n${subtitleText}`
-        : `Resume el siguiente contenido de video de YouTube de manera clara y concisa:\n\n${subtitleText}`;
+        ? `Summarize the following YouTube video content extracting the most important key points. Organize the summary in markdown format with clear sections:\n\n${subtitleText}`
+        : `Summarize the following YouTube video content clearly and concisely:\n\n${subtitleText}`;
 
       const summary = await AIModule.aiSummarize(prompt, (percent) => {
-        btn.innerHTML = `<span style="opacity: 0.6;">Procesando ${percent}%</span>`;
+        btn.innerHTML = `<span style="opacity: 0.6;">Processing ${percent}%</span>`;
       });
 
-      // Renderizar el resultado
+      // Render the result
       MarkdownRenderer.renderToElement(resultContent, summary);
       resultDiv.style.display = 'block';
 
     } catch (error) {
-      console.error('Error al generar resumen:', error);
+      console.error('Error generating summary:', error);
       resultContent.innerHTML = `
         <div style="color: #ff6b6b; padding: 12px; background: #2a1a1a; border-radius: 6px; border-left: 3px solid #ff6b6b;">
           <strong>❌ Error:</strong> ${error.message}
@@ -232,7 +232,7 @@ const YoutubeModule = (function() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
         </svg>
-        Generar Resumen del Video
+        Generate Video Summary
       `;
     }
   }
@@ -241,12 +241,12 @@ const YoutubeModule = (function() {
     try {
       const videoId = currentVideoId;
       if (!videoId) {
-        throw new Error('No se pudo obtener el ID del video');
+        throw new Error('Could not get video ID');
       }
 
-      console.log('📝 Intentando obtener subtítulos para video:', videoId);
+      console.log('📝 Trying to get subtitles for video:', videoId);
 
-      // Método 1: Intentar acceder a ytInitialPlayerResponse directamente desde window
+      // Method 1: Try to access ytInitialPlayerResponse directly from window
       let playerResponse = window.ytInitialPlayerResponse;
       
       // Si no está en window, intentar buscarlo en los scripts de la página

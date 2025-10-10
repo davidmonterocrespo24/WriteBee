@@ -1,64 +1,64 @@
-# 🐝 Actualización Completa de Colores - WriteBee
+# 🐝 Complete Color Update - WriteBee
 
-## Resumen de Cambios
+## Summary of Changes
 
-Se ha realizado una actualización completa del esquema de colores de la extensión WriteBee, reemplazando todos los tonos morados y azules por el nuevo esquema de colores amarillo de abeja.
+A complete update of the WriteBee extension's color scheme has been performed, replacing all purple and blue tones with the new bee yellow color scheme.
 
 ---
 
-## 📁 Archivos Modificados
+## 📁 Modified Files
 
 ### 1. **styles.css** ✅
-**Cambios realizados:**
+**Changes made:**
 
-#### Variables CSS
+#### CSS Variables
 ```css
 --purple: #7a5cff → #ffd400
-+ --bee-yellow: #ffd400 (nueva variable)
++ --bee-yellow: #ffd400 (new variable)
 ```
 
-#### Reemplazos Globales
-- `#8ab4ff` (azul claro) → `#ffd400` (amarillo abeja)
-- `#667eea` (morado) → `#ffd400` (amarillo abeja)
-- `#7a5cff` (morado vibrante) → `#ffd400` (amarillo abeja)
+#### Global Replacements
+- `#8ab4ff` (light blue) → `#ffd400` (bee yellow)
+- `#667eea` (purple) → `#ffd400` (bee yellow)
+- `#7a5cff` (vibrant purple) → `#ffd400` (bee yellow)
 
-#### Componentes Específicos Actualizados
+#### Specific Components Updated
 
-**Avatar Principal (.ai-avatar)**
-- Fondo: morado → amarillo `#ffd400`
-- Ojos: `#2b2461` → `#1a1a1a` (negro)
-- Bordes: blanco transparente → bordes negros concéntricos
-- Antenas: agregadas con `::before` y `::after` (blancas)
+**Main Avatar (.ai-avatar)**
+- Background: purple → yellow `#ffd400`
+- Eyes: `#2b2461` → `#1a1a1a` (black)
+- Borders: transparent white → concentric black borders
+- Antennas: added with `::before` and `::after` (white)
 
-**Avatar Grande (.ai-avatar-large)**
-- Fondo: gradiente azul → amarillo sólido
-- Ojos: blanco → negro
-- Antenas: agregadas proporcionalmente
+**Large Avatar (.ai-avatar-large)**
+- Background: blue gradient → solid yellow
+- Eyes: white → black
+- Antennas: added proportionally
 
-**Avatar Pequeño (.ai-avatar-small)**
-- Fondo: gradiente azul → amarillo sólido
-- Ojos: blanco → negro
-- Antenas: agregadas proporcionalmente
+**Small Avatar (.ai-avatar-small)**
+- Background: blue gradient → solid yellow
+- Eyes: white → black
+- Antennas: added proportionally
 
 **Float Button (.ai-float-mascot)**
-- Borde exterior: gradiente multicolor → gradiente amarillo
-- Fondo interior: morado → amarillo `#ffd400`
-- Ojos: `#2b2461` → `#1a1a1a`
-- Antenas: agregadas con pseudo-elementos
+- Outer border: multicolor gradient → yellow gradient
+- Inner background: purple → yellow `#ffd400`
+- Eyes: `#2b2461` → `#1a1a1a`
+- Antennas: added with pseudo-elements
 - Label: `#d8c8ff` → `#ffd400`
 
-**Elementos de UI**
-- Bordes activos: azul → amarillo
-- Botones hover: azul → amarillo
-- Links y acentos: azul → amarillo
-- Checkboxes y radios: azul → amarillo
-- Progress bars: azul → amarillo
-- Chips y badges: azul → amarillo
+**UI Elements**
+- Active borders: blue → yellow
+- Button hovers: blue → yellow
+- Links and accents: blue → yellow
+- Checkboxes and radios: blue → yellow
+- Progress bars: blue → yellow
+- Chips and badges: blue → yellow
 
 ---
 
 ### 2. **dialog.js** ✅
-**Línea 653:**
+**Line 653:**
 ```javascript
 speakBtn.style.color = '#8ab4ff' → '#ffd400'
 ```
@@ -66,7 +66,7 @@ speakBtn.style.color = '#8ab4ff' → '#ffd400'
 ---
 
 ### 3. **floatButtons.js** ✅
-**Línea 1096:**
+**Line 1096:**
 ```javascript
 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
 ↓
@@ -78,7 +78,7 @@ color: white → color: #1a1a1a
 ---
 
 ### 4. **side_panel.html** ✅
-**Estilos de avatar actualizados:**
+**Updated avatar styles:**
 ```css
 .message-avatar .ai-avatar .eyes span {
   background: #2b2461 → #1a1a1a
@@ -87,67 +87,67 @@ color: white → color: #1a1a1a
 
 ---
 
-### 5. **Iconos SVG** ✅
-Todos actualizados con diseño de abeja:
+### 5. **SVG Icons** ✅
+All updated with bee design:
 - `icons/icon16.svg`
 - `icons/icon32.svg`
 - `icons/icon48.svg`
 - `icons/icon128.svg`
 
-Características:
-- Cara amarilla `#ffd400`
-- Antenas blancas `#ffffff`
-- Ojos negros `#1a1a1a`
-- Dos bordes negros concéntricos
+Features:
+- Yellow face `#ffd400`
+- White antennas `#ffffff`
+- Black eyes `#1a1a1a`
+- Two concentric black borders
 
 ---
 
-### 6. **Documentación** ✅
-- `icons/README.md` - Actualizado con nuevos colores
-- `CHANGELOG_AVATAR.md` - Historial de cambios
+### 6. **Documentation** ✅
+- `icons/README.md` - Updated with new colors
+- `CHANGELOG_AVATAR.md` - Change history
 
 ---
 
-## 🎨 Paleta de Colores Nueva
+## 🎨 New Color Palette
 
-### Colores Principales
+### Main Colors
 ```css
-/* Amarillo Abeja */
+/* Bee Yellow */
 --bee-yellow: #ffd400;
 
-/* Variantes */
+/* Variants */
 --bee-yellow-light: #ffb700;
 --bee-yellow-dark: #ffa500;
 
-/* Elementos de la Abeja */
---bee-eyes: #1a1a1a;      /* Ojos negros */
---bee-antenna: #ffffff;    /* Antenas blancas */
---bee-border: #1a1a1a;    /* Bordes negros */
+/* Bee Elements */
+--bee-eyes: #1a1a1a;      /* Black eyes */
+--bee-antenna: #ffffff;    /* White antennas */
+--bee-border: #1a1a1a;    /* Black borders */
 ```
 
-### Reemplazo Completo
-| Antes | Después | Uso |
-|-------|---------|-----|
-| `#7a5cff` | `#ffd400` | Color principal (morado → amarillo) |
-| `#8ab4ff` | `#ffd400` | Acentos y hover (azul → amarillo) |
-| `#667eea` | `#ffd400` | Gradientes (morado → amarillo) |
-| `#2b2461` | `#1a1a1a` | Ojos (azul oscuro → negro) |
-| `#ffffff22` | `#1a1a1a` | Bordes (blanco transparente → negro) |
-| `#d8c8ff` | `#ffd400` | Labels (lila → amarillo) |
+### Complete Replacement
+| Before | After | Use |
+|--------|-------|-----|
+| `#7a5cff` | `#ffd400` | Main color (purple → yellow) |
+| `#8ab4ff` | `#ffd400` | Accents and hover (blue → yellow) |
+| `#667eea` | `#ffd400` | Gradients (purple → yellow) |
+| `#2b2461` | `#1a1a1a` | Eyes (dark blue → black) |
+| `#ffffff22` | `#1a1a1a` | Borders (transparent white → black) |
+| `#d8c8ff` | `#ffd400` | Labels (lilac → yellow) |
 
 ---
 
-## ✅ Componentes Donde se Aplica
+## ✅ Components Where Applied
 
-### Automáticamente
-- ✅ Toolbar de selección
-- ✅ Menús contextuales
-- ✅ Diálogos AI
+### Automatically
+- ✅ Selection toolbar
+- ✅ Context menus
+- ✅ AI dialogs
 - ✅ Side Panel (chat)
 - ✅ Float Button (Ctrl+M)
-- ✅ Avatares en todos los módulos
+- ✅ Avatars in all modules
 
-### Módulos Específicos
+### Specific Modules
 - ✅ Gmail (`modules/gmail.js`)
 - ✅ Outlook (`modules/outlook.js`)
 - ✅ YouTube (`modules/youtube.js`)
@@ -157,54 +157,54 @@ Características:
 - ✅ WhatsApp (`modules/whatsapp.js`)
 - ✅ Google Search (`modules/google.js`)
 
-### Elementos de UI
-- ✅ Botones primarios
-- ✅ Links y acentos
-- ✅ Bordes activos
-- ✅ Checkboxes y radios
+### UI Elements
+- ✅ Primary buttons
+- ✅ Links and accents
+- ✅ Active borders
+- ✅ Checkboxes and radios
 - ✅ Progress indicators
-- ✅ Badges y chips
+- ✅ Badges and chips
 - ✅ Tooltips
-- ✅ Inputs focus
-- ✅ Tabs activas
+- ✅ Input focus
+- ✅ Active tabs
 - ✅ Toggle switches
 
 ---
 
-## 🔍 Verificación
+## 🔍 Verification
 
-### Antes de Recargar la Extensión
-1. ✅ Todos los `#8ab4ff` reemplazados
-2. ✅ Todos los `#667eea` reemplazados
-3. ✅ Todos los `#7a5cff` reemplazados
-4. ✅ Antenas agregadas a avatares
-5. ✅ Bordes negros agregados
-6. ✅ Ojos actualizados a negro
-7. ✅ Gradientes actualizados
+### Before Reloading Extension
+1. ✅ All `#8ab4ff` replaced
+2. ✅ All `#667eea` replaced
+3. ✅ All `#7a5cff` replaced
+4. ✅ Antennas added to avatars
+5. ✅ Black borders added
+6. ✅ Eyes updated to black
+7. ✅ Gradients updated
 
-### Después de Recargar
-- [ ] Verificar toolbar de selección
-- [ ] Verificar float button
-- [ ] Verificar side panel
-- [ ] Verificar diálogos AI
-- [ ] Verificar módulos (Gmail, YouTube, etc.)
-- [ ] Verificar iconos de la extensión
+### After Reloading
+- [ ] Verify selection toolbar
+- [ ] Verify float button
+- [ ] Verify side panel
+- [ ] Verify AI dialogs
+- [ ] Verify modules (Gmail, YouTube, etc.)
+- [ ] Verify extension icons
 
 ---
 
-## 🚀 Próximos Pasos
+## 🚀 Next Steps
 
-1. **Generar Iconos PNG**
-   - Abrir `icons/generate-png-icons.html`
-   - Descargar los 4 archivos PNG
-   - Moverlos a la carpeta `icons/`
+1. **Generate PNG Icons**
+   - Open `icons/generate-png-icons.html`
+   - Download the 4 PNG files
+   - Move them to the `icons/` folder
 
-2. **Recargar Extensión**
-   - Ir a `chrome://extensions/`
-   - Hacer clic en el botón de recargar
-   - Verificar que los iconos se vean correctamente
+2. **Reload Extension**
+   - Go to `chrome://extensions/`
+   - Click the reload button
+   - Verify that the icons look correct
 
-3. **Probar en Diferentes Sitios**
+3. **Test on Different Sites**
    - Gmail
    - YouTube
    - GitHub
@@ -214,29 +214,29 @@ Características:
 
 ---
 
-## 📊 Estadísticas de Cambios
+## 📊 Change Statistics
 
-- **Archivos modificados**: 8
-- **Líneas modificadas**: ~300+
-- **Colores reemplazados**: 150+ instancias
-- **Componentes actualizados**: 20+
-- **Módulos afectados**: 12
-
----
-
-## 🐝 Identidad Visual Actualizada
-
-**Antes**: Asistente AI genérico con colores morados
-**Ahora**: WriteBee - Una abeja amarilla vibrante y amigable
-
-### Ventajas del Nuevo Diseño
-1. ✅ **Coherencia de marca**: El nombre "WriteBee" se refleja visualmente
-2. ✅ **Mayor visibilidad**: El amarillo destaca más que el morado
-3. ✅ **Identidad única**: Las antenas hacen el diseño memorable
-4. ✅ **Profesionalismo**: Los bordes y detalles dan calidad
-5. ✅ **Consistencia**: Mismo diseño en todos los contextos
+- **Modified files**: 8
+- **Modified lines**: ~300+
+- **Colors replaced**: 150+ instances
+- **Updated components**: 20+
+- **Affected modules**: 12
 
 ---
 
-**Actualización completada**: 9 de octubre de 2025
-**Versión**: 2.0 - Bee Edition 🐝
+## 🐝 Updated Visual Identity
+
+**Before**: Generic AI assistant with purple colors
+**Now**: WriteBee - A vibrant and friendly yellow bee
+
+### Advantages of the New Design
+1. ✅ **Brand consistency**: The "WriteBee" name is reflected visually
+2. ✅ **Greater visibility**: Yellow stands out more than purple
+3. ✅ **Unique identity**: The antennas make the design memorable
+4. ✅ **Professionalism**: Borders and details give quality
+5. ✅ **Consistency**: Same design in all contexts
+
+---
+
+**Update completed**: October 9, 2025
+**Version**: 2.0 - Bee Edition 🐝

@@ -4,17 +4,17 @@ const GithubModule = (function() {
   let currentRepo = null;
 
   function init() {
-    // Detectar si estamos en GitHub
+    // Detect if we are on GitHub
     isGithub = window.location.hostname.includes('github.com');
     
     if (isGithub) {
-      console.log('🐙 GitHub detectado, iniciando módulo...');
+      console.log('🐙 GitHub detected, starting module...');
       observeGithub();
     }
   }
 
   function observeGithub() {
-    // Observar cambios en la URL (GitHub es SPA)
+    // Observe URL changes (GitHub is SPA)
     let lastUrl = location.href;
     new MutationObserver(() => {
       const url = location.href;
@@ -24,7 +24,7 @@ const GithubModule = (function() {
       }
     }).observe(document, { subtree: true, childList: true });
 
-    // Verificar inmediatamente
+    // Verify immediately
     setTimeout(onUrlChange, 1000);
   }
 
@@ -33,7 +33,7 @@ const GithubModule = (function() {
     
     if (repoInfo && repoInfo !== currentRepo) {
       currentRepo = repoInfo;
-      console.log('📦 Nuevo repositorio detectado:', repoInfo);
+      console.log('📦 New repository detected:', repoInfo);
       insertGithubPanel();
     } else if (!repoInfo && githubPanel) {
       removeGithubPanel();
@@ -42,7 +42,7 @@ const GithubModule = (function() {
   }
 
   function getRepoInfo() {
-    // Detectar si estamos en la página de un repositorio
+    // Detect if we are on a repository page
     // URL pattern: github.com/:owner/:repo
     const pathParts = window.location.pathname.split('/').filter(p => p);
     
@@ -50,7 +50,7 @@ const GithubModule = (function() {
       const owner = pathParts[0];
       const repo = pathParts[1];
       
-      // Asegurarse de que no estamos en páginas especiales como settings, issues, etc
+      // Make sure we are not on special pages like settings, issues, etc
       if (!['settings', 'marketplace', 'pricing', 'features', 'explore'].includes(owner)) {
         return { owner, repo, fullName: `${owner}/${repo}` };
       }
@@ -60,18 +60,18 @@ const GithubModule = (function() {
   }
 
   function insertGithubPanel() {
-    // Remover panel anterior si existe
+    // Remove previous panel if it exists
     removeGithubPanel();
 
-    // Buscar el contenedor "About" en el sidebar derecho
+    // Find the "About" container in the right sidebar
     const aboutContainer = document.querySelector('.BorderGrid.about-margin[data-pjax]');
     
     if (!aboutContainer) {
-      console.log('⚠️ No se encontró el contenedor .BorderGrid.about-margin');
+      console.log('⚠️ .BorderGrid.about-margin container not found');
       return;
     }
 
-    // Crear panel de resumen
+    // Create summary panel
     githubPanel = document.createElement('div');
     githubPanel.className = 'BorderGrid-row';
     githubPanel.innerHTML = `
@@ -85,9 +85,9 @@ const GithubModule = (function() {
             </div>
             <div class="ai-github-title">
               <strong>AI Repository Summary</strong>
-              <span>Resumen inteligente del repositorio</span>
+              <span>Smart repository summary</span>
             </div>
-            <button class="ai-github-toggle" aria-label="Expandir/Contraer">
+            <button class="ai-github-toggle" aria-label="Expand/Collapse">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M6 9l6 6 6-6"/>
               </svg>
@@ -98,15 +98,15 @@ const GithubModule = (function() {
             <div class="ai-github-options">
               <label class="ai-github-checkbox">
                 <input type="checkbox" id="ai-gh-techs" checked />
-                <span>Tecnologías utilizadas</span>
+                <span>Technologies used</span>
               </label>
               <label class="ai-github-checkbox">
                 <input type="checkbox" id="ai-gh-structure" checked />
-                <span>Estructura del proyecto</span>
+                <span>Project structure</span>
               </label>
               <label class="ai-github-checkbox">
                 <input type="checkbox" id="ai-gh-purpose" checked />
-                <span>Propósito y características</span>
+                <span>Purpose and features</span>
               </label>
             </div>
 
@@ -114,20 +114,20 @@ const GithubModule = (function() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
-              Generar Resumen del Repositorio
+              Generate Repository Summary
             </button>
 
             <div class="ai-github-result" style="display: none;">
               <div class="ai-github-result-header">
-                <span>📋 Resumen del repositorio:</span>
+                <span>📋 Repository summary:</span>
                 <div class="ai-github-result-actions">
-                  <button class="ai-github-copy-btn" title="Copiar">
+                  <button class="ai-github-copy-btn" title="Copy">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                       <rect x="9" y="9" width="10" height="10" rx="2"></rect>
                       <rect x="5" y="5" width="10" height="10" rx="2"></rect>
                     </svg>
                   </button>
-                  <button class="ai-github-regenerate-btn" title="Regenerar">
+                  <button class="ai-github-regenerate-btn" title="Regenerate">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                       <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
                     </svg>
@@ -141,9 +141,9 @@ const GithubModule = (function() {
       </div>
     `;
 
-    // Insertar el panel al inicio del contenedor About
+    // Insert the panel at the beginning of the About container
     aboutContainer.insertBefore(githubPanel, aboutContainer.firstChild);
-    console.log('✅ Panel de GitHub insertado');
+    console.log('✅ GitHub panel inserted');
 
     setupGithubPanelEvents(githubPanel);
   }
@@ -156,7 +156,7 @@ const GithubModule = (function() {
   }
 
   function setupGithubPanelEvents(panel) {
-    // Toggle expandir/contraer
+    // Toggle expand/collapse
     const toggleBtn = panel.querySelector('.ai-github-toggle');
     const content = panel.querySelector('.ai-github-content');
     let isExpanded = true;
@@ -167,7 +167,7 @@ const GithubModule = (function() {
       toggleBtn.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
     });
 
-    // Botón generar resumen
+    // Generate summary button
     const summarizeBtn = panel.querySelector('.ai-github-summarize-btn');
     const resultDiv = panel.querySelector('.ai-github-result');
     const resultContent = panel.querySelector('.ai-github-result-content');
@@ -176,7 +176,7 @@ const GithubModule = (function() {
       await generateRepoSummary(summarizeBtn, resultDiv, resultContent);
     });
 
-    // Botón copiar
+    // Copy button
     const copyBtn = panel.querySelector('.ai-github-copy-btn');
     copyBtn.addEventListener('click', () => {
       const text = resultContent.innerText;
@@ -189,7 +189,7 @@ const GithubModule = (function() {
       });
     });
 
-    // Botón regenerar
+    // Regenerate button
     const regenerateBtn = panel.querySelector('.ai-github-regenerate-btn');
     regenerateBtn.addEventListener('click', async () => {
       await generateRepoSummary(summarizeBtn, resultDiv, resultContent);
@@ -207,16 +207,16 @@ const GithubModule = (function() {
         <circle cx="12" cy="12" r="10" opacity="0.25"></circle>
         <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"></path>
       </svg>
-      <span style="opacity: 0.6;">Analizando repositorio...</span>
+      <span style="opacity: 0.6;">Analyzing repository...</span>
     `;
     resultDiv.style.display = 'none';
 
     try {
-      // Recopilar información del repositorio
+      // Collect repository information
       const repoData = await collectRepoData();
       
       if (!repoData) {
-        throw new Error('No se pudo obtener información del repositorio.');
+        throw new Error('Could not obtain repository information.');
       }
 
       btn.innerHTML = `
@@ -224,12 +224,12 @@ const GithubModule = (function() {
           <circle cx="12" cy="12" r="10" opacity="0.25"></circle>
           <path d="M12 2a10 10 0 0 1 10 10" opacity="0.75"></path>
         </svg>
-        <span style="opacity: 0.6;">Generando resumen...</span>
+        <span style="opacity: 0.6;">Generating summary...</span>
       `;
 
-      // Construir el prompt para la AI
-      let prompt = `Analiza el siguiente repositorio de GitHub y genera un resumen completo:\n\n`;
-      prompt += `**Repositorio:** ${currentRepo.fullName}\n`;
+      // Build the prompt for the AI
+      let prompt = `Analyze the following GitHub repository and generate a complete summary:\n\n`;
+      prompt += `**Repository:** ${currentRepo.fullName}\n`;
       prompt += `**URL:** ${window.location.href}\n\n`;
 
       if (repoData.readme) {
@@ -241,7 +241,7 @@ const GithubModule = (function() {
       }
 
       if (repoData.description) {
-        prompt += `**Descripción:** ${repoData.description}\n\n`;
+        prompt += `**Description:** ${repoData.description}\n\n`;
       }
 
       if (repoData.topics && repoData.topics.length > 0) {
@@ -249,36 +249,36 @@ const GithubModule = (function() {
       }
 
       if (repoData.languages && repoData.languages.length > 0) {
-        prompt += `**Lenguajes:** ${repoData.languages.join(', ')}\n\n`;
+        prompt += `**Languages:** ${repoData.languages.join(', ')}\n\n`;
       }
 
       if (repoData.fileStructure) {
-        prompt += `**Estructura de archivos:**\n${repoData.fileStructure}\n\n`;
+        prompt += `**File structure:**\n${repoData.fileStructure}\n\n`;
       }
 
-      // Añadir instrucciones según opciones seleccionadas
-      prompt += `Genera un resumen en formato Markdown que incluya:\n`;
+      // Add instructions according to selected options
+      prompt += `Generate a summary in Markdown format that includes:\n`;
       if (includePurpose) {
-        prompt += `- 🎯 **Propósito**: Qué hace este repositorio y para qué sirve\n`;
+        prompt += `- 🎯 **Purpose**: What this repository does and what it is for\n`;
       }
       if (includeTechs) {
-        prompt += `- 🛠️ **Tecnologías**: Stack tecnológico utilizado\n`;
+        prompt += `- 🛠️ **Technologies**: Technology stack used\n`;
       }
       if (includeStructure) {
-        prompt += `- 📁 **Estructura**: Organización del proyecto\n`;
+        prompt += `- 📁 **Structure**: Project organization\n`;
       }
-      prompt += `- ✨ **Características principales**: Features destacadas\n`;
-      prompt += `- 🚀 **Uso**: Cómo empezar con el proyecto (si está disponible)\n\n`;
-      prompt += `El resumen debe ser claro, conciso y profesional. Usa emojis apropiados para hacer el contenido más visual.`;
+      prompt += `- ✨ **Main features**: Outstanding features\n`;
+      prompt += `- 🚀 **Usage**: How to get started with the project (if available)\n\n`;
+      prompt += `The summary should be clear, concise and professional. Use appropriate emojis to make the content more visual.`;
 
       const summary = await AIModule.aiAnswer(prompt);
 
-      // Renderizar el resultado
+      // Render the result
       MarkdownRenderer.renderToElement(resultContent, summary);
       resultDiv.style.display = 'block';
 
     } catch (error) {
-      console.error('Error al generar resumen:', error);
+      console.error('Error generating summary:', error);
       resultContent.innerHTML = `
         <div style="color: #ff6b6b; padding: 12px; background: #2a1a1a; border-radius: 6px; border-left: 3px solid #ff6b6b;">
           <strong>❌ Error:</strong> ${error.message}
@@ -291,7 +291,7 @@ const GithubModule = (function() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
         </svg>
-        Generar Resumen del Repositorio
+        Generate Repository Summary
       `;
     }
   }
@@ -300,19 +300,19 @@ const GithubModule = (function() {
     const data = {};
 
     try {
-      // 1. Obtener descripción visible en la página
+      // 1. Get visible description from the page
       const descriptionEl = document.querySelector('p.f4.my-3');
       if (descriptionEl) {
         data.description = descriptionEl.textContent.trim();
       }
 
-      // 2. Obtener topics
+      // 2. Get topics
       const topicsEls = document.querySelectorAll('.topic-tag');
       if (topicsEls.length > 0) {
         data.topics = Array.from(topicsEls).map(el => el.textContent.trim());
       }
 
-      // 3. Obtener lenguajes
+      // 3. Get languages
       const languagesEls = document.querySelectorAll('[data-ga-click*="language"]');
       if (languagesEls.length > 0) {
         data.languages = Array.from(languagesEls)
@@ -320,38 +320,38 @@ const GithubModule = (function() {
           .filter(lang => lang);
       }
 
-      // 4. Intentar obtener README desde la página
+      // 4. Try to get README from the page
       const readmeContent = extractReadmeFromPage();
       if (readmeContent) {
         data.readme = readmeContent;
       } else {
-        // Si no está visible, intentar fetch
+        // If not visible, try fetch
         data.readme = await fetchReadme();
       }
 
-      // 5. Intentar obtener package.json (para proyectos Node.js)
+      // 5. Try to get package.json (for Node.js projects)
       data.packageJson = await fetchPackageJson();
 
-      // 6. Obtener estructura de archivos visible
+      // 6. Get visible file structure
       data.fileStructure = extractFileStructure();
 
-      console.log('📊 Datos del repositorio recopilados:', data);
+      console.log('📊 Repository data collected:', data);
       return data;
 
     } catch (error) {
-      console.error('Error recopilando datos del repo:', error);
-      return data; // Devolver lo que se haya podido recopilar
+      console.error('Error collecting repo data:', error);
+      return data; // Return what could be collected
     }
   }
 
   function extractReadmeFromPage() {
-    // Buscar el contenedor del README en la página
+    // Find the README container on the page
     const readmeContainer = document.querySelector('article.markdown-body');
     
     if (readmeContainer) {
-      // Extraer texto limpio del README
+      // Extract clean text from README
       const text = readmeContainer.innerText;
-      // Limitar a los primeros 3000 caracteres para no saturar el contexto
+      // Limit to the first 3000 characters to not saturate the context
       return text.length > 3000 ? text.substring(0, 3000) + '...' : text;
     }
     
@@ -360,18 +360,18 @@ const GithubModule = (function() {
 
   async function fetchReadme() {
     try {
-      // Intentar obtener el README via API raw de GitHub
+      // Try to get the README via GitHub raw API
       const readmeUrl = `https://raw.githubusercontent.com/${currentRepo.owner}/${currentRepo.repo}/main/README.md`;
       
       const response = await fetch(readmeUrl);
       
       if (!response.ok) {
-        // Intentar con master en lugar de main
+        // Try with master instead of main
         const masterUrl = `https://raw.githubusercontent.com/${currentRepo.owner}/${currentRepo.repo}/master/README.md`;
         const masterResponse = await fetch(masterUrl);
         
         if (!masterResponse.ok) {
-          console.log('No se encontró README.md');
+          console.log('README.md not found');
           return null;
         }
         
@@ -383,20 +383,20 @@ const GithubModule = (function() {
       return text.length > 3000 ? text.substring(0, 3000) + '...' : text;
       
     } catch (error) {
-      console.error('Error obteniendo README:', error);
+      console.error('Error obtaining README:', error);
       return null;
     }
   }
 
   async function fetchPackageJson() {
     try {
-      // Intentar obtener package.json via API raw de GitHub
+      // Try to get package.json via GitHub raw API
       const packageUrl = `https://raw.githubusercontent.com/${currentRepo.owner}/${currentRepo.repo}/main/package.json`;
       
       const response = await fetch(packageUrl);
       
       if (!response.ok) {
-        // Intentar con master
+        // Try with master
         const masterUrl = `https://raw.githubusercontent.com/${currentRepo.owner}/${currentRepo.repo}/master/package.json`;
         const masterResponse = await fetch(masterUrl);
         
@@ -410,18 +410,18 @@ const GithubModule = (function() {
       return await response.json();
       
     } catch (error) {
-      console.log('No se encontró package.json (puede no ser un proyecto Node.js)');
+      console.log('package.json not found (may not be a Node.js project)');
       return null;
     }
   }
 
   function extractFileStructure() {
-    // Extraer estructura de archivos visible en la página
+    // Extract visible file structure from the page
     const fileRows = document.querySelectorAll('.react-directory-row, [role="row"]');
     
     if (fileRows.length > 0) {
       const files = Array.from(fileRows)
-        .slice(0, 20) // Limitar a 20 archivos
+        .slice(0, 20) // Limit to 20 files
         .map(row => {
           const nameEl = row.querySelector('[role="rowheader"] a, .Link--primary');
           if (nameEl) {
@@ -440,19 +440,19 @@ const GithubModule = (function() {
   }
 
   async function summarizeRepo() {
-    console.log('🐙 Generando resumen del repositorio desde botón flotante...');
+    console.log('🐙 Generating repository summary from floating button...');
     
-    // Verificar que estamos en un repositorio
+    // Verify we are in a repository
     if (!currentRepo) {
-      alert('No se detectó un repositorio de GitHub. Asegúrate de estar en la página de un repositorio.');
+      alert('GitHub repository not detected. Make sure you are on a repository page.');
       return;
     }
 
-    // Si el panel ya existe, hacer scroll hasta él y ejecutar el resumen
+    // If the panel already exists, scroll to it and execute the summary
     if (githubPanel) {
       githubPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
-      // Expandir el contenido si está colapsado
+      // Expand the content if collapsed
       const content = githubPanel.querySelector('.ai-github-content');
       const toggleBtn = githubPanel.querySelector('.ai-github-toggle');
       if (content && content.style.display === 'none') {
@@ -462,10 +462,10 @@ const GithubModule = (function() {
         }
       }
 
-      // Esperar un momento para que termine el scroll
+      // Wait a moment for the scroll to finish
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Disparar el botón de generar resumen
+      // Trigger the generate summary button
       const summarizeBtn = githubPanel.querySelector('.ai-github-summarize-btn');
       const resultDiv = githubPanel.querySelector('.ai-github-result');
       const resultContent = githubPanel.querySelector('.ai-github-result-content');
@@ -474,13 +474,13 @@ const GithubModule = (function() {
         await generateRepoSummary(summarizeBtn, resultDiv, resultContent);
       }
     } else {
-      // Si no existe el panel, crearlo primero
+      // If the panel does not exist, create it first
       insertGithubPanel();
       
-      // Esperar un momento para que se inserte
+      // Wait a moment for it to be inserted
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Hacer scroll y ejecutar
+      // Scroll and execute
       if (githubPanel) {
         githubPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -496,7 +496,7 @@ const GithubModule = (function() {
     }
   }
 
-  // Inicializar cuando el DOM esté listo
+  // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

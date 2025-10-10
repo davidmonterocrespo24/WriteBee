@@ -18,8 +18,8 @@ console.log('📜 side_panel.js loaded - starting execution');
   let mediaRecorder = null;
   let attachedImageFile = null;
   let attachedPdfFile = null;
-  let isWebChatMode = false; // Flag para trackear si estamos en modo chat con página
-  let lastProcessedDataHash = null; // Para evitar procesar los mismos datos múltiples veces
+  let isWebChatMode = false; // Flag to track if we are in page chat mode
+  let lastProcessedDataHash = null; // To avoid processing the same data multiple times
 
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
@@ -73,11 +73,11 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.error('❌ newChatBtn not found');
   }
 
-    // Botón para limpiar PDF
+    // Button to clear PDF
   const clearPdfBtn = document.getElementById('clearPdfBtn');
   if (clearPdfBtn) {
     clearPdfBtn.addEventListener('click', () => {
-      if (confirm('¿Quieres eliminar el PDF cargado? Esto no borrará el historial de chat.')) {
+      if (confirm('Do you want to remove the loaded PDF? This will not delete the chat history.')) {
         if (typeof WebChatModule !== 'undefined' && WebChatModule.clearPDF) {
           WebChatModule.clearPDF();
           updatePDFIndicator(null);
@@ -89,11 +89,11 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.error('❌ clearPdfBtn not found');
   }
 
-  // Botón para limpiar Página
+  // Button to clear Page
   const clearPageBtn = document.getElementById('clearPageBtn');
   if (clearPageBtn) {
     clearPageBtn.addEventListener('click', () => {
-      if (confirm('¿Quieres salir del modo Chat con Página? Esto no borrará el historial de chat.')) {
+      if (confirm('Do you want to exit Page Chat mode? This will not delete the chat history.')) {
         if (typeof RAGEngine !== 'undefined') {
           const ragEngine = RAGEngine.getInstance();
           ragEngine.clear();
@@ -159,8 +159,8 @@ console.log('📜 side_panel.js loaded - starting execution');
       chip.addEventListener('click', () => {
         const suggestion = chip.dataset.suggestion;
         
-        // Si es la sugerencia de subir PDF, abrir el selector de archivos
-        if (suggestion === 'Sube un PDF para chatear con él') {
+        // If it's the suggestion to upload PDF, open the file selector
+        if (suggestion === 'Upload a PDF to chat with it') {
           pdfInput.click();
           return;
         }
@@ -168,7 +168,7 @@ console.log('📜 side_panel.js loaded - starting execution');
         chatInput.value = suggestion;
         chatInput.focus();
         handleInputChange();
-        // Opcionalmente enviar automáticamente
+        // Optionally send automatically
         // sendMessage();
       });
     });
@@ -178,21 +178,21 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Request pending data from background script
    */
   function requestPendingData() {
-    console.log('📨 Solicitando datos pendientes al background...');
+    console.log('📨 Requesting pending data from background...');
     
-    // Intentar múltiples veces con delays incrementales
+    // Try multiple times with incremental delays
     let attempts = 0;
     const maxAttempts = 3;
     
     async function tryRequest() {
       attempts++;
-      console.log(`📨 Intento ${attempts}/${maxAttempts} de solicitar datos...`);
+      console.log(`📨 Attempt ${attempts}/${maxAttempts} to request data...`);
       
       chrome.runtime.sendMessage({ action: 'getChatData' }, async (response) => {
         if (chrome.runtime.lastError) {
-          console.error('❌ Error solicitando datos:', chrome.runtime.lastError);
+          console.error('❌ Error requesting data:', chrome.runtime.lastError);
           
-          // Reintentar si no hemos alcanzado el máximo
+          // Retry if we haven't reached the maximum
           if (attempts < maxAttempts) {
             setTimeout(tryRequest, 500 * attempts);
           }
@@ -200,7 +200,7 @@ console.log('📜 side_panel.js loaded - starting execution');
         }
 
         if (response && response.data) {
-          console.log('📥 Datos pendientes recibidos:', {
+          console.log('📥 Pending data received:', {
             action: response.data.action,
             context: response.data.context,
             hasCurrentAnswer: !!response.data.currentAnswer,
@@ -210,12 +210,12 @@ console.log('📜 side_panel.js loaded - starting execution');
             pageTitle: response.data.pageTitle
           });
 
-          // Procesar los datos recibidos
+          // Process the received data
           await handleChatData(response.data);
         } else {
-          console.log('ℹ️ No hay datos pendientes');
+          console.log('ℹ️ No pending data');
           
-          // Reintentar si no hemos alcanzado el máximo
+          // Retry if we haven't reached the maximum
           if (attempts < maxAttempts) {
             setTimeout(tryRequest, 300 * attempts);
           }
@@ -223,8 +223,8 @@ console.log('📜 side_panel.js loaded - starting execution');
       });
     }
     
-    // Comenzar con un delay más largo para dar tiempo a que el background guarde los datos
-    // y el side panel termine de cargar completamente
+    // Start with a longer delay to give time for the background to save the data
+    // and the side panel to finish loading completely
     setTimeout(tryRequest, 300);
   }
 
@@ -233,34 +233,34 @@ console.log('📜 side_panel.js loaded - starting execution');
    */
   async function handleChatData(data) {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔧 HANDLE CHAT DATA LLAMADO');
+    console.log('🔧 HANDLE CHAT DATA CALLED');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     if (!data) {
-      console.warn('⚠️ handleChatData recibió datos vacíos');
+      console.warn('⚠️ handleChatData received empty data');
       return;
     }
 
-    // Crear un hash único para estos datos
+    // Create a unique hash for this data
     const dataHash = JSON.stringify({
       imageUrl: data.imageUrl,
       imageAction: data.imageAction,
       prompt: data.prompt,
       selectedText: data.selectedText,
       context: data.context,
-      timestamp: Math.floor(Date.now() / 1000) // Agrupar por segundo
+      timestamp: Math.floor(Date.now() / 1000) // Group by second
     });
 
-    // Verificar si ya procesamos estos mismos datos recientemente (en el último segundo)
+    // Check if we already processed this same data recently (in the last second)
     if (lastProcessedDataHash === dataHash) {
-      console.warn('⚠️ Datos duplicados detectados - ignorando procesamiento');
+      console.warn('⚠️ Duplicate data detected - ignoring processing');
       return;
     }
 
-    // Guardar el hash para evitar duplicados
+    // Save the hash to avoid duplicates
     lastProcessedDataHash = dataHash;
     
-    // Limpiar el hash después de 2 segundos
+    // Clear the hash after 2 seconds
     setTimeout(() => {
       if (lastProcessedDataHash === dataHash) {
         lastProcessedDataHash = null;
@@ -269,7 +269,7 @@ console.log('📜 side_panel.js loaded - starting execution');
 
     const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent, imageMode, imageUrl, imageAction, prompt, initialPrompt, context } = data;
 
-    console.log('📋 Datos extraídos:', {
+    console.log('📋 Extracted data:', {
       selectedText: selectedText?.substring(0, 50),
       currentAnswer: currentAnswer?.substring(0, 50),
       action,
@@ -285,8 +285,8 @@ console.log('📜 side_panel.js loaded - starting execution');
     });
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📥 HANDLE CHAT DATA: Procesando datos de chat');
-    console.log('📋 Datos recibidos:', {
+    console.log('📥 HANDLE CHAT DATA: Processing chat data');
+    console.log('📋 Received data:', {
       selectedText: selectedText?.substring(0, 50),
       currentAnswer: currentAnswer ? `${currentAnswer.substring(0, 100)}...` : 'N/A',
       action,
@@ -303,27 +303,27 @@ console.log('📜 side_panel.js loaded - starting execution');
     });
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // Para imágenes, siempre limpiar el historial para crear nueva conversación
+    // For images, always clear history to create new conversation
     if (imageMode && imageUrl && prompt) {
-      console.log('🖼️ Modo imagen detectado - limpiando historial para nueva conversación');
+      console.log('🖼️ Image mode detected - clearing history for new conversation');
       conversationHistory = [];
     }
-    // Para chat con página (desde menú contextual), limpiar historial
+    // For page chat (from context menu), clear history
     else if (context === 'page-chat' && webChatMode) {
-      console.log('🌐 Modo chat con página detectado - limpiando historial para nueva conversación');
+      console.log('🌐 Page chat mode detected - clearing history for new conversation');
       conversationHistory = [];
     }
-    // Para resumen de página, NO limpiar si ya hay contenido cargando
+    // For page summary, DO NOT clear if content is already loading
     else if (context === 'page-summary-loading' || context === 'page-summary') {
-      console.log('📄 Resumen de página - manteniendo o actualizando historial');
-      // No limpiar el historial aquí
+      console.log('📄 Page summary - maintaining or updating history');
+      // Do not clear history here
     }
-    // Para otros casos, solo limpiar si no es una pregunta de seguimiento
+    // For other cases, only clear if it's not a follow-up question
     else if (!followupQuestion) {
-      console.log('🆕 Iniciando nueva conversación');
-      console.log('🧹 Limpiando historial anterior:', conversationHistory.length, 'mensajes');
+      console.log('🆕 Starting new conversation');
+      console.log('🧹 Clearing previous history:', conversationHistory.length, 'messages');
       conversationHistory = [];
-      console.log('✅ Historial limpiado, listo para nueva conversación');
+      console.log('✅ History cleared, ready for new conversation');
     }
 
     // MODO: Resumen de página - Estado de carga
@@ -438,7 +438,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       console.log('🎨 Llamando a renderChatHistory()...');
       renderChatHistory();
       
-      console.log('💾 Guardando historial...');
+      console.log('💾 Saving history...');
       saveHistory();
 
       // Hacer scroll al final
@@ -491,7 +491,7 @@ console.log('📜 side_panel.js loaded - starting execution');
           }, 100);
 
           // Procesar automáticamente con la acción correcta
-          console.log('🚀 Procesando mensaje con imagen...');
+          console.log('🚀 Processing message with image...');
           console.log('🎯 Acción a ejecutar:', imageAction);
           
           setTimeout(() => {
@@ -649,10 +649,10 @@ console.log('📜 side_panel.js loaded - starting execution');
     }
   }
 
-  // Listener para recibir datos del diálogo
+  // Listener to receive data from dialog
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📨 MENSAJE RECIBIDO EN SIDE PANEL');
+    console.log('📨 MESSAGE RECEIVED IN SIDE PANEL');
     console.log('📨 Action:', request.action);
     console.log('📨 Has data:', !!request.data);
     if (request.data) {
@@ -670,12 +670,12 @@ console.log('📜 side_panel.js loaded - starting execution');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     if (request.action === 'chatData' && request.data) {
-      console.log('✅ Procesando chatData...');
+      console.log('✅ Processing chatData...');
       // Llamar handleChatData de forma async pero responder inmediatamente
       handleChatData(request.data).then(() => {
         console.log('✅ handleChatData completado exitosamente');
       }).catch(error => {
-        console.error('❌ Error procesando chatData:', error);
+        console.error('❌ Error processing chatData:', error);
       });
       
       // Responder inmediatamente para que content.js sepa que el mensaje fue recibido
@@ -713,7 +713,7 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Enviar mensaje
    */
   async function sendMessage() {
-    console.log('📤 sendMessage llamado');
+    console.log('📤 sendMessage called');
     const text = chatInput.value.trim();
 
     if (!text && !attachedImageFile && !attachedPdfFile) {
@@ -745,17 +745,17 @@ console.log('📜 side_panel.js loaded - starting execution');
     renderChatHistory();
     saveHistory();
 
-    // Limpiar input
+    // Clear input
     chatInput.value = '';
     chatInput.style.height = 'auto';
     sendBtn.disabled = true;
 
-    // Guardar referencias antes de limpiar
+    // Save references before clearing
     const imageFile = attachedImageFile;
     const pdfFile = attachedPdfFile;
     const action = imageAction;
 
-    // Limpiar adjuntos
+    // Clear attachments
     if (attachedImageFile) {
       attachedImageFile = null;
     }
@@ -765,7 +765,7 @@ console.log('📜 side_panel.js loaded - starting execution');
     chatAttachments.innerHTML = '';
     chatAttachments.style.display = 'none';
 
-    // Procesar mensaje con IA
+    // Process message with AI
     await processMessage(text, action, imageFile, pdfFile);
   }
 
@@ -801,7 +801,7 @@ console.log('📜 side_panel.js loaded - starting execution');
         renderChatHistory();
       };
 
-      // Verificar si estamos en modo chat con página o PDF usando el flag
+      // Check if we are in page chat or PDF mode using the flag
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('🔍 DIAGNÓSTICO DE MODO RAG:');
       console.log('📌 isWebChatMode:', isWebChatMode);
