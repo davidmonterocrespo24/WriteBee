@@ -4741,13 +4741,18 @@
   overflow: hidden;
   font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  min-width: 320px;
+  max-width: 400px;
+  width: 500%;
+  box-sizing: border-box;
+  margin-bottom: 16px;
 }
 
 .ai-github-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 16px 20px;
   background: linear-gradient(to bottom, #2d2d33, #2a2a2f);
   border-bottom: 1px solid #3a3a40;
   cursor: pointer;
@@ -4817,7 +4822,7 @@
 }
 
 .ai-github-content {
-  padding: 14px;
+  padding: 20px;
   background: #2a2a2f;
 }
 
@@ -4835,7 +4840,7 @@
 .ai-github-options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
@@ -4862,7 +4867,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 14px 24px;
   background: #ffd400;
   color: #1e1e1e;
   border: none;
@@ -4894,7 +4899,7 @@
 
 .ai-github-result {
   margin-top: 16px;
-  padding: 12px;
+  padding: 16px;
   background: #242428;
   border: 1px solid #3a3a40;
   border-radius: 8px;
