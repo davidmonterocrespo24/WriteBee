@@ -14,7 +14,7 @@ const TwitterModule = (function() {
   }
 
   function observeTwitter() {
-    // Observar cambios en el DOM para detectar áreas de tweets y respuestas
+    // Observe DOM changes to detect tweet areas and responses
     const observer = new MutationObserver(() => {
       checkForTweetComposer();
       checkForReplyBoxes();
@@ -37,7 +37,7 @@ const TwitterModule = (function() {
     const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
 
     toolbars.forEach(toolbar => {
-      // Verificar si ya tiene el botón AI de tweet
+      // Check if it already has the AI tweet button
       if (toolbar.querySelector('.ai-twitter-btn-tweet')) {
         return;
       }
@@ -66,7 +66,7 @@ const TwitterModule = (function() {
     const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
 
     toolbars.forEach(toolbar => {
-      // Verificar si ya tiene el botón AI
+      // Check if it already has the AI button
       if (toolbar.querySelector('.ai-twitter-btn-reply')) {
         return;
       }

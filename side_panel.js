@@ -313,7 +313,7 @@
       // Activar flag de web chat mode
       isWebChatMode = true;
       
-      // **IMPORTANTE**: Indexar el contenido de la página en el RAG Engine del side panel
+      // **IMPORTANT**: Index the page content in the side panel RAG Engine
 
       if (typeof WebChatModule !== 'undefined' && pageContent) {
         try {
@@ -337,7 +337,7 @@
         });
       }
       
-      // Asegurar que el indicador de página esté visible
+      // Ensure the page indicator is visible
       updatePageIndicator({
   title: pageTitle || 'Web page',
         url: pageUrl
@@ -423,7 +423,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }, 100);
 
-          // Procesar automáticamente con la acción correcta
+          // Process automatically with the correct action
 
 
           setTimeout(() => {
@@ -438,7 +438,7 @@
       return;
     }
 
-    // MODO: Chat con selección de texto
+    // MODE: Chat with text selection
     if (selectedText) {
 
       // Si ya hay una respuesta (ej: desde el toolbar), mostrarla
@@ -474,13 +474,13 @@
       return;
     }
 
-    // MODO: Chat con página web (desde menú contextual)
+    // MODE: Chat with web page (from context menu)
     if (webChatMode && pageContent) {
 
       // Activar flag de web chat mode
       isWebChatMode = true;
       
-      // Mostrar indicador de página
+      // Show page indicator
       if (pageTitle || pageUrl) {
         updatePageIndicator({
           title: pageTitle || 'Web page',
@@ -488,12 +488,12 @@
         });
       }
       
-      // **IMPORTANTE**: Indexar el contenido de la página en el RAG Engine
+      // **IMPORTANT**: Index the page content in the RAG Engine
 
       if (typeof WebChatModule !== 'undefined') {
         try {
 
-          // Primero establecer el contenido en el módulo
+          // First set the content in the module
           WebChatModule.setPageContent(pageContent, {
             title: pageTitle,
             url: pageUrl
@@ -507,10 +507,10 @@
         }
       }
       
-      // Si viene del menú contextual (context: 'page-chat'), generar resumen automático
+      // If it comes from the context menu (context: 'page-chat'), generate automatic summary
       if (context === 'page-chat') {
 
-        // Agregar mensaje del usuario (automático)
+        // Add user message (automatic)
         const userMessage = `Summarize this page: ${pageTitle}`;
         conversationHistory.push({
           role: 'user',
@@ -530,7 +530,7 @@
         renderChatHistory();
         saveHistory();
         
-        // Generar el resumen de forma asíncrona
+        // Generate the summary asynchronously
         setTimeout(async () => {
           try {
 
@@ -605,7 +605,7 @@
     chatInput.style.height = 'auto';
     chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
 
-    // Habilitar/deshabilitar botón enviar
+    // Enable/disable send button
     sendBtn.disabled = !chatInput.value.trim() && !attachedImageFile && !attachedPdfFile;
   }
 
@@ -633,7 +633,7 @@
       return;
     }
 
-    // Obtener acción seleccionada para imagen si existe
+    // Get selected action for image if exists
     let imageAction = null;
     if (attachedImageFile) {
       const imageActionSelect = document.getElementById('imageActionSelect');
@@ -751,22 +751,22 @@
           throw new Error('WebChatModule is not available');
         }
       }
-      // Si hay imagen, procesarla con multimodal según la acción
+      // If there is an image, process it with multimodal according to the action
       else if (imageFile) {
 
         if (typeof MultimodalModule !== 'undefined') {
           if (action && action !== 'describe') {
-            // Usar processImageWithAction para acciones específicas
+            // Use processImageWithAction for specific actions
             result = await MultimodalModule.processImageWithAction(imageFile, action, text, onChunk);
           } else {
-            // Usar describeImage para descripción general
+            // Use describeImage for general description
             result = await MultimodalModule.describeImage(imageFile, text || 'Describe esta imagen en detalle', onChunk);
           }
         } else {
-          throw new Error('MultimodalModule no está disponible');
+          throw new Error('MultimodalModule is not available');
         }
       }
-      // Si estamos en modo chat con página o PDF, usar RAG
+      // If we are in page or PDF chat mode, use RAG
       else if (hasRAGContent && typeof WebChatModule !== 'undefined') {
 
 
@@ -782,7 +782,7 @@
         assistantMessage.content = result;
         assistantMessage.isTyping = false;
       }
-      // Si hay una acción específica, usar streaming
+      // If there is a specific action, use streaming
       else if (action) {
 
         switch (action) {
@@ -809,7 +809,7 @@
             assistantMessage.content = result;
         }
       }
-      // Conversación normal
+      // Normal conversation
       else {
 
         result = await AIModule.aiChat(conversationHistory.slice(0, -1));
@@ -839,7 +839,7 @@
     chatMessages.innerHTML = '';
 
     if (conversationHistory.length === 0) {
-      // Mostrar estado vacío con suggestion chips
+      // Show empty state with suggestion chips
       chatMessages.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">💬</div>
@@ -861,7 +861,7 @@
           </div>
         </div>
       `;
-      // Re-setup suggestion chips después de renderizar
+      // Re-setup suggestion chips after rendering
       setupSuggestionChips();
       return;
     }
@@ -906,7 +906,7 @@
 
       chatMessages.appendChild(messageEl);
 
-      // Renderizar contenido con Markdown si no está escribiendo ni cargando
+      // Render content with Markdown if not typing or loading
       if (!msg.isTyping && !msg.isLoading && msg.content) {
         const contentEl = messageEl.querySelector('.message-content');
         if (typeof MarkdownRenderer !== 'undefined') {
@@ -916,7 +916,7 @@
         }
       }
 
-      // Agregar botones de acción para mensajes del asistente
+      // Add action buttons for assistant messages
       if (msg.role === 'assistant' && !msg.isTyping && !msg.isLoading) {
         const actionsEl = document.createElement('div');
         actionsEl.className = 'message-actions';
@@ -1041,7 +1041,7 @@
       // Show page indicator, hide PDF indicator
       if (pageIndicator) {
         pageIndicator.style.display = 'inline-flex';
-        pageIndicatorText.textContent = pageInfo.title || 'Página';
+        pageIndicatorText.textContent = pageInfo.title || 'Page';
       }
       if (clearPageBtn) {
         clearPageBtn.style.display = 'block';
@@ -1078,15 +1078,15 @@
       // Clear PDF if loaded
       if (typeof WebChatModule !== 'undefined') {
         WebChatModule.clearCurrentPDF();
-        WebChatModule.clearPageContent(); // También limpiar contenido de página
+        WebChatModule.clearPageContent(); // Also clear page content
         updatePDFIndicator(null);
-        updatePageIndicator(null); // Limpiar indicador de página
+        updatePageIndicator(null); // Clear page indicator
       }
     }
   }
 
   /**
-   * Manejar selección de imagen
+   * Handle image selection
    */
   function handleImageSelect(e) {
 
@@ -1128,7 +1128,7 @@
   }
 
   /**
-   * Manejar selección de PDF
+   * Handle PDF selection
    */
   function handlePdfSelect(e) {
 
@@ -1140,7 +1140,7 @@
 
     attachedPdfFile = file;
 
-    // Mostrar información del PDF
+    // Show PDF information
     const fileSize = (file.size / 1024 / 1024).toFixed(2);
     chatAttachments.innerHTML = `
       <div class="pdf-attachment">
@@ -1247,13 +1247,13 @@
   }
 
   /**
-   * Toggle grabación de voz
+   * Toggle voice recording
    */
   async function toggleVoiceRecording() {
 
     if (!isRecording) {
       try {
-        // Verificar si getUserMedia está disponible
+        // Check if getUserMedia is available
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           throw new Error('Your browser does not support audio recording');
         }
@@ -1273,7 +1273,7 @@
         mediaRecorder.onstop = async () => {
           const audioBlob = new Blob(chunks, { type: 'audio/webm' });
 
-          // Mostrar indicador de transcripción
+          // Show transcription indicator
           recordingIndicator.innerHTML = `
             <div class="typing-indicator">
               <span></span><span></span><span></span>
@@ -1313,7 +1313,7 @@
         recordingIndicator.style.display = 'flex';
         voiceBtn.style.color = '#dc2626';
       } catch (error) {
-        console.error('❌ Error accediendo al micrófono:', error);
+        console.error('❌ Error accessing microphone:', error);
         console.error('Tipo de error:', error.name);
         console.error('Mensaje:', error.message);
 
@@ -1400,7 +1400,7 @@
     saveHistory();
   }
 
-  // Solicitar datos pendientes del background script (después de que todo esté listo)
+  // Request pending data from background script (after everything is ready)
 
   requestPendingData();
 
@@ -1411,7 +1411,7 @@
   }
 })();
 
-// Listener adicional para cuando el documento esté completamente listo
+// Additional listener for when the document is completely ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
 
@@ -1420,11 +1420,11 @@ if (document.readyState === 'loading') {
 
 }
 
-// Listener para visibilidad de la página (cuando el side panel se abre/cierra)
+// Listener for page visibility (when the side panel opens/closes)
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
 
-    // Podría haber datos pendientes si el panel se cerró y reabrió
+    // There might be pending data if the panel was closed and reopened
     setTimeout(() => {
       chrome.runtime.sendMessage({ action: 'getChatData' }, (response) => {
         if (response && response.data) {

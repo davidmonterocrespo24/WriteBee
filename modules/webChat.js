@@ -79,7 +79,7 @@ const WebChatModule = (function() {
 
 
       if (!window.RAGEngine) {
-        console.error('❌ RAG Engine NO está cargado en window');
+        console.error('❌ RAG Engine is NOT loaded in window');
         throw new Error('RAG Engine not loaded');
       }
 
@@ -177,19 +177,19 @@ const WebChatModule = (function() {
       if (onProgress) onProgress('Generating comprehensive summary...');
 
       // Improved prompt for more detailed summaries
-      const prompt = `Crea un resumen completo y detallado de esta página web. Incluye:
-- Los puntos principales y temas clave
-- Información importante y detalles relevantes
-- La estructura y organización del contenido
-- Conclusiones o ideas principales
+      const prompt = `Create a complete and detailed summary of this web page. Include:
+- The main points and key topics
+- Important information and relevant details
+- The structure and organization of the content
+- Conclusions or main ideas
 
-Título: ${metadata.title}
+Title: ${metadata.title}
 URL: ${metadata.url}
 
-Contenido:
+Content:
 ${context}
 
-Por favor, proporciona un resumen extenso y bien estructurado que capture toda la información importante de la página.`;
+Please provide an extensive and well-structured summary that captures all the important information from the page.`;
 
       pageSummary = await AIModule.aiSummarize(prompt);
 
@@ -203,15 +203,15 @@ Por favor, proporciona un resumen extenso y bien estructurado que capture toda l
       }
 
       const metadata = getPageMetadata();
-      const prompt = `Crea un resumen completo y detallado de esta página web:
+      const prompt = `Create a complete and detailed summary of this web page:
 
-Título: ${metadata.title}
+Title: ${metadata.title}
 URL: ${metadata.url}
 
-Contenido:
+Content:
 ${pageContent.substring(0, 12000)}
 
-Incluye todos los puntos principales, información importante y estructura del contenido.`;
+Include all the main points, important information and content structure.`;
 
       pageSummary = await AIModule.aiSummarize(prompt);
       return pageSummary;
@@ -477,7 +477,7 @@ Please provide a comprehensive and accurate answer based on the information abov
     if (metadata) {
 
     }
-    // Reset indexing flag para forzar re-indexación
+    // Reset indexing flag to force re-indexing
     isIndexed = false;
   }
 

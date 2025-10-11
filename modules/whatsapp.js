@@ -1,12 +1,12 @@
-// ⚠️ CRÍTICO: Interceptar INMEDIATAMENTE cuando el script se carga
+// ⚠️ CRITICAL: Intercept IMMEDIATELY when the script loads
 // Esto debe ejecutarse ANTES de que WhatsApp cree cualquier blob
-// Se ejecuta FUERA del módulo para asegurar que se ejecute inmediatamente
+// Runs OUTSIDE the module to ensure it executes immediately
 const capturedAudioBlobs = new Map(); // Global para ser accesible
 
 (function setupGlobalInterceptor() {
   console.log('🎣 [GLOBAL] Configurando interceptor de blobs de audio...');
   
-  // Guardar la función original
+  // Save the original function
   const originalCreateObjectURL = URL.createObjectURL;
   
   // Sobrescribir URL.createObjectURL GLOBALMENTE
@@ -33,11 +33,11 @@ const capturedAudioBlobs = new Map(); // Global para ser accesible
       // Guardar el blob con su URL
       capturedAudioBlobs.set(blobUrl, blob);
       
-      // Limpiar blobs viejos después de 5 minutos
+      // Clean up old blobs after 5 minutes
       setTimeout(() => {
         if (capturedAudioBlobs.has(blobUrl)) {
           capturedAudioBlobs.delete(blobUrl);
-          console.log('🗑️ Blob limpiado de caché:', blobUrl);
+          console.log('🗑️ Blob cleaned from cache:', blobUrl);
         }
       }, 5 * 60 * 1000);
     }
@@ -48,19 +48,19 @@ const capturedAudioBlobs = new Map(); // Global para ser accesible
   console.log('✅ [GLOBAL] Interceptor instalado - Esperando blobs de audio...');
 })();
 
-// Ahora el módulo de WhatsApp
+// Now the WhatsApp module
 const WhatsAppModule = (function() {
   let whatsappButtons = new Set();
   let isWhatsApp = false;
-  // capturedAudioBlobs ya está disponible globalmente
+  // capturedAudioBlobs is already available globally
 
   function init() {
     // Detectar si estamos en WhatsApp Web
     isWhatsApp = window.location.hostname.includes('web.whatsapp.com');
 
     if (isWhatsApp) {
-      console.log('💬 WhatsApp Web detectado, iniciando módulo...');
-      console.log('📊 Estado del interceptor: Blobs en caché:', capturedAudioBlobs.size);
+      console.log('💬 WhatsApp Web detected, starting module...');
+      console.log('📊 Interceptor status: Blobs in cache:', capturedAudioBlobs.size);
       observeWhatsApp();
     }
   }
@@ -84,10 +84,10 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * Detectar área de composición de mensajes para agregar botón de respuesta AI
+   * Detect message composition area to add AI response button
    */
   function checkForMessageArea() {
-    // Buscar el footer donde está el input de mensajes
+    // Find the footer where the message input is
     const messageFooter = document.querySelector('footer[data-testid="conversation-compose-box-input"]') ||
                          document.querySelector('footer');
 
@@ -97,16 +97,16 @@ const WhatsAppModule = (function() {
     const buttonPanel = messageFooter.querySelector('[data-testid="compose-btn-send"]')?.parentElement?.parentElement;
 
     if (buttonPanel && !buttonPanel.querySelector('.ai-whatsapp-btn-compose')) {
-      console.log('💬 WhatsApp: Insertando botón de composición AI');
+      console.log('💬 WhatsApp: Inserting AI composition button');
       insertComposeButton(buttonPanel, messageFooter);
     }
   }
 
   /**
-   * Detectar mensajes de audio para agregar botón de transcripción
+   * Detect audio messages to add transcription button
    */
   function checkForAudioMessages() {
-    // Buscar todos los mensajes de audio (botones de reproducción)
+    // Find all audio messages (play buttons)
     const audioButtons = document.querySelectorAll('[aria-label*="Reproducir mensaje de voz"], [data-icon="audio-play"]');
 
     audioButtons.forEach(audioBtn => {
@@ -115,14 +115,14 @@ const WhatsAppModule = (function() {
                               audioBtn.closest('div.focusable-list-item');
 
       if (messageContainer && !messageContainer.querySelector('.ai-whatsapp-transcribe-btn')) {
-        console.log('🎤 WhatsApp: Audio detectado, insertando botón de transcripción AI');
+        console.log('🎤 WhatsApp: Audio detected, inserting AI transcription button');
         insertTranscribeButton(messageContainer, audioBtn);
       }
     });
   }
 
   /**
-   * Insertar botón de AI en el área de composición
+   * Insert AI button in the composition area
    */
   function insertComposeButton(buttonPanel, footer) {
     const btn = document.createElement('button');
@@ -140,9 +140,9 @@ const WhatsAppModule = (function() {
       e.preventDefault();
       e.stopPropagation();
 
-      // Prevenir múltiples diálogos
+      // Prevent multiple dialogs
       if (document.querySelector('.ai-whatsapp-dialog')) {
-        console.log('💬 WhatsApp: Ya hay un diálogo abierto');
+        console.log('💬 WhatsApp: A dialog is already open');
         return;
       }
 
@@ -152,11 +152,11 @@ const WhatsAppModule = (function() {
 
     buttonPanel.appendChild(btn);
     whatsappButtons.add(btn);
-    console.log('✅ WhatsApp: Botón de composición insertado');
+    console.log('✅ WhatsApp: Composition button inserted');
   }
 
   /**
-   * Insertar botón de transcripción junto a mensajes de audio
+   * Insert transcription button next to audio messages
    */
   function insertTranscribeButton(messageContainer, audioElement) {
     const btn = document.createElement('button');
@@ -214,24 +214,24 @@ const WhatsAppModule = (function() {
     // Asegurar que el contenedor tenga position relative
     messageContainer.style.position = 'relative';
     
-    // Insertar el botón al inicio del contenedor para que sea visible
+    // Insert the button at the beginning of the container to make it visible
     messageContainer.insertBefore(btn, messageContainer.firstChild);
 
-    console.log('✅ WhatsApp: Botón de transcripción AI insertado');
+    console.log('✅ WhatsApp: AI transcription button inserted');
   }
 
   /**
-   * Generar respuesta AI basada en el contexto de la conversación
+   * Generate AI response based on conversation context
    */
   async function handleGenerateReply(footer, buttonElement) {
-    // Extraer mensajes recientes de la conversación
+    // Extract recent messages from the conversation
     const messages = extractConversationContext();
 
     if (!messages || messages.length === 0) {
-      console.log('⚠️ No se pudo extraer contexto de la conversación');
+      console.log('⚠️ Could not extract conversation context');
     }
 
-    // Crear diálogo para generar respuesta
+    // Create dialog to generate response
     const dialog = createWhatsAppDialog('compose', messages, buttonElement);
     document.body.appendChild(dialog);
   }
@@ -241,7 +241,7 @@ const WhatsAppModule = (function() {
    */
   async function handleTranscribeAudio(audioElement, buttonElement, container) {
     try {
-      console.log('🎤 WhatsApp: Iniciando proceso de transcripción...');
+      console.log('🎤 WhatsApp: Starting transcription process...');
       
       // Mostrar estado de carga
       buttonElement.innerHTML = `
@@ -266,19 +266,19 @@ const WhatsAppModule = (function() {
       audioBlob = await clickAndCaptureBlob(container);
       
       if (audioBlob) {
-        console.log('✅ Audio capturado después del clic!');
+        console.log('✅ Audio captured after click!');
         await transcribeAudioDirectly(audioBlob, buttonElement, container);
         return;
       }
       
       // Paso 3: Si todo falla, mostrar opciones manuales
-      console.log('⚠️ No se pudo capturar el audio automáticamente');
-      console.log('📋 Mostrando opciones de transcripción al usuario...');
+      console.log('⚠️ Could not capture audio automatically');
+      console.log('📋 Showing transcription options to user...');
       
       const dialog = createWhatsAppDialog('transcribe', null, buttonElement, container);
       document.body.appendChild(dialog);
       
-      // Restaurar botón
+      // Restore button
       buttonElement.innerHTML = `
         <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -292,7 +292,7 @@ const WhatsAppModule = (function() {
       console.error('Error al transcribir:', error);
       alert('Error: ' + error.message);
       
-      // Restaurar botón
+      // Restore button
       buttonElement.innerHTML = `
         <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -309,7 +309,7 @@ const WhatsAppModule = (function() {
    */
   async function tryGetInterceptedBlob(container) {
     console.log('🔍 Buscando en blobs interceptados...');
-    console.log(`📦 Blobs en caché: ${capturedAudioBlobs.size}`);
+    console.log(`📦 Blobs in cache: ${capturedAudioBlobs.size}`);
     
     if (capturedAudioBlobs.size === 0) {
       return null;
@@ -318,14 +318,14 @@ const WhatsAppModule = (function() {
     // Si solo hay un blob, usar ese
     if (capturedAudioBlobs.size === 1) {
       const blob = Array.from(capturedAudioBlobs.values())[0];
-      console.log('✅ Usando el único blob disponible:', blob.size, 'bytes');
+      console.log('✅ Using the only available blob:', blob.size, 'bytes');
       return blob;
     }
     
-    // Si hay múltiples, intentar encontrar el más reciente
+    // If there are multiple, try to find the most recent
     const blobs = Array.from(capturedAudioBlobs.entries());
     const latestBlob = blobs[blobs.length - 1][1];
-    console.log('✅ Usando el blob más reciente:', latestBlob.size, 'bytes');
+    console.log('✅ Using the most recent blob:', latestBlob.size, 'bytes');
     return latestBlob;
   }
 
@@ -333,7 +333,7 @@ const WhatsAppModule = (function() {
    * Hacer clic en reproducir y capturar el blob creado
    */
   async function clickAndCaptureBlob(container) {
-    // Buscar el botón de reproducir con múltiples estrategias
+    // Find the play button with multiple strategies
     let playButton = null;
     
     // Estrategia 1: Buscar en el contenedor
@@ -341,7 +341,7 @@ const WhatsAppModule = (function() {
                  container.querySelector('button[aria-label*="Reproducir"]') ||
                  container.querySelector('[data-icon="audio-play"]')?.closest('button');
     
-    // Estrategia 2: Si el contenedor ES el botón
+    // Strategy 2: If the container IS the button
     if (!playButton && container.tagName === 'BUTTON' && container.getAttribute('aria-label')?.includes('Reproducir')) {
       playButton = container;
     }
@@ -358,7 +358,7 @@ const WhatsAppModule = (function() {
     }
     
     if (!playButton) {
-      console.log('⚠️ No se encontró botón de reproducir');
+      console.log('⚠️ Play button not found');
       console.log('📦 Contenedor recibido:', container);
       console.log('🏷️ Tag del contenedor:', container.tagName);
       console.log('🔍 aria-label del contenedor:', container.getAttribute?.('aria-label'));
@@ -368,7 +368,7 @@ const WhatsAppModule = (function() {
     const initialBlobCount = capturedAudioBlobs.size;
     console.log('🎬 Haciendo clic en reproducir...');
     console.log('📊 Blobs antes del clic:', initialBlobCount);
-    console.log('🎯 Botón encontrado:', playButton.getAttribute('aria-label'));
+    console.log('🎯 Button found:', playButton.getAttribute('aria-label'));
     
     // Hacer clic
     playButton.click();
@@ -378,7 +378,7 @@ const WhatsAppModule = (function() {
       await new Promise(resolve => setTimeout(resolve, 100));
       
       if (capturedAudioBlobs.size > initialBlobCount) {
-        console.log(`✅ Nuevo blob capturado después de ${(i + 1) * 100}ms`);
+        console.log(`✅ New blob captured after ${(i + 1) * 100}ms`);
         
         // Pausar el audio
         const pauseButton = container.querySelector('button[aria-label*="Pausar"]') ||
@@ -393,11 +393,11 @@ const WhatsAppModule = (function() {
       }
     }
     
-    console.log('⏱️ Timeout: No se capturó ningún blob nuevo');
+    console.log('⏱️ Timeout: No new blob captured');
     console.log('💡 Posibles causas:');
-    console.log('   - El interceptor no se instaló a tiempo');
-    console.log('   - WhatsApp usa otro método para crear blobs');
-    console.log('   - El audio ya está en caché y no se vuelve a crear');
+    console.log('   - The interceptor was not installed in time');
+    console.log('   - WhatsApp uses another method to create blobs');
+    console.log('   - The audio is already in cache and is not recreated');
     return null;
   }
 
@@ -412,9 +412,9 @@ const WhatsAppModule = (function() {
 
       // Guardar la cantidad inicial de audios
       const initialAudioCount = document.querySelectorAll('audio').length;
-      console.log(`� Audios iniciales en la página: ${initialAudioCount}`);
+      console.log(`� Initial audios on the page: ${initialAudioCount}`);
 
-      // Método mejorado: Simular clic y observar cambios en el DOM
+      // Improved method: Simulate click and observe DOM changes
       const playButton = container.querySelector('button[aria-label*="Reproducir mensaje de voz"]') ||
                         container.querySelector('[aria-label*="Reproducir"]') ||
                         container.querySelector('[data-icon="audio-play"]') ||
@@ -422,13 +422,13 @@ const WhatsAppModule = (function() {
                         audioElement;
       
       if (playButton) {
-        console.log('🎬 Simulando clic en botón de reproducir...', playButton);
+        console.log('🎬 Simulating click on play button...', playButton);
         
         // Crear un observer para detectar nuevos elementos <audio>
         let foundAudio = null;
         const audioObserver = new MutationObserver((mutations) => {
           const audioElements = document.querySelectorAll('audio');
-          console.log(`🔄 Observer detectó cambio - Total audios: ${audioElements.length}`);
+          console.log(`🔄 Observer detected change - Total audios: ${audioElements.length}`);
           
           for (const audio of audioElements) {
             console.log('🎵 Audio encontrado:', {
@@ -456,7 +456,7 @@ const WhatsAppModule = (function() {
 
         // Hacer clic en reproducir
         playButton.click();
-        console.log('✅ Clic ejecutado en el botón');
+        console.log('✅ Click executed on the button');
         
         // Esperar a que WhatsApp cree el elemento de audio (hasta 5 segundos)
         for (let i = 0; i < 50; i++) {
@@ -467,14 +467,14 @@ const WhatsAppModule = (function() {
             break;
           }
 
-          // Buscar manualmente también en cada iteración
+          // Search manually also in each iteration
           // Buscar en TODO el documento, incluyendo iframes y shadow DOM
           const audioElements = [];
           
-          // Método 1: Búsqueda estándar
+          // Method 1: Standard search
           audioElements.push(...document.querySelectorAll('audio'));
           
-          // Método 2: Buscar en todos los shadow roots
+          // Method 2: Search in all shadow roots
           const allElements = document.querySelectorAll('*');
           allElements.forEach(el => {
             if (el.shadowRoot) {
@@ -483,12 +483,12 @@ const WhatsAppModule = (function() {
             }
           });
           
-          // Método 3: Buscar elementos con rol de media
+          // Method 3: Search for elements with media role
           const mediaElements = document.querySelectorAll('[role="audio"], audio, video');
           audioElements.push(...mediaElements);
           
           if (audioElements.length > 0 && i % 5 === 0) {
-            console.log(`🔍 Búsqueda manual #${Math.floor(i/5) + 1} - Audios encontrados: ${audioElements.length}`);
+            console.log(`🔍 Manual search #${Math.floor(i/5) + 1} - Audios found: ${audioElements.length}`);
           }
           
           for (const audio of audioElements) {
@@ -523,7 +523,7 @@ const WhatsAppModule = (function() {
             
             const blob = await response.blob();
             
-            console.log('✅ Audio extraído exitosamente!');
+            console.log('✅ Audio extracted successfully!');
             console.log('📊 Detalles del blob:', {
               size: blob.size,
               type: blob.type,
@@ -539,19 +539,19 @@ const WhatsAppModule = (function() {
               console.log('⚠️ No se pudo pausar el audio:', e);
             }
             
-            // Volver a hacer clic en el botón de play para que vuelva al estado inicial
+            // Click the play button again to return to the initial state
             setTimeout(() => {
               try {
                 const pauseButton = container.querySelector('button[aria-label*="Pausar"]');
                 if (pauseButton) {
                   pauseButton.click();
-                  console.log('⏹️ Audio detenido mediante botón de pausa');
+                  console.log('⏹️ Audio stopped via pause button');
                 } else {
                   playButton.click();
-                  console.log('🔄 Botón restaurado al estado inicial');
+                  console.log('🔄 Button restored to initial state');
                 }
               } catch (e) {
-                console.log('⚠️ No se pudo restaurar el estado del botón:', e);
+                console.log('⚠️ Could not restore button state:', e);
               }
             }, 200);
             
@@ -561,18 +561,18 @@ const WhatsAppModule = (function() {
             console.error('📋 Stack trace:', fetchError.stack);
           }
         } else {
-          console.log('⚠️ No se detectó elemento de audio después de hacer clic y esperar');
-          console.log('💡 Intentando método alternativo...');
+          console.log('⚠️ No audio element detected after clicking and waiting');
+          console.log('💡 Trying alternative method...');
         }
       } else {
-        console.log('⚠️ No se encontró botón de reproducir');
+        console.log('⚠️ Play button not found');
         console.log('🔍 Selectores intentados:');
         console.log('  - button[aria-label*="Reproducir mensaje de voz"]');
         console.log('  - [aria-label*="Reproducir"]');
         console.log('  - [data-icon="audio-play"]');
       }
 
-      // Método fallback: Buscar cualquier audio existente con blob
+      // Fallback method: Search for any existing audio with blob
       console.log('🔍 Buscando audios existentes con blob...');
       const allAudioElements = document.querySelectorAll('audio');
       console.log(`� Total de elementos <audio>: ${allAudioElements.length}`);
@@ -584,7 +584,7 @@ const WhatsAppModule = (function() {
           try {
             const response = await fetch(audioTag.src);
             const blob = await response.blob();
-            console.log('✅ Audio extraído:', blob.size, 'bytes');
+            console.log('✅ Audio extracted:', blob.size, 'bytes');
             return blob;
           } catch (error) {
             console.error('❌ Error al fetch del blob:', error);
@@ -592,8 +592,8 @@ const WhatsAppModule = (function() {
         }
       }
 
-      console.log('⚠️ No se pudo extraer el audio automáticamente');
-      console.log('💡 Sugerencia: Intenta reproducir el audio primero, luego haz clic en el botón de transcripción');
+      console.log('⚠️ Could not extract audio automatically');
+      console.log('💡 Suggestion: Try playing the audio first, then click the transcription button');
       return null;
 
     } catch (error) {
@@ -603,13 +603,13 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * Transcribir audio directamente sin mostrar diálogo
+   * Transcribe audio directly without showing dialog
    */
   async function transcribeAudioDirectly(audioBlob, buttonElement, container) {
     try {
       console.log('🎤 Transcribiendo audio...', audioBlob.size, 'bytes');
 
-      // Crear diálogo de resultados
+      // Create results dialog
       const dialog = createTranscriptionResultDialog(buttonElement);
       document.body.appendChild(dialog);
 
@@ -622,7 +622,7 @@ const WhatsAppModule = (function() {
         loadingDiv.style.display = 'block';
       }
 
-      // Transcribir usando el módulo multimodal
+      // Transcribe using the multimodal module
       const result = await MultimodalModule.transcribeAudio(
         audioBlob,
         'transcribe',
@@ -648,7 +648,7 @@ const WhatsAppModule = (function() {
         actions.style.display = 'flex';
       }
 
-      // Restaurar botón
+      // Restore button
       buttonElement.innerHTML = `
         <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -666,14 +666,14 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * Crear diálogo simple de resultados de transcripción
+   * Create simple transcription results dialog
    */
   function createTranscriptionResultDialog(buttonElement) {
     const dialog = document.createElement('div');
     dialog.className = 'ai-result-panel ai-whatsapp-dialog';
     dialog.dataset.pinned = 'true';
 
-    // Posicionar el diálogo
+    // Position the dialog
     if (buttonElement) {
       const rect = buttonElement.getBoundingClientRect();
       const dialogWidth = 520;
@@ -710,7 +710,7 @@ const WhatsAppModule = (function() {
         <div class="ai-avatar" title="WhatsApp AI">
           <div class="eyes"><span></span><span></span></div>
         </div>
-        <div class="title">🎤 Transcripción de Audio</div>
+        <div class="title">🎤 Audio Transcription</div>
         <div class="spacer"></div>
         <button class="ai-iconbtn close-panel" aria-label="Cerrar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -733,7 +733,7 @@ const WhatsAppModule = (function() {
       </div>
 
       <div class="ai-actions" style="display: none;">
-        <div class="left">Transcripción completada</div>
+        <div class="left">Transcription completed</div>
         <div class="right">
           <button class="ai-iconbtn copy-btn" aria-label="Copiar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
@@ -782,17 +782,17 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * Extraer contexto de los últimos mensajes de la conversación
+   * Extract context from the last messages of the conversation
    */
   function extractConversationContext(limit = 10) {
     const messages = [];
 
-    // Buscar el área de mensajes
+    // Find the messages area
     const messagesArea = document.querySelector('[data-testid="conversation-panel-messages"]') ||
                         document.querySelector('div[class*="copyable-area"]');
 
     if (!messagesArea) {
-      console.log('⚠️ No se encontró área de mensajes');
+      console.log('⚠️ Messages area not found');
       return messages;
     }
 
@@ -818,12 +818,12 @@ const WhatsAppModule = (function() {
       }
     });
 
-    console.log(`📝 WhatsApp: ${messages.length} mensajes extraídos`);
+    console.log(`📝 WhatsApp: ${messages.length} messages extracted`);
     return messages;
   }
 
   /**
-   * Crear diálogo de WhatsApp
+   * Create WhatsApp dialog
    */
   function createWhatsAppDialog(mode, context, buttonElement, audioContainer = null) {
     const dialog = document.createElement('div');
@@ -831,7 +831,7 @@ const WhatsAppModule = (function() {
     dialog.dataset.pinned = 'true';
     dialog.dataset.mode = mode;
 
-    // Posicionar el diálogo
+    // Position the dialog
     if (buttonElement) {
       const rect = buttonElement.getBoundingClientRect();
       const dialogWidth = 520;
@@ -880,7 +880,7 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * HTML para diálogo de transcripción
+   * HTML for transcription dialog
    */
   function createTranscribeDialogHTML() {
     const hasCapturedBlobs = capturedAudioBlobs.size > 0;
@@ -888,13 +888,13 @@ const WhatsAppModule = (function() {
       ? `<div style="background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
           <strong style="color: #2e7d32;">✅ ${capturedAudioBlobs.size} audio(s) detectado(s) en memoria</strong>
           <p style="margin: 0.5rem 0 0 0; color: #1b5e20; font-size: 0.9rem;">
-            Intenta hacer clic en el botón de reproducir primero, luego vuelve a hacer clic en el botón AI.
+            Try clicking the play button first, then click the AI button again.
           </p>
         </div>`
       : `<div style="background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
           <strong style="color: #856404;">⚠️ No se detectaron audios en memoria</strong>
           <p style="margin: 0.5rem 0 0 0; color: #856404; font-size: 0.9rem;">
-            Para capturar el audio automáticamente: Primero haz clic en <strong>Reproducir</strong>, luego en el botón <strong>AI</strong>.
+            To capture audio automatically: First click <strong>Play</strong>, then the <strong>AI</strong> button.
           </p>
         </div>`;
     
@@ -920,23 +920,23 @@ const WhatsAppModule = (function() {
             <div style="display: flex; align-items: start; gap: 1rem;">
               <div style="font-size: 2rem;">💡</div>
               <div>
-                <strong style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;">Consejo para captura automática</strong>
+                <strong style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;">Tip for automatic capture</strong>
                 <p style="margin: 0; font-size: 0.95rem; opacity: 0.95; line-height: 1.5;">
                   1️⃣ Haz clic en <strong>"Reproducir"</strong> en el mensaje de voz<br>
-                  2️⃣ Luego haz clic en el botón verde <strong>"AI"</strong><br>
-                  3️⃣ El audio se transcribirá automáticamente ✨
+                  2️⃣ Then click the green <strong>"AI"</strong> button<br>
+                  3️⃣ The audio will be transcribed automatically ✨
                 </p>
               </div>
             </div>
           </div>
 
           <div style="background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-            <strong style="color: #2e7d32; display: block; margin-bottom: 0.5rem;">📥 Método alternativo - Subir manualmente:</strong>
+            <strong style="color: #2e7d32; display: block; margin-bottom: 0.5rem;">📥 Alternative method - Upload manually:</strong>
             <ol style="margin: 0; padding-left: 1.5rem; color: #1b5e20; line-height: 1.8;">
               <li><strong>Clic derecho</strong> en el mensaje de voz</li>
               <li>Selecciona <strong>"Descargar"</strong></li>
-              <li>El archivo se guardará como <code style="background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px;">.opus</code></li>
-              <li>Súbelo usando el botón de abajo 👇</li>
+              <li>The file will be saved as <code style="background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px;">.opus</code></li>
+              <li>Upload it using the button below 👇</li>
             </ol>
           </div>
 
@@ -958,7 +958,7 @@ const WhatsAppModule = (function() {
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
               <circle cx="12" cy="12" r="8"/>
             </svg>
-            🎙️ Grabar audio nuevo desde micrófono
+            🎙️ Record new audio from microphone
           </button>
           
           <input type="file" accept="audio/*,.opus" style="display: none;" class="audio-file-input" />
@@ -987,7 +987,7 @@ const WhatsAppModule = (function() {
       </div>
 
       <div class="ai-actions" style="display: none;">
-        <div class="left">Transcripción completada</div>
+        <div class="left">Transcription completed</div>
         <div class="right">
           <button class="ai-iconbtn copy-btn" aria-label="Copiar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
@@ -1006,7 +1006,7 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * HTML para diálogo de composición de mensajes
+   * HTML for message composition dialog
    */
   function createComposeDialogHTML(context) {
     const contextPreview = context && context.length > 0
@@ -1068,7 +1068,7 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * Configurar eventos del diálogo de transcripción
+   * Configure transcription dialog events
    */
   function setupTranscribeDialog(dialog) {
     const recordBtn = dialog.querySelector('.record-btn');
@@ -1089,12 +1089,12 @@ const WhatsAppModule = (function() {
     // Grabar audio
     recordBtn.addEventListener('click', async () => {
       if (recordBtn.classList.contains('recording')) {
-        // Detener grabación
+        // Stop recording
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
           mediaRecorder.stop();
         }
       } else {
-        // Iniciar grabación
+        // Start recording
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
@@ -1127,8 +1127,8 @@ const WhatsAppModule = (function() {
             Detener
           `;
         } catch (error) {
-          console.error('Error al acceder al micrófono:', error);
-          alert('No se pudo acceder al micrófono: ' + error.message);
+          console.error('Error accessing microphone:', error);
+          alert('Could not access microphone: ' + error.message);
         }
       }
     });
@@ -1207,7 +1207,7 @@ const WhatsAppModule = (function() {
       }
     });
 
-    // Botón copiar
+    // Copy button
     const copyBtn = dialog.querySelector('.copy-btn');
     copyBtn?.addEventListener('click', () => {
       navigator.clipboard.writeText(answerDiv.textContent);
@@ -1222,14 +1222,14 @@ const WhatsAppModule = (function() {
       }, 2000);
     });
 
-    // Botón insertar en chat
+    // Insert in chat button
     const insertBtn = dialog.querySelector('.insert-btn');
     insertBtn?.addEventListener('click', () => {
       insertTextIntoWhatsApp(answerDiv.textContent);
       dialog.remove();
     });
 
-    // Cerrar diálogo
+    // Close dialog
     const closeBtn = dialog.querySelector('.close-panel');
     closeBtn.addEventListener('click', () => {
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
@@ -1243,7 +1243,7 @@ const WhatsAppModule = (function() {
   }
 
   /**
-   * Configurar eventos del diálogo de composición
+   * Configure composition dialog events
    */
   function setupComposeDialog(dialog, context) {
     const generateBtn = dialog.querySelector('.generate-reply-btn');
@@ -1256,7 +1256,7 @@ const WhatsAppModule = (function() {
       const userPrompt = promptInput.value.trim();
 
       if (!userPrompt && (!context || context.length === 0)) {
-        alert('Por favor, escribe una instrucción o asegúrate de tener contexto de la conversación');
+        alert('Please write an instruction or make sure you have conversation context');
         return;
       }
 
@@ -1269,7 +1269,7 @@ const WhatsAppModule = (function() {
         // Construir prompt con contexto
         let fullPrompt = '';
         if (context && context.length > 0) {
-          fullPrompt += 'Contexto de la conversación:\n';
+          fullPrompt += 'Conversation context:\n';
           context.forEach(msg => {
             fullPrompt += `${msg.role === 'user' ? 'Yo' : 'Otro'}: ${msg.content}\n`;
           });
@@ -1344,7 +1344,7 @@ const WhatsAppModule = (function() {
       // Insertar texto
       messageInput.focus();
 
-      // Usar el método nativo de WhatsApp si está disponible
+      // Use the native WhatsApp method if available
       const dataTransfer = new DataTransfer();
       dataTransfer.setData('text/plain', text);
 
@@ -1370,9 +1370,9 @@ const WhatsAppModule = (function() {
 
       console.log('✅ Texto insertado en WhatsApp');
     } else {
-      console.log('⚠️ No se encontró el campo de mensaje');
+      console.log('⚠️ Message field not found');
       navigator.clipboard.writeText(text);
-      alert('Texto copiado al portapapeles. Pégalo en el chat de WhatsApp.');
+      alert('Text copied to clipboard. Paste it in the WhatsApp chat.');
     }
   }
 
@@ -1381,7 +1381,7 @@ const WhatsAppModule = (function() {
   };
 })();
 
-// Inicializar cuando el DOM esté listo
+// Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', WhatsAppModule.init);
 } else {

@@ -585,7 +585,7 @@
   display: block;
 }
 
-/* Botón de chat destacado */
+/* Featured chat button */
 .open-chat-btn {
   position: relative;
   color: #ffd400 !important;
@@ -619,7 +619,7 @@
   }
 }
 
-/* Typing indicator para diálogos */
+/* Typing indicator for dialogs */
 .ai-typing-indicator {
   display: flex;
   gap: 6px;
@@ -658,7 +658,7 @@
   }
 }
 
-/* Botón detener streaming */
+/* Stop streaming button */
 .ai-stop-btn {
   display: flex;
   align-items: center;
@@ -1207,7 +1207,7 @@
   border: 1px solid #2d2d33;
 }
 
-/* Scrollbar para bloques de código */
+/* Scrollbar for code blocks */
 .ai-answer .code-block pre::-webkit-scrollbar,
 .ai-chat-bubble .code-block pre::-webkit-scrollbar {
   height: 8px;
@@ -1402,7 +1402,7 @@
   height: 16px;
 }
 
-/* Scrollbar para el body del diálogo de Gmail */
+/* Scrollbar for Gmail dialog body */
 .ai-result-panel .ai-result-body::-webkit-scrollbar,
 .ai-gmail-summary-content::-webkit-scrollbar,
 .ai-gmail-response-content::-webkit-scrollbar {
@@ -1907,7 +1907,7 @@
   stroke-width: 2 !important;
 }
 
-/* Diálogo de LinkedIn */
+/* LinkedIn dialog */
 .ai-linkedin-dialog {
   z-index: 999999 !important;
 }
@@ -2811,7 +2811,7 @@
   stroke-width: 2;
 }
 
-/* Botón flotante para Outlook cuando no hay toolbar */
+/* Floating button for Outlook when there is no toolbar */
 .ai-outlook-floating-button {
   position: sticky;
   top: 10px;
@@ -2985,7 +2985,7 @@
   height: 16px;
 }
 
-/* Scrollbar para el body del diálogo de Outlook */
+/* Scrollbar for Outlook dialog body */
 .ai-outlook-summary-content::-webkit-scrollbar,
 .ai-outlook-response-content::-webkit-scrollbar {
   width: 6px;
@@ -3052,7 +3052,7 @@
   stroke-width: 2 !important;
 }
 
-/* Diálogo de Twitter */
+/* Twitter dialog */
 .ai-twitter-dialog {
   z-index: 999999 !important;
 }
@@ -3362,7 +3362,7 @@
    WHATSAPP MODULE STYLES
    ============================================ */
 
-/* Botón de composición AI en WhatsApp */
+/* AI composition button in WhatsApp */
 .ai-whatsapp-btn-compose {
   display: flex;
   align-items: center;
@@ -3389,7 +3389,7 @@
   color: #ffffff;
 }
 
-/* Botón de transcripción de audio */
+/* Audio transcription button */
 .ai-whatsapp-transcribe-btn {
   position: absolute !important;
   top: 8px !important;
@@ -3427,7 +3427,7 @@
   fill: white !important;
 }
 
-/* Spinner para transcripción */
+/* Transcription spinner */
 .ai-spinner {
   animation: spin 1s linear infinite;
 }
@@ -3441,7 +3441,7 @@
   }
 }
 
-/* Diálogo de WhatsApp */
+/* WhatsApp dialog */
 .ai-whatsapp-dialog {
   z-index: 99999 !important;
 }
@@ -3454,7 +3454,7 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Sección de transcripción */
+/* Transcription section */
 .ai-whatsapp-transcribe-section {
   padding: 0;
 }
@@ -3540,7 +3540,7 @@
   outline: none;
 }
 
-/* Botón de generar respuesta */
+/* Generate response button */
 .ai-btn.generate-reply-btn {
   background: #00a884;
   color: #ffffff;
@@ -3566,7 +3566,7 @@
    MULTIMODAL STYLES
    ============================================ */
 
-/* Diálogo de imagen */
+/* Image dialog */
 .ai-image-dialog {
   max-width: 600px;
 }
@@ -3672,7 +3672,7 @@
   --border-color: #2a3942;
 }
 
-/* Animación de aparición para diálogos */
+/* Appearance animation for dialogs */
 .ai-whatsapp-dialog,
 .ai-image-dialog {
   animation: fadeInScale 0.2s ease-out;
@@ -4244,9 +4244,9 @@
   animation: pulse 1.5s infinite;
 }
 
-/* El tema oscuro ya está aplicado por defecto al chat */
+/* The dark theme is already applied by default to the chat */
 
-/* Botón flotante para abrir chat */
+/* Floating button to open chat */
 .ai-float-btn {
   position: fixed;
   right: 0;
