@@ -538,10 +538,11 @@
   flex: 1;
 }
 
+/* Force dark style for language selector */
 .ai-lang-selector {
-  background: #35353c;
-  color: #eaeaf0;
-  border: 1px solid #3a3a40;
+  background: #35353c !important;
+  color: #eaeaf0 !important;
+  border: 1px solid #3a3a40 !important;
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 13px;

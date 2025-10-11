@@ -326,24 +326,24 @@ console.log('📜 side_panel.js loaded - starting execution');
       console.log('✅ History cleared, ready for new conversation');
     }
 
-    // MODO: Resumen de página - Estado de carga
+    // MODE: Page summary - Loading state
     if (context === 'page-summary-loading' && data.isLoading) {
-      console.log('⏳ Mostrando estado de carga del resumen...');
+      console.log('⏳ Showing summary loading state...');
       
-      // Activar flag de web chat mode
+      // Activate web chat mode flag
       isWebChatMode = true;
       
-      // Mostrar indicador de página
+      // Show page indicator
       updatePageIndicator({
-        title: pageTitle || 'Página web',
+        title: pageTitle || 'Web page',
         url: pageUrl
       });
       
-      // Agregar mensaje del asistente con typing indicator
+      // Add assistant message with typing indicator
       conversationHistory.push({
         role: 'assistant',
-        content: '', // Contenido vacío
-        isLoading: true, // Bandera especial para mostrar typing indicator
+        content: '', // Empty content
+        isLoading: true, // Special flag to show typing indicator
         timestamp: Date.now()
       });
 
@@ -357,13 +357,13 @@ console.log('📜 side_panel.js loaded - starting execution');
       return;
     }
 
-    // MODO: Resumen de página (desde el botón flotante)
+    // MODE: Page summary (from floating button)
     if (context === 'page-summary' && currentAnswer) {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📄 MODO RESUMEN DE PÁGINA ACTIVADO');
-      console.log('📝 Página:', pageTitle);
-      console.log('📊 Resumen length:', currentAnswer.length);
-      console.log('📊 pageContent length:', pageContent?.length);
+  console.log('📄 PAGE SUMMARY MODE ACTIVATED');
+  console.log('📝 Page:', pageTitle);
+  console.log('📊 Summary length:', currentAnswer.length);
+  console.log('📊 pageContent length:', pageContent?.length);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
       // Activar flag de web chat mode
@@ -373,22 +373,22 @@ console.log('📜 side_panel.js loaded - starting execution');
       console.log('🔄 Indexando contenido de la página en RAG Engine del side panel...');
       if (typeof WebChatModule !== 'undefined' && pageContent) {
         try {
-          console.log('📝 Estableciendo pageContent en WebChatModule...');
-          // Primero establecer el contenido en el módulo
+          console.log('📝 Setting pageContent in WebChatModule...');
+          // First set the content in the module
           WebChatModule.setPageContent(pageContent, {
             title: pageTitle,
             url: pageUrl
           });
           
           console.log('🔄 Llamando a initializeRAG()...');
-          // Luego indexar
+          // Then index
           await WebChatModule.initializeRAG();
-          console.log('✅ Contenido indexado exitosamente en RAG Engine del side panel');
+          console.log('✅ Content successfully indexed in RAG Engine (side panel)');
         } catch (error) {
           console.error('❌ Error indexando contenido en side panel:', error);
         }
       } else {
-        console.warn('⚠️ No se puede indexar:', {
+        console.warn('⚠️ Cannot index:', {
           hasWebChatModule: typeof WebChatModule !== 'undefined',
           hasPageContent: !!pageContent
         });
@@ -396,7 +396,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       
       // Asegurar que el indicador de página esté visible
       updatePageIndicator({
-        title: pageTitle || 'Página web',
+  title: pageTitle || 'Web page',
         url: pageUrl
       });
       
@@ -404,18 +404,18 @@ console.log('📜 side_panel.js loaded - starting execution');
       const loadingMessageIndex = conversationHistory.findIndex(msg => msg.isLoading);
       
       if (loadingMessageIndex !== -1) {
-        console.log('🔄 Reemplazando mensaje de carga con el resumen...');
-        // Reemplazar el mensaje de carga con el resumen
+  console.log('🔄 Replacing loading message with summary...');
+  // Replace loading message with summary
         conversationHistory[loadingMessageIndex] = {
           role: 'assistant',
           content: currentAnswer,
           timestamp: Date.now()
         };
       } else {
-        console.log('➕ Agregando nuevo mensaje de resumen...');
-        // Agregar mensaje del usuario (automático)
-        const userMessage = `Resume esta página: ${pageTitle}`;
-        console.log('👤 Agregando mensaje del usuario:', userMessage);
+        console.log('➕ Adding new summary message...');
+        // Add user message (automatic)
+        const userMessage = `Summarize this page: ${pageTitle}`;
+        console.log('👤 Adding user message:', userMessage);
         
         conversationHistory.push({
           role: 'user',
@@ -423,8 +423,8 @@ console.log('📜 side_panel.js loaded - starting execution');
           timestamp: Date.now()
         });
 
-        // Agregar el resumen como respuesta del asistente
-        console.log('🤖 Agregando respuesta del asistente (resumen)');
+        // Add summary as assistant response
+        console.log('🤖 Adding assistant response (summary)');
         conversationHistory.push({
           role: 'assistant',
           content: currentAnswer,
@@ -435,19 +435,19 @@ console.log('📜 side_panel.js loaded - starting execution');
       console.log('📚 Historial ahora tiene', conversationHistory.length, 'mensajes');
 
       // Renderizar historial
-      console.log('🎨 Llamando a renderChatHistory()...');
+      console.log('🎨 Calling renderChatHistory()...');
       renderChatHistory();
       
       console.log('💾 Saving history...');
       saveHistory();
 
-      // Hacer scroll al final
+      // Scroll to bottom
       setTimeout(() => {
-        console.log('📜 Haciendo scroll al final...');
+        console.log('📜 Scrolling to bottom...');
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }, 100);
 
-      console.log('✅ Resumen de página procesado completamente');
+      console.log('✅ Page summary processed completely');
       return;
     }
 
@@ -939,20 +939,20 @@ console.log('📜 side_panel.js loaded - starting execution');
       chatMessages.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">💬</div>
-          <h2>Comienza una conversación</h2>
-          <p>Escribe un mensaje o usa el botón "Continuar en el chat" desde cualquier diálogo AI</p>
+          <h2>Start a conversation</h2>
+          <p>Type a message or use the "Continue in chat" button from any AI dialog</p>
           <div class="suggestion-chips">
-            <button class="suggestion-chip" data-suggestion="Ayúdame a escribir un correo profesional">
-              ✉️ Escribir correo
+            <button class="suggestion-chip" data-suggestion="Help me write a professional email">
+              ✉️ Write email
             </button>
-            <button class="suggestion-chip" data-suggestion="Resume este texto en 3 puntos clave">
-              📝 Resumir texto
+            <button class="suggestion-chip" data-suggestion="Summarize this text in 3 key points">
+              📝 Summarize text
             </button>
-            <button class="suggestion-chip" data-suggestion="Traduce este texto al inglés">
-              🌐 Traducir
+            <button class="suggestion-chip" data-suggestion="Translate this text to English">
+              🌐 Translate
             </button>
-            <button class="suggestion-chip" data-suggestion="Explícame este concepto de forma simple">
-              💡 Explicar
+            <button class="suggestion-chip" data-suggestion="Explain this concept in simple terms">
+              💡 Explain
             </button>
           </div>
         </div>
@@ -970,8 +970,8 @@ console.log('📜 side_panel.js loaded - starting execution');
       const messageEl = document.createElement('div');
       messageEl.className = `message ${msg.role}-message`;
 
-      const avatar = msg.role === 'user' ? 'U' : '<div class="ai-avatar" style="width: 100%; height: 100%; font-size: 16px;"><div class="eyes"><span></span><span></span></div></div>';
-      const roleName = msg.role === 'user' ? 'You' : 'Assistant';
+  const avatar = msg.role === 'user' ? 'U' : '<div class="ai-avatar" style="width: 100%; height: 100%; font-size: 16px;"><div class="eyes"><span></span><span></span></div></div>';
+  const roleName = msg.role === 'user' ? 'You' : 'Assistant';
       const time = new Date(msg.timestamp).toLocaleTimeString('es', {
         hour: '2-digit',
         minute: '2-digit'
@@ -1199,15 +1199,15 @@ console.log('📜 side_panel.js loaded - starting execution');
     chatAttachments.innerHTML = `
       <div class="chat-attachment">
         <div style="position: relative;">
-          <img src="${imageUrl}" alt="Imagen adjunta">
+          <img src="${imageUrl}" alt="Attached image">
           <button class="remove-attachment">×</button>
         </div>
         <select class="image-action-select" id="imageActionSelect">
-          <option value="describe">Describir imagen</option>
-          <option value="summarize">Resumir contenido</option>
-          <option value="translate">Traducir texto</option>
-          <option value="explain">Explicar imagen</option>
-          <option value="alttext">Generar alt text</option>
+          <option value="describe">Describe image</option>
+          <option value="summarize">Summarize content</option>
+          <option value="translate">Translate text</option>
+          <option value="explain">Explain image</option>
+          <option value="alttext">Generate alt text</option>
         </select>
       </div>
     `;
@@ -1248,7 +1248,7 @@ console.log('📜 side_panel.js loaded - starting execution');
           <div class="pdf-attachment-details">${fileSize} MB</div>
         </div>
         <div class="pdf-attachment-actions">
-          <button class="pdf-attachment-btn" id="uploadPdfBtn">Subir</button>
+          <button class="pdf-attachment-btn" id="uploadPdfBtn">Upload</button>
           <button class="pdf-attachment-btn" id="removePdfBtn">×</button>
         </div>
       </div>
@@ -1279,7 +1279,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       console.log('📤 Subiendo PDF al chat:', pdfFile.name);
       
       // Mostrar mensaje de progreso
-      const progressMessage = addMessage('assistant', 'Procesando PDF...', true);
+  const progressMessage = addMessage('assistant', 'Processing PDF...', true);
       
       // Subir PDF usando WebChatModule
       const result = await WebChatModule.uploadPDF(pdfFile, (progress) => {
@@ -1287,7 +1287,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       });
 
       // Actualizar mensaje final
-      updateMessageContent(progressMessage, `✅ PDF cargado exitosamente: ${result.filename} (${result.pages} páginas)`);
+  updateMessageContent(progressMessage, `✅ PDF uploaded successfully: ${result.filename} (${result.pages} pages)`);
       
       // Actualizar UI para mostrar PDF cargado
       updatePdfAttachmentUI(result);
@@ -1298,7 +1298,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       console.log('✅ PDF subido exitosamente:', result);
     } catch (error) {
       console.error('❌ Error subiendo PDF:', error);
-      addMessage('assistant', `❌ Error procesando PDF: ${error.message}`);
+  addMessage('assistant', `❌ Error processing PDF: ${error.message}`);
     }
   }
 
@@ -1311,10 +1311,10 @@ console.log('📜 side_panel.js loaded - starting execution');
         <div class="pdf-attachment-icon" style="background: #10b981;">✓</div>
         <div class="pdf-attachment-info">
           <div class="pdf-attachment-name">${pdfInfo.filename}</div>
-          <div class="pdf-attachment-details">${pdfInfo.pages} páginas • Listo para chatear</div>
+          <div class="pdf-attachment-details">${pdfInfo.pages} pages • Ready to chat</div>
         </div>
         <div class="pdf-attachment-actions">
-          <button class="pdf-attachment-btn" id="clearPdfBtn">Limpiar</button>
+          <button class="pdf-attachment-btn" id="clearPdfBtn">Clear</button>
         </div>
       </div>
     `;
@@ -1326,7 +1326,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       chatAttachments.style.display = 'none';
       pdfInput.value = '';
       sendBtn.disabled = !chatInput.value.trim();
-      addMessage('assistant', '📄 PDF eliminado. Ahora puedes chatear con la página web actual.');
+      addMessage('assistant', '📄 PDF removed. You can now chat with the current web page.');
     });
   }
 
@@ -1355,7 +1355,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       try {
         // Verificar si getUserMedia está disponible
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error('Tu navegador no soporta grabación de audio');
+          throw new Error('Your browser does not support audio recording');
         }
 
         console.log('🎙️ Solicitando acceso al micrófono...');
@@ -1387,13 +1387,13 @@ console.log('📜 side_panel.js loaded - starting execution');
             console.log('🎤 Transcribing audio...');
             if (typeof MultimodalModule !== 'undefined') {
               const transcription = await MultimodalModule.transcribeAudio(audioBlob, 'transcribe', (progress) => {
-                console.log('📝 Progreso transcripción:', progress);
+                console.log('📝 Transcription progress:', progress);
               });
               chatInput.value = transcription;
               handleInputChange();
-              console.log('✅ Transcripción completada:', transcription);
+              console.log('✅ Transcription completed:', transcription);
             } else {
-              throw new Error('MultimodalModule no está disponible');
+              throw new Error('MultimodalModule is not available');
             }
           } catch (error) {
             console.error('❌ Error transcribing audio:', error);
@@ -1418,26 +1418,26 @@ console.log('📜 side_panel.js loaded - starting execution');
         console.error('Tipo de error:', error.name);
         console.error('Mensaje:', error.message);
 
-        let errorMessage = 'No se pudo acceder al micrófono.\n\n';
+        let errorMessage = 'Could not access the microphone.\n\n';
 
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-          errorMessage += '❌ Permiso denegado.\n\n' +
-                         'Para habilitar el micrófono:\n' +
-                         '1. Haz clic en el ícono 🔒 en la barra de direcciones\n' +
-                         '2. Busca "Micrófono" y cambia a "Permitir"\n' +
-                         '3. Recarga el side panel';
+          errorMessage += '❌ Permission denied.\n\n' +
+                         'To enable the microphone:\n' +
+                         '1. Click the 🔒 icon in the address bar\n' +
+                         '2. Find "Microphone" and set to "Allow"\n' +
+                         '3. Reload the side panel';
         } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-          errorMessage += '❌ No se encontró ningún micrófono.\n\n' +
-                         'Verifica que tengas un micrófono conectado.';
+          errorMessage += '❌ No microphone found.\n\n' +
+                         'Make sure you have a microphone connected.';
         } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-          errorMessage += '❌ El micrófono está siendo usado por otra aplicación.\n\n' +
-                         'Cierra otras aplicaciones que puedan estar usando el micrófono.';
+          errorMessage += '❌ The microphone is being used by another application.\n\n' +
+                         'Close other applications that may be using the microphone.';
         } else {
           errorMessage += 'Error: ' + error.message + '\n\n' +
-                         'Intenta:\n' +
-                         '• Verificar permisos del navegador\n' +
-                         '• Recargar la página\n' +
-                         '• Usar otro navegador';
+                         'Try:\n' +
+                         '• Check browser permissions\n' +
+                         '• Reload the page\n' +
+                         '• Use another browser';
         }
 
         alert(errorMessage);
