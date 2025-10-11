@@ -579,10 +579,6 @@
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
-
-
-    if (request.data) {
-
       
 
     if (request.action === 'chatData' && request.data) {

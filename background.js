@@ -226,7 +226,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         chrome.runtime.sendMessage({
           action: 'chatData',
           data: { pdfMode: true, pdfUrl: request.pdfUrl }
-
+        }).catch(err => console.log('⚠️ Error:', err));
       }, 500);
       sendResponse({ success: true });
     }).catch(error => {
