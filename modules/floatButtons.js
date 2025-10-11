@@ -14,7 +14,7 @@ const FloatButtonsModule = (function() {
       color: '#EA4335',
       urlPattern: 'mail.google.com',
       onClick: async () => {
-        console.log('🔘 Botón Gmail clickeado');
+
         if (typeof GmailModule !== 'undefined' && typeof GmailModule.handleUnreadSummary === 'function') {
           await GmailModule.handleUnreadSummary();
         } else {
@@ -62,12 +62,11 @@ const FloatButtonsModule = (function() {
       color: '#0078D4',
       urlPattern: 'outlook.live.com|outlook.office.com',
       onClick: async () => {
-        console.log('🔘 Botón Outlook clickeado');
-        console.log('🔍 window.OutlookModule:', window.OutlookModule);
-        console.log('🔍 typeof OutlookModule.handleUnreadSummary:', typeof OutlookModule?.handleUnreadSummary);
-        
+
+
+
         if (window.OutlookModule && typeof OutlookModule.handleUnreadSummary === 'function') {
-          console.log('✅ Ejecutando OutlookModule.handleUnreadSummary()');
+
           await OutlookModule.handleUnreadSummary();
         } else {
           console.error('❌ OutlookModule o handleUnreadSummary no está disponible');
@@ -87,7 +86,7 @@ const FloatButtonsModule = (function() {
       color: '#34A853',
       urlPattern: 'google.com/search',
       onClick: async () => {
-        console.log('🔘 Botón Google clickeado');
+
         if (typeof GoogleModule !== 'undefined' && typeof GoogleModule.summarizeResults === 'function') {
           await GoogleModule.summarizeResults();
         } else {
@@ -106,7 +105,7 @@ const FloatButtonsModule = (function() {
       color: '#FF0000',
       urlPattern: 'youtube.com/watch',
       onClick: async () => {
-        console.log('🔘 Botón YouTube clickeado');
+
         if (typeof YoutubeModule !== 'undefined' && typeof YoutubeModule.summarizeVideo === 'function') {
           await YoutubeModule.summarizeVideo();
         } else {
@@ -124,7 +123,7 @@ const FloatButtonsModule = (function() {
       color: '#24292e',
       urlPattern: 'github.com',
       onClick: async () => {
-        console.log('🔘 Botón GitHub clickeado');
+
         if (typeof GithubModule !== 'undefined' && typeof GithubModule.summarizeRepo === 'function') {
           await GithubModule.summarizeRepo();
         } else {
@@ -272,7 +271,6 @@ ${text}`;
   let currentTargetLanguage = null; // Idioma objetivo actual
 
   async function summarizeCurrentPage() {
-    console.log('📄 Iniciando resumen de página...');
 
     // Cambiar el ícono del botón para indicar que está procesando
     const summarizeBtn = document.getElementById('ai-float-btn-summarize');
@@ -289,8 +287,7 @@ ${text}`;
     }
 
     try {
-      console.log('📝 Iniciando resumen de página...');
-      
+
       // Verificar que WebChatModule esté disponible
       if (typeof WebChatModule === 'undefined') {
         console.error('❌ WebChatModule no disponible');
@@ -299,8 +296,7 @@ ${text}`;
       }
 
       // 🔥 IMPORTANTE: Abrir el side panel PRIMERO (mientras el gesto del usuario aún es válido)
-      console.log('💬 Abriendo side panel ANTES de generar el resumen...');
-      
+
       await new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({
           action: 'openSidePanel',
@@ -319,7 +315,7 @@ ${text}`;
             console.error('❌ Error en respuesta:', response);
             reject(new Error(response?.error || 'Error desconocido'));
           } else {
-            console.log('✅ Side panel abierto correctamente');
+
             resolve();
           }
         });
@@ -336,10 +332,8 @@ ${text}`;
         throw new Error('No se pudo extraer suficiente contenido de la página');
       }
 
-      console.log(`📝 Contenido extraído: ${pageContent.text.length} caracteres`);
-
       // Indexar la página con RAG Engine
-      console.log('🔍 Indexando página con RAG Engine...');
+
       if (typeof RAGEngine !== 'undefined') {
         const ragEngine = RAGEngine.getInstance();
         
@@ -352,28 +346,22 @@ ${text}`;
           url: window.location.href,
           source: 'current_page'
         });
-        
-        console.log('✅ Página indexada exitosamente');
+
       } else {
         console.warn('⚠️ RAGEngine no disponible');
       }
 
       // Generar resumen inicial
-      console.log('📊 Generando resumen inicial...');
+
       const summary = await WebChatModule.summarizePage((progress) => {
-        console.log('📊 Progreso:', progress);
+
       });
 
-      console.log('✅ Resumen generado:', summary.substring(0, 100) + '...');
-      console.log('📦 pageContent:', {
-        title: pageContent.title,
-        textLength: pageContent.text?.length,
-        headings: pageContent.headings?.length
-      });
-      console.log('� Summary length:', summary.length);
+
+      
 
       // Enviar el resumen al side panel que YA está abierto
-      console.log('� Enviando resumen al side panel...');
+
       chrome.runtime.sendMessage({
         action: 'chatData',
         data: {
@@ -390,7 +378,7 @@ ${text}`;
         if (chrome.runtime.lastError) {
           console.error('❌ Error al enviar datos:', chrome.runtime.lastError);
         } else {
-          console.log('✅ Datos enviados correctamente');
+
         }
       });
 
@@ -449,7 +437,7 @@ ${text}`;
     for (const selector of mainSelectors) {
       mainContent = document.querySelector(selector);
       if (mainContent) {
-        console.log(`✅ Contenido encontrado usando selector: ${selector}`);
+
         break;
       }
     }
@@ -457,7 +445,7 @@ ${text}`;
     // Si no se encuentra contenido principal, usar todo el body
     if (!mainContent) {
       mainContent = document.body;
-      console.log('⚠️ Usando document.body como contenido principal');
+
     }
 
     // Extraer el texto, filtrando elementos no deseados
@@ -521,8 +509,6 @@ async function translateFullPage() {
     return;
   }
 
-  console.log('🌐 Iniciando traducción de página...');
-
   // Verificar soporte de Translator API
   if (!('Translator' in self)) {
     alert('La API de traducción no está disponible en este navegador. Se requiere Chrome con soporte para Translator API.');
@@ -533,12 +519,11 @@ async function translateFullPage() {
   const targetLanguage = await showLanguageSelectionDialog();
   
   if (!targetLanguage) {
-    console.log('❌ Traducción cancelada');
+
     return;
   }
 
   currentTargetLanguage = targetLanguage;
-  console.log('🎯 Idioma objetivo:', targetLanguage.name);
 
   // Cambiar botón a estado "procesando"
   const translateBtn = document.getElementById('ai-float-btn-translate');
@@ -557,7 +542,6 @@ async function translateFullPage() {
   try {
     // Detectar idioma de la página usando solo LanguageDetector API
     const pageLanguage = await detectPageLanguage();
-    console.log('📄 Idioma detectado:', pageLanguage);
 
     // Verificar si es necesario traducir
     if (pageLanguage.toLowerCase() === targetLanguage.code.toLowerCase()) {
@@ -583,8 +567,6 @@ async function translateFullPage() {
       return;
     }
 
-    console.log(`📝 ${elementsToTranslate.length} elementos para traducir`);
-
     // Mostrar progreso
     showTranslationProgress(0, elementsToTranslate.length, targetLanguage.name);
 
@@ -601,7 +583,6 @@ async function translateFullPage() {
     // Destruir translator
     translator.destroy();
 
-    console.log('✅ Traducción completada');
     hideTranslationProgress();
 
     isTranslating = true;
@@ -783,15 +764,11 @@ async function createTranslatorWithDownload(sourceLang, targetLang) {
     sourceLang = sourceLang.substring(0, 2).toLowerCase();
     targetLang = targetLang.substring(0, 2).toLowerCase();
 
-    console.log(`🔧 Creando traductor: ${sourceLang} -> ${targetLang}`);
-
     // Verificar disponibilidad
     const availability = await self.Translator.availability({
       sourceLanguage: sourceLang,
       targetLanguage: targetLang
     });
-
-    console.log('📊 Disponibilidad:', availability);
 
     if (availability === 'no') {
       throw new Error(`Par de idiomas ${sourceLang}->${targetLang} no soportado`);
@@ -820,7 +797,7 @@ async function createTranslatorWithDownload(sourceLang, targetLang) {
       });
 
       hideDownloadProgress();
-      console.log('✅ Traductor creado y descargado');
+
       return translator;
     }
 
@@ -950,7 +927,6 @@ function getSampleText() {
 
 // Revertir traducción
 function revertTranslation() {
-  console.log('🔄 Revirtiendo traducción...');
 
   let revertedCount = 0;
 
@@ -962,8 +938,6 @@ function revertTranslation() {
       console.warn('⚠️ Error revirtiendo:', error);
     }
   });
-
-  console.log(`✅ ${revertedCount} elementos revertidos`);
 
   originalTexts.clear();
   translatedElements.clear();
@@ -1498,7 +1472,6 @@ function resetTranslateButton(btn) {
   }
 
   function revertTranslation() {
-    console.log('🔄 Revirtiendo traducción...');
 
     let revertedCount = 0;
 
@@ -1520,8 +1493,6 @@ function resetTranslateButton(btn) {
       }
     });
 
-    console.log(`✅ ${revertedCount} elementos revertidos de ${originalTexts.size} totales`);
-
     // Limpiar los mapas y sets
     originalTexts.clear();
     translatedElements.clear();
@@ -1539,7 +1510,6 @@ function resetTranslateButton(btn) {
       if (tooltip) tooltip.textContent = 'Traducir Página';
     }
 
-    console.log('✅ Traducción revertida completamente');
   }
 
   function createTranslateDialog(originalText) {
@@ -1698,3 +1668,5 @@ function resetTranslateButton(btn) {
     }
   };
 })();
+
+

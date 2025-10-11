@@ -7,7 +7,7 @@ const GmailModule = (function() {
     isGmail = window.location.hostname.includes('mail.google.com');
     
     if (isGmail) {
-      console.log('📧 Gmail detectado, iniciando módulo...');
+
       observeGmail();
     }
   }
@@ -28,8 +28,7 @@ const GmailModule = (function() {
   }
 
   async function handleUnreadSummary() {
-    console.log('📬 Obteniendo correos no leídos...');
-    
+
     try {
       const unreadEmails = await getUnreadEmails();
       
@@ -37,9 +36,7 @@ const GmailModule = (function() {
         alert('No hay correos no leídos 🎉');
         return;
       }
-      
-      console.log(`📧 ${unreadEmails.length} correos no leídos encontrados`);
-      
+
       // Crear diálogo de resumen
       const dialog = createUnreadSummaryDialog(unreadEmails);
       document.body.appendChild(dialog);
@@ -276,7 +273,7 @@ Genera un resumen claro, conciso y bien estructurado en español.`;
     const emailBody = document.querySelector('[data-message-id]');
     
     if (emailBody && !gmailButton) {
-      console.log('📬 Correo abierto detectado');
+
       insertAIButton(emailBody);
     } else if (!emailBody && gmailButton) {
       // Si ya no hay correo abierto, remover el botón
@@ -291,7 +288,7 @@ Genera un resumen claro, conciso y bien estructurado en español.`;
                     emailContainer.parentElement.querySelector('[role="toolbar"]');
     
     if (!toolbar) {
-      console.log('⚠️ No se encontró toolbar de Gmail');
+
       return;
     }
 
@@ -313,7 +310,7 @@ Genera un resumen claro, conciso y bien estructurado en español.`;
 
     // Insertar el botón en la toolbar
     toolbar.appendChild(gmailButton);
-    console.log('✅ Botón AI insertado en Gmail');
+
   }
 
   function removeAIButton() {
@@ -324,7 +321,6 @@ Genera un resumen claro, conciso y bien estructurado en español.`;
   }
 
   async function handleAIResponse(emailContainer) {
-    console.log('🤖 Generando respuesta AI...');
 
     // Extraer el contenido del correo inmediatamente
     const emailContent = extractEmailContent(emailContainer);
@@ -333,8 +329,6 @@ Genera un resumen claro, conciso y bien estructurado en español.`;
       alert('No se pudo extraer el contenido del correo');
       return;
     }
-
-    console.log('📧 Contenido extraído:', emailContent.substring(0, 100) + '...');
 
     // Crear el diálogo inmediatamente con estado de carga
     const dialog = createGmailDialog(emailContent, null);
@@ -700,8 +694,7 @@ Genera una respuesta profesional y cordial para este correo electrónico, incluy
       
       // Disparar evento de input para que Gmail detecte el cambio
       composeBox.dispatchEvent(new Event('input', { bubbles: true }));
-      
-      console.log('✅ Texto insertado en Gmail');
+
     } else {
       // Si no se encuentra el editor, copiar al portapapeles
       navigator.clipboard.writeText(text).then(() => {
@@ -728,3 +721,5 @@ Genera una respuesta profesional y cordial para este correo electrónico, incluy
 
   return publicAPI;
 })();
+
+

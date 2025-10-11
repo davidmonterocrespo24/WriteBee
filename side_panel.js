@@ -1,17 +1,9 @@
-console.log('📜 side_panel.js loaded - starting execution');
 
 (function initSidePanel() {
   try {
-    console.log('🚀 Initializing Side Panel Chat');
-    console.log('⏰ Timestamp:', Date.now());
-    console.log('📄 Document ready state:', document.readyState);
 
-    console.log('📦 Available modules:', {
-      AIModule: typeof AIModule !== 'undefined',
-      MultimodalModule: typeof MultimodalModule !== 'undefined',
-      MarkdownRenderer: typeof MarkdownRenderer !== 'undefined',
-      AIServiceInstance: typeof window.AIServiceInstance !== 'undefined'
-    });
+
+
 
   let conversationHistory = [];
   let isRecording = false;
@@ -33,16 +25,8 @@ console.log('📜 side_panel.js loaded - starting execution');
   const chatAttachments = document.getElementById('chatAttachments');
   const recordingIndicator = document.getElementById('recordingIndicator');
 
-  console.log('✅ DOM elements loaded:', {
-    chatMessages: !!chatMessages,
-    chatInput: !!chatInput,
-    sendBtn: !!sendBtn,
-    imageInput: !!imageInput,
-    pdfInput: !!pdfInput,
-    voiceBtn: !!voiceBtn,
-    attachImageBtn: !!attachImageBtn,
-    attachPdfBtn: !!attachPdfBtn
-  });
+
+  
 
   loadHistory();
 
@@ -51,24 +35,24 @@ console.log('📜 side_panel.js loaded - starting execution');
   if (chatInput) {
     chatInput.addEventListener('input', handleInputChange);
     chatInput.addEventListener('keydown', handleKeyDown);
-    console.log('✅ Event listeners added to chatInput');
+
   } else {
     console.error('❌ chatInput not found');
   }
 
   if (sendBtn) {
     sendBtn.addEventListener('click', () => {
-      console.log('🔵 Click on sendBtn detected');
+
       sendMessage();
     });
-    console.log('✅ Event listener added to sendBtn');
+
   } else {
     console.error('❌ sendBtn not found');
   }
 
   if (newChatBtn) {
     newChatBtn.addEventListener('click', newConversation);
-    console.log('✅ Event listener added to newChatBtn');
+
   } else {
     console.error('❌ newChatBtn not found');
   }
@@ -84,7 +68,7 @@ console.log('📜 side_panel.js loaded - starting execution');
         }
       }
     });
-    console.log('✅ Event listener added to clearPdfBtn');
+
   } else {
     console.error('❌ clearPdfBtn not found');
   }
@@ -101,51 +85,51 @@ console.log('📜 side_panel.js loaded - starting execution');
         }
       }
     });
-    console.log('✅ Event listener added to clearPageBtn');
+
   } else {
     console.error('❌ clearPageBtn not found');
   }
 
   if (voiceBtn) {
     voiceBtn.addEventListener('click', () => {
-      console.log('🔵 Click on voiceBtn detected');
+
       toggleVoiceRecording();
     });
-    console.log('✅ Event listener added to voiceBtn');
+
   } else {
     console.error('❌ voiceBtn not found');
   }
 
   if (attachImageBtn) {
     attachImageBtn.addEventListener('click', () => {
-      console.log('🔵 Click on attachImageBtn detected');
+
       imageInput.click();
     });
-    console.log('✅ Event listener added to attachImageBtn');
+
   } else {
     console.error('❌ attachImageBtn not found');
   }
 
   if (attachPdfBtn) {
     attachPdfBtn.addEventListener('click', () => {
-      console.log('🔵 Click on attachPdfBtn detected');
+
       pdfInput.click();
     });
-    console.log('✅ Event listener added to attachPdfBtn');
+
   } else {
     console.error('❌ attachPdfBtn not found');
   }
 
   if (imageInput) {
     imageInput.addEventListener('change', handleImageSelect);
-    console.log('✅ Event listener added to imageInput');
+
   } else {
     console.error('❌ imageInput not found');
   }
 
   if (pdfInput) {
     pdfInput.addEventListener('change', handlePdfSelect);
-    console.log('✅ Event listener added to pdfInput');
+
   } else {
     console.error('❌ pdfInput not found');
   }
@@ -178,16 +162,14 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Request pending data from background script
    */
   function requestPendingData() {
-    console.log('📨 Requesting pending data from background...');
-    
+
     // Try multiple times with incremental delays
     let attempts = 0;
     const maxAttempts = 3;
     
     async function tryRequest() {
       attempts++;
-      console.log(`📨 Attempt ${attempts}/${maxAttempts} to request data...`);
-      
+
       chrome.runtime.sendMessage({ action: 'getChatData' }, async (response) => {
         if (chrome.runtime.lastError) {
           console.error('❌ Error requesting data:', chrome.runtime.lastError);
@@ -200,21 +182,13 @@ console.log('📜 side_panel.js loaded - starting execution');
         }
 
         if (response && response.data) {
-          console.log('📥 Pending data received:', {
-            action: response.data.action,
-            context: response.data.context,
-            hasCurrentAnswer: !!response.data.currentAnswer,
-            currentAnswerPreview: response.data.currentAnswer?.substring(0, 100),
-            hasPageContent: !!response.data.pageContent,
-            hasSelectedText: !!response.data.selectedText,
-            pageTitle: response.data.pageTitle
-          });
+
+            
 
           // Process the received data
           await handleChatData(response.data);
         } else {
-          console.log('ℹ️ No pending data');
-          
+
           // Retry if we haven't reached the maximum
           if (attempts < maxAttempts) {
             setTimeout(tryRequest, 300 * attempts);
@@ -232,10 +206,9 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Handle chat data from background or content script
    */
   async function handleChatData(data) {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔧 HANDLE CHAT DATA CALLED');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+
+
+
     if (!data) {
       console.warn('⚠️ handleChatData received empty data');
       return;
@@ -269,67 +242,39 @@ console.log('📜 side_panel.js loaded - starting execution');
 
     const { selectedText, currentAnswer, action, followupQuestion, webChatMode, pageTitle, pageUrl, pageContent, imageMode, imageUrl, imageAction, prompt, initialPrompt, context } = data;
 
-    console.log('📋 Extracted data:', {
-      selectedText: selectedText?.substring(0, 50),
-      currentAnswer: currentAnswer?.substring(0, 50),
-      action,
-      followupQuestion,
-      webChatMode,
-      pageTitle,
-      pageUrl: pageUrl?.substring(0, 50),
-      pageContentLength: pageContent?.length,
-      imageMode,
-      imageUrl: imageUrl?.substring(0, 50),
-      imageAction,
-      context
-    });
 
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📥 HANDLE CHAT DATA: Processing chat data');
-    console.log('📋 Received data:', {
-      selectedText: selectedText?.substring(0, 50),
-      currentAnswer: currentAnswer ? `${currentAnswer.substring(0, 100)}...` : 'N/A',
-      action,
-      followupQuestion: followupQuestion?.substring(0, 50),
-      webChatMode,
-      pageTitle,
-      pageUrl,
-      pageContentLength: pageContent?.length,
-      imageMode,
-      imageAction,
-      imageUrl: imageUrl?.substring(0, 50),
-      initialPrompt: initialPrompt?.substring(0, 50),
-      context
-    });
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+
+
+
+     
 
     // For images, always clear history to create new conversation
     if (imageMode && imageUrl && prompt) {
-      console.log('🖼️ Image mode detected - clearing history for new conversation');
+
       conversationHistory = [];
     }
     // For page chat (from context menu), clear history
     else if (context === 'page-chat' && webChatMode) {
-      console.log('🌐 Page chat mode detected - clearing history for new conversation');
+
       conversationHistory = [];
     }
     // For page summary, DO NOT clear if content is already loading
     else if (context === 'page-summary-loading' || context === 'page-summary') {
-      console.log('📄 Page summary - maintaining or updating history');
+
       // Do not clear history here
     }
     // For other cases, only clear if it's not a follow-up question
     else if (!followupQuestion) {
-      console.log('🆕 Starting new conversation');
-      console.log('🧹 Clearing previous history:', conversationHistory.length, 'messages');
+
+
       conversationHistory = [];
-      console.log('✅ History cleared, ready for new conversation');
+
     }
 
     // MODE: Page summary - Loading state
     if (context === 'page-summary-loading' && data.isLoading) {
-      console.log('⏳ Showing summary loading state...');
-      
+
       // Activate web chat mode flag
       isWebChatMode = true;
       
@@ -359,31 +304,29 @@ console.log('📜 side_panel.js loaded - starting execution');
 
     // MODE: Page summary (from floating button)
     if (context === 'page-summary' && currentAnswer) {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('📄 PAGE SUMMARY MODE ACTIVATED');
-  console.log('📝 Page:', pageTitle);
-  console.log('📊 Summary length:', currentAnswer.length);
-  console.log('📊 pageContent length:', pageContent?.length);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
+
+
+
+
       // Activar flag de web chat mode
       isWebChatMode = true;
       
       // **IMPORTANTE**: Indexar el contenido de la página en el RAG Engine del side panel
-      console.log('🔄 Indexando contenido de la página en RAG Engine del side panel...');
+
       if (typeof WebChatModule !== 'undefined' && pageContent) {
         try {
-          console.log('📝 Setting pageContent in WebChatModule...');
+
           // First set the content in the module
           WebChatModule.setPageContent(pageContent, {
             title: pageTitle,
             url: pageUrl
           });
-          
-          console.log('🔄 Llamando a initializeRAG()...');
+
           // Then index
           await WebChatModule.initializeRAG();
-          console.log('✅ Content successfully indexed in RAG Engine (side panel)');
+
         } catch (error) {
           console.error('❌ Error indexando contenido en side panel:', error);
         }
@@ -404,7 +347,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       const loadingMessageIndex = conversationHistory.findIndex(msg => msg.isLoading);
       
       if (loadingMessageIndex !== -1) {
-  console.log('🔄 Replacing loading message with summary...');
+
   // Replace loading message with summary
         conversationHistory[loadingMessageIndex] = {
           role: 'assistant',
@@ -412,11 +355,10 @@ console.log('📜 side_panel.js loaded - starting execution');
           timestamp: Date.now()
         };
       } else {
-        console.log('➕ Adding new summary message...');
+
         // Add user message (automatic)
         const userMessage = `Summarize this page: ${pageTitle}`;
-        console.log('👤 Adding user message:', userMessage);
-        
+
         conversationHistory.push({
           role: 'user',
           content: userMessage,
@@ -424,7 +366,7 @@ console.log('📜 side_panel.js loaded - starting execution');
         });
 
         // Add summary as assistant response
-        console.log('🤖 Adding assistant response (summary)');
+
         conversationHistory.push({
           role: 'assistant',
           content: currentAnswer,
@@ -432,30 +374,25 @@ console.log('📜 side_panel.js loaded - starting execution');
         });
       }
 
-      console.log('📚 Historial ahora tiene', conversationHistory.length, 'mensajes');
-
       // Renderizar historial
-      console.log('🎨 Calling renderChatHistory()...');
+
       renderChatHistory();
-      
-      console.log('💾 Saving history...');
+
       saveHistory();
 
       // Scroll to bottom
       setTimeout(() => {
-        console.log('📜 Scrolling to bottom...');
+
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }, 100);
 
-      console.log('✅ Page summary processed completely');
       return;
     }
 
     // MODO: Imagen (OCR, Explain, Describe)
     if (imageMode && imageUrl && prompt) {
-      console.log('🖼️ Modo Imagen activado:', imageAction);
-      console.log('🖼️ Image URL:', imageUrl);
-      console.log('🖼️ Prompt:', prompt);
+
+
 
       // Cargar la imagen
       fetch(imageUrl)
@@ -464,9 +401,7 @@ console.log('📜 side_panel.js loaded - starting execution');
           const imageFile = new File([blob], 'image.jpg', { type: blob.type });
           const imageObjectUrl = URL.createObjectURL(blob);
 
-          console.log('✅ Imagen cargada y convertida a File');
-          console.log('📦 imageFile:', imageFile);
-          console.log('🎯 imageAction:', imageAction);
+
 
           // Agregar mensaje del usuario con el prompt
           conversationHistory.push({
@@ -478,8 +413,6 @@ console.log('📜 side_panel.js loaded - starting execution');
             timestamp: Date.now()
           });
 
-          console.log('📝 Mensaje de usuario agregado al historial');
-          console.log('📊 Historial actual:', conversationHistory.length, 'mensajes');
 
           // Renderizar historial
           renderChatHistory();
@@ -491,9 +424,8 @@ console.log('📜 side_panel.js loaded - starting execution');
           }, 100);
 
           // Procesar automáticamente con la acción correcta
-          console.log('🚀 Processing message with image...');
-          console.log('🎯 Acción a ejecutar:', imageAction);
-          
+
+
           setTimeout(() => {
             processMessage(prompt, imageAction, imageFile, null);
           }, 200);
@@ -508,7 +440,6 @@ console.log('📜 side_panel.js loaded - starting execution');
 
     // MODO: Chat con selección de texto
     if (selectedText) {
-      console.log('📝 Modo Chat con Texto Seleccionado');
 
       // Si ya hay una respuesta (ej: desde el toolbar), mostrarla
       if (currentAnswer) {
@@ -545,8 +476,7 @@ console.log('📜 side_panel.js loaded - starting execution');
 
     // MODO: Chat con página web (desde menú contextual)
     if (webChatMode && pageContent) {
-      console.log('🌐 Modo Chat con Página Web');
-      
+
       // Activar flag de web chat mode
       isWebChatMode = true;
       
@@ -559,20 +489,19 @@ console.log('📜 side_panel.js loaded - starting execution');
       }
       
       // **IMPORTANTE**: Indexar el contenido de la página en el RAG Engine
-      console.log('🔄 Indexando contenido de la página en RAG Engine...');
+
       if (typeof WebChatModule !== 'undefined') {
         try {
-          console.log('📝 Estableciendo pageContent en WebChatModule...');
+
           // Primero establecer el contenido en el módulo
           WebChatModule.setPageContent(pageContent, {
             title: pageTitle,
             url: pageUrl
           });
-          
-          console.log('🔄 Llamando a initializeRAG()...');
+
           // Luego indexar
           await WebChatModule.initializeRAG();
-          console.log('✅ Contenido indexado exitosamente en RAG Engine');
+
         } catch (error) {
           console.error('❌ Error indexando contenido:', error);
         }
@@ -580,8 +509,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       
       // Si viene del menú contextual (context: 'page-chat'), generar resumen automático
       if (context === 'page-chat') {
-        console.log('📝 Generando resumen automático de la página...');
-        
+
         // Agregar mensaje del usuario (automático)
         const userMessage = `Resume esta página: ${pageTitle}`;
         conversationHistory.push({
@@ -605,11 +533,9 @@ console.log('📜 side_panel.js loaded - starting execution');
         // Generar el resumen de forma asíncrona
         setTimeout(async () => {
           try {
-            console.log('🔄 Iniciando generación de resumen...');
+
             const summary = await WebChatModule.summarizePage();
-            
-            console.log('✅ Resumen generado:', summary.substring(0, 100) + '...');
-            
+
             // Reemplazar el mensaje de carga con el resumen
             const loadingIndex = conversationHistory.findIndex(msg => msg.isLoading);
             if (loadingIndex !== -1) {
@@ -651,29 +577,19 @@ console.log('📜 side_panel.js loaded - starting execution');
 
   // Listener to receive data from dialog
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📨 MESSAGE RECEIVED IN SIDE PANEL');
-    console.log('📨 Action:', request.action);
-    console.log('📨 Has data:', !!request.data);
+
+
+
+
     if (request.data) {
-      console.log('📦 Data details:', {
-        context: request.data.context,
-        pageTitle: request.data.pageTitle,
-        imageMode: request.data.imageMode,
-        imageUrl: request.data.imageUrl?.substring(0, 50),
-        imageAction: request.data.imageAction,
-        hasSummary: !!request.data.currentAnswer,
-        hasPageContent: !!request.data.pageContent,
-        pageContentLength: request.data.pageContent?.length
-      });
-    }
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+      
 
     if (request.action === 'chatData' && request.data) {
-      console.log('✅ Processing chatData...');
+
       // Llamar handleChatData de forma async pero responder inmediatamente
       handleChatData(request.data).then(() => {
-        console.log('✅ handleChatData completado exitosamente');
+
       }).catch(error => {
         console.error('❌ Error processing chatData:', error);
       });
@@ -713,15 +629,13 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Enviar mensaje
    */
   async function sendMessage() {
-    console.log('📤 sendMessage called');
+
     const text = chatInput.value.trim();
 
     if (!text && !attachedImageFile && !attachedPdfFile) {
-      console.log('⚠️ No hay texto, imagen ni PDF adjunto');
+
       return;
     }
-
-    console.log('📝 Enviando mensaje:', { text: text.substring(0, 50), hasImage: !!attachedImageFile, hasPdf: !!attachedPdfFile });
 
     // Obtener acción seleccionada para imagen si existe
     let imageAction = null;
@@ -796,30 +710,27 @@ console.log('📜 side_panel.js loaded - starting execution');
 
       // Callback para progreso
       const onProgress = (progress) => {
-        console.log('📊 Progress:', progress);
+
         assistantMessage.content = `⏳ ${progress}`;
         renderChatHistory();
       };
 
       // Check if we are in page chat or PDF mode using the flag
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔍 DIAGNÓSTICO DE MODO RAG:');
-      console.log('📌 isWebChatMode:', isWebChatMode);
-      console.log('📌 WebChatModule disponible:', typeof WebChatModule !== 'undefined');
-      
+
+
+
+
       const hasPDF = typeof WebChatModule !== 'undefined' && WebChatModule.hasPDFLoaded && WebChatModule.hasPDFLoaded();
-      console.log('📌 hasPDF:', hasPDF);
-      
+
       const hasRAGContent = isWebChatMode || hasPDF;
-      console.log('📌 hasRAGContent:', hasRAGContent);
-      console.log('📌 pdfFile:', !!pdfFile);
-      console.log('📌 imageFile:', !!imageFile);
-      console.log('📌 action:', action);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+
+
+
 
       // Si hay PDF, procesarlo
       if (pdfFile) {
-        console.log('📄 Procesando PDF:', pdfFile.name);
+
         if (typeof WebChatModule !== 'undefined') {
           // Subir PDF al chat
           await WebChatModule.uploadPDF(pdfFile, onProgress);
@@ -832,7 +743,7 @@ console.log('📜 side_panel.js loaded - starting execution');
           
           // Si hay texto, procesarlo como pregunta sobre el PDF
           if (text && text.trim()) {
-            console.log('💬 Procesando pregunta sobre el PDF:', text);
+
             result = await WebChatModule.chatWithPage(text, onProgress);
             assistantMessage.content = result;
           } else {
@@ -846,7 +757,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       }
       // Si hay imagen, procesarla con multimodal según la acción
       else if (imageFile) {
-        console.log('🖼️ Procesando imagen con acción:', action);
+
         if (typeof MultimodalModule !== 'undefined') {
           if (action && action !== 'describe') {
             // Usar processImageWithAction para acciones específicas
@@ -861,26 +772,23 @@ console.log('📜 side_panel.js loaded - starting execution');
       }
       // Si estamos en modo chat con página o PDF, usar RAG
       else if (hasRAGContent && typeof WebChatModule !== 'undefined') {
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('🌐 USANDO RAG PARA RESPONDER (Página o PDF)');
-        console.log('📝 Pregunta del usuario:', text);
-        console.log('🔧 Llamando a WebChatModule.chatWithPage()...');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
+
+
+
+
+
         result = await WebChatModule.chatWithPage(text, onProgress);
-        
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('✅ RESPUESTA RAG RECIBIDA');
-        console.log('📊 Longitud de respuesta:', result.length);
-        console.log('📄 Primeros 200 chars:', result.substring(0, 200));
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
+
+
+
+
+
         assistantMessage.content = result;
         assistantMessage.isTyping = false;
       }
       // Si hay una acción específica, usar streaming
       else if (action) {
-        console.log('⚙️ Ejecutando acción:', action);
+
         switch (action) {
           case 'summarize':
             result = await AIModule.aiSummarizeStream(text, onChunk);
@@ -907,7 +815,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       }
       // Conversación normal
       else {
-        console.log('💬 Procesando conversación normal');
+
         result = await AIModule.aiChat(conversationHistory.slice(0, -1));
         assistantMessage.content = result;
       }
@@ -1054,7 +962,7 @@ console.log('📜 side_panel.js loaded - starting execution');
   function copyMessage(index) {
     const message = conversationHistory[index];
     navigator.clipboard.writeText(message.content).then(() => {
-      console.log('✅ Mensaje copiado');
+
     });
   }
 
@@ -1110,7 +1018,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       if (clearPageBtn) {
         clearPageBtn.style.display = 'none';
       }
-      console.log('📄 PDF indicator updated:', pdfInfo.filename);
+
     } else {
       // Hide PDF indicator
       if (pdfIndicator) {
@@ -1119,7 +1027,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       if (clearPdfBtn) {
         clearPdfBtn.style.display = 'none';
       }
-      console.log('📄 PDF indicator hidden');
+
     }
   }
 
@@ -1148,7 +1056,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       if (clearPdfBtn) {
         clearPdfBtn.style.display = 'none';
       }
-      console.log('📄 Page indicator updated:', pageInfo.title);
+
     } else {
       // Hide page indicator
       if (pageIndicator) {
@@ -1157,7 +1065,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       if (clearPageBtn) {
         clearPageBtn.style.display = 'none';
       }
-      console.log('📄 Page indicator hidden');
+
     }
   }
 
@@ -1185,14 +1093,13 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Manejar selección de imagen
    */
   function handleImageSelect(e) {
-    console.log('🖼️ handleImageSelect llamado');
+
     const file = e.target.files[0];
     if (!file) {
-      console.log('⚠️ No se seleccionó ningún archivo');
+
       return;
     }
 
-    console.log('✅ Archivo seleccionado:', file.name, file.type);
     attachedImageFile = file;
     const imageUrl = URL.createObjectURL(file);
 
@@ -1228,14 +1135,13 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Manejar selección de PDF
    */
   function handlePdfSelect(e) {
-    console.log('📄 handlePdfSelect llamado');
+
     const file = e.target.files[0];
     if (!file) {
-      console.log('⚠️ No se seleccionó ningún archivo PDF');
+
       return;
     }
 
-    console.log('✅ PDF seleccionado:', file.name, file.type, file.size);
     attachedPdfFile = file;
 
     // Mostrar información del PDF
@@ -1276,8 +1182,7 @@ console.log('📜 side_panel.js loaded - starting execution');
    */
   async function uploadPdfToChat(pdfFile) {
     try {
-      console.log('📤 Subiendo PDF al chat:', pdfFile.name);
-      
+
       // Mostrar mensaje de progreso
   const progressMessage = addMessage('assistant', 'Processing PDF...', true);
       
@@ -1294,8 +1199,7 @@ console.log('📜 side_panel.js loaded - starting execution');
       
       // Limpiar input
       pdfInput.value = '';
-      
-      console.log('✅ PDF subido exitosamente:', result);
+
     } catch (error) {
       console.error('❌ Error subiendo PDF:', error);
   addMessage('assistant', `❌ Error processing PDF: ${error.message}`);
@@ -1350,7 +1254,7 @@ console.log('📜 side_panel.js loaded - starting execution');
    * Toggle grabación de voz
    */
   async function toggleVoiceRecording() {
-    console.log('🎤 toggleVoiceRecording llamado, isRecording:', isRecording);
+
     if (!isRecording) {
       try {
         // Verificar si getUserMedia está disponible
@@ -1358,7 +1262,6 @@ console.log('📜 side_panel.js loaded - starting execution');
           throw new Error('Your browser does not support audio recording');
         }
 
-        console.log('🎙️ Solicitando acceso al micrófono...');
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
@@ -1366,7 +1269,7 @@ console.log('📜 side_panel.js loaded - starting execution');
             sampleRate: 44100
           }
         });
-        console.log('✅ Acceso al micrófono concedido');
+
         mediaRecorder = new MediaRecorder(stream);
         const chunks = [];
 
@@ -1384,14 +1287,14 @@ console.log('📜 side_panel.js loaded - starting execution');
           recordingIndicator.style.display = 'flex';
 
           try {
-            console.log('🎤 Transcribing audio...');
+
             if (typeof MultimodalModule !== 'undefined') {
               const transcription = await MultimodalModule.transcribeAudio(audioBlob, 'transcribe', (progress) => {
-                console.log('📝 Transcription progress:', progress);
+
               });
               chatInput.value = transcription;
               handleInputChange();
-              console.log('✅ Transcription completed:', transcription);
+
             } else {
               throw new Error('MultimodalModule is not available');
             }
@@ -1501,10 +1404,8 @@ console.log('📜 side_panel.js loaded - starting execution');
     saveHistory();
   }
 
-  console.log('✅ Side Panel Chat inicializado completamente');
-
   // Solicitar datos pendientes del background script (después de que todo esté listo)
-  console.log('📨 Preparando para solicitar datos pendientes...');
+
   requestPendingData();
 
   } catch (error) {
@@ -1514,30 +1415,30 @@ console.log('📜 side_panel.js loaded - starting execution');
   }
 })();
 
-console.log('🎬 side_panel.js ejecutado completamente');
-
 // Listener adicional para cuando el documento esté completamente listo
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('📄 DOMContentLoaded event fired - documento listo');
+
   });
 } else {
-  console.log('📄 Documento ya está listo (readyState:', document.readyState, ')');
+
 }
 
 // Listener para visibilidad de la página (cuando el side panel se abre/cierra)
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    console.log('👁️ Side panel ahora visible - verificando datos pendientes...');
+
     // Podría haber datos pendientes si el panel se cerró y reabrió
     setTimeout(() => {
       chrome.runtime.sendMessage({ action: 'getChatData' }, (response) => {
         if (response && response.data) {
-          console.log('📥 Datos pendientes encontrados al hacer visible el panel');
+
         }
       });
     }, 100);
   } else {
-    console.log('👁️ Side panel ahora oculto');
+
   }
 });
+
+

@@ -29,7 +29,6 @@ const ToolbarModule = (function() {
     // Guardar posición del viewport (clientY) para el diálogo, no pageY
     toolbar.dataset.selectionY = clientY;
     toolbar.dataset.initialRight = rightPosition;
-    console.log('🎯 Toolbar posicionado en - pageX:', pageX, 'pageY:', pageY, 'rightPosition:', rightPosition, 'clientY guardado:', clientY);
 
     // Load pinned actions from config
     const pinnedActions = await ToolbarConfigModule.getPinnedActions();
@@ -64,7 +63,7 @@ const ToolbarModule = (function() {
       toolbar.dataset.initialLeft = initialRect.left;
       toolbar.dataset.initialTop = initialRect.top;
       toolbar.dataset.initialBottom = initialRect.bottom;
-      console.log('📍 Posición inicial del toolbar guardada - left:', initialRect.left, 'top:', initialRect.top, 'bottom:', initialRect.bottom);
+
     }, 0);
 
     toolbar.querySelectorAll('[data-action]').forEach(btn => {
@@ -72,9 +71,9 @@ const ToolbarModule = (function() {
       btn.addEventListener('mousedown', () => {
         const action = btn.dataset.action;
         if (action !== 'more') {
-          console.log('⬇️ MouseDown en toolbar');
+
           if (window.setIgnoreNextMouseUp) {
-            console.log('🚫 Activando ignoreNextMouseUp');
+
             window.setIgnoreNextMouseUp();
           }
         }
@@ -113,7 +112,7 @@ const ToolbarModule = (function() {
                 return;
               }
               if (response && response.success) {
-                console.log('✅ Side panel opened with page context');
+
               }
             });
           } catch (error) {
@@ -121,31 +120,20 @@ const ToolbarModule = (function() {
             alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
           }
         } else {
-          console.log('🔵 Click en acción:', action);
 
           // Log de datos guardados
-          console.log('📦 Datos guardados en toolbar:', {
-            initialLeft: toolbar.dataset.initialLeft,
-            initialTop: toolbar.dataset.initialTop,
-            initialBottom: toolbar.dataset.initialBottom
-          });
 
           // Log de posición actual del toolbar
           const currentRect = toolbar.getBoundingClientRect();
-          console.log('📍 Posición ACTUAL del toolbar:', {
-            left: currentRect.left,
-            top: currentRect.top,
-            bottom: currentRect.bottom
-          });
 
+            
           // Usar la posición inicial guardada, no la actual
           const rect = {
             left: parseFloat(toolbar.dataset.initialLeft) || currentRect.left,
             top: parseFloat(toolbar.dataset.initialTop) || currentRect.top,
             bottom: parseFloat(toolbar.dataset.initialBottom) || currentRect.bottom
           };
-          console.log('🎯 Rect que se enviará al diálogo:', rect);
-          console.log('📏 Viewport actual - scrollY:', window.scrollY, 'clientHeight:', window.innerHeight);
+
 
           toolbar.style.display = 'none';
 
@@ -199,9 +187,9 @@ const ToolbarModule = (function() {
       btn.addEventListener('mousedown', () => {
         const action = btn.dataset.action;
         if (action !== 'more') {
-          console.log('⬇️ MouseDown en toolbar');
+
           if (window.setIgnoreNextMouseUp) {
-            console.log('🚫 Activando ignoreNextMouseUp');
+
             window.setIgnoreNextMouseUp();
           }
         }
@@ -240,7 +228,7 @@ const ToolbarModule = (function() {
                 return;
               }
               if (response && response.success) {
-                console.log('✅ Side panel opened with page context');
+
               }
             });
           } catch (error) {
@@ -248,31 +236,22 @@ const ToolbarModule = (function() {
             alert('⚠️ The extension was reloaded.\n\nPlease reload this page (F5) to continue.');
           }
         } else {
-          console.log('🔵 Click en acción:', action);
 
           // Log de datos guardados
-          console.log('📦 Datos guardados en toolbar:', {
-            initialLeft: toolbar.dataset.initialLeft,
-            initialTop: toolbar.dataset.initialTop,
-            initialBottom: toolbar.dataset.initialBottom
-          });
+
+          ;
 
           // Log de posición actual del toolbar
           const currentRect = toolbar.getBoundingClientRect();
-          console.log('📍 Posición ACTUAL del toolbar:', {
-            left: currentRect.left,
-            top: currentRect.top,
-            bottom: currentRect.bottom
-          });
 
+           
           // Usar la posición inicial guardada, no la actual
           const rect = {
             left: parseFloat(toolbar.dataset.initialLeft) || currentRect.left,
             top: parseFloat(toolbar.dataset.initialTop) || currentRect.top,
             bottom: parseFloat(toolbar.dataset.initialBottom) || currentRect.bottom
           };
-          console.log('🎯 Rect que se enviará al diálogo:', rect);
-          console.log('📏 Viewport actual - scrollY:', window.scrollY, 'clientHeight:', window.innerHeight);
+
 
           toolbar.style.display = 'none';
 
@@ -293,3 +272,5 @@ const ToolbarModule = (function() {
     refreshToolbar
   };
 })();
+
+

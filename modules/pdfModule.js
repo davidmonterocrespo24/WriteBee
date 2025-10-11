@@ -8,23 +8,21 @@ const PDFModule = (function() {
   async function extractTextFromPDF(pdfFile, onProgress = null) {
     try {
       if (onProgress) onProgress('Processing PDF...');
-      
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📄 PDF EXTRACTION: Starting text extraction');
-      console.log('📁 File name:', pdfFile.name);
-      console.log('📊 File size:', (pdfFile.size / 1024).toFixed(2), 'KB');
-      
+
+
+
+
       // Método 1: Usar PDF.js si está disponible (mejor método)
       if (typeof pdfjsLib !== 'undefined') {
-        console.log('✅ PDF.js detected, using it for extraction');
+
         if (onProgress) onProgress('Extracting text with PDF.js...');
         const pdfJsText = await extractWithPDFJS(pdfFile, onProgress);
         
         if (pdfJsText && pdfJsText.length > 50) {
-          console.log('✅ PDF EXTRACTION: Text extracted successfully with PDF.js');
-          console.log('📊 Extracted text length:', pdfJsText.length, 'characters');
-          console.log('📝 Text preview:', pdfJsText.substring(0, 200).replace(/\n/g, ' '));
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+
+
+
           return {
             text: pdfJsText,
             pages: Math.ceil(pdfJsText.length / 2000),
@@ -38,14 +36,14 @@ const PDFModule = (function() {
       
       // Método 2: Extracción con regex mejorada
       if (onProgress) onProgress('Extracting text with regex patterns...');
-      console.log('🔄 PDF EXTRACTION: Trying regex method...');
+
       const regexText = await extractTextWithRegex(pdfFile);
       
       if (regexText && regexText.length > 50) {
-        console.log('✅ PDF EXTRACTION: Text extracted with regex');
-        console.log('📊 Extracted text length:', regexText.length);
-        console.log('📝 Text preview:', regexText.substring(0, 200).replace(/\n/g, ' '));
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+
+
+
         return {
           text: regexText,
           pages: Math.ceil(regexText.length / 2000),
@@ -56,14 +54,14 @@ const PDFModule = (function() {
       
       // Método 3: FileReader básico
       if (onProgress) onProgress('Trying basic text extraction...');
-      console.log('🔄 PDF EXTRACTION: Trying FileReader method...');
+
       const basicText = await extractWithFileReader(pdfFile);
       
       if (basicText && basicText.length > 50) {
-        console.log('✅ PDF EXTRACTION: Text extracted with FileReader');
-        console.log('📊 Extracted text length:', basicText.length);
-        console.log('📝 Text preview:', basicText.substring(0, 200).replace(/\n/g, ' '));
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+
+
+
         return {
           text: basicText,
           pages: Math.ceil(basicText.length / 2000),
@@ -74,12 +72,12 @@ const PDFModule = (function() {
       
       // Método 4: Fallback - informar que no se pudo extraer
       console.error('❌ PDF EXTRACTION: All extraction methods failed');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       throw new Error('No se pudo extraer texto del PDF. El archivo puede estar protegido o ser una imagen escaneada.');
       
     } catch (error) {
       console.error('❌ PDF EXTRACTION: Error extracting PDF text:', error);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       throw error;
     }
   }
@@ -89,24 +87,20 @@ const PDFModule = (function() {
    */
   async function extractWithPDFJS(pdfFile, onProgress = null) {
     try {
-      console.log('📚 PDF.js: Loading PDF document...');
-      
+
       // Read file as ArrayBuffer
       const arrayBuffer = await pdfFile.arrayBuffer();
       
       // Load PDF document
       const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
       const pdf = await loadingTask.promise;
-      
-      console.log('📄 PDF.js: PDF loaded, pages:', pdf.numPages);
-      
+
       let fullText = '';
       
       // Extract text from each page
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         if (onProgress) onProgress(`Extracting page ${pageNum} of ${pdf.numPages}...`);
-        console.log(`📄 PDF.js: Processing page ${pageNum}/${pdf.numPages}`);
-        
+
         const page = await pdf.getPage(pageNum);
         const textContent = await page.getTextContent();
         
@@ -116,13 +110,10 @@ const PDFModule = (function() {
           .join(' ');
         
         fullText += pageText + '\n\n';
-        
-        console.log(`✅ PDF.js: Page ${pageNum} extracted (${pageText.length} chars)`);
+
       }
-      
-      console.log('✅ PDF.js: All pages extracted');
-      console.log('📊 Total text length:', fullText.length, 'characters');
-      
+
+
       return fullText.trim();
     } catch (error) {
       console.error('❌ PDF.js extraction failed:', error);
@@ -245,14 +236,13 @@ const PDFModule = (function() {
       reader.onload = function(e) {
         try {
           const content = e.target.result;
-          console.log('🔍 Regex extraction: File loaded, size:', content.length);
-          
+
           let extractedText = '';
           
           // Método 1: Buscar texto entre paréntesis (común en PDFs)
           const textInParentheses = content.match(/\(([^)]+)\)/g);
           if (textInParentheses && textInParentheses.length > 0) {
-            console.log('📝 Found', textInParentheses.length, 'text segments in parentheses');
+
             extractedText = textInParentheses
               .map(match => {
                 // Remove parentheses and clean
@@ -277,10 +267,9 @@ const PDFModule = (function() {
               .replace(/\s+/g, ' ')
               .trim();
           }
-          
-          console.log('📊 Regex extraction result:', extractedText.length, 'characters');
+
           if (extractedText.length > 0) {
-            console.log('📝 Preview:', extractedText.substring(0, 200));
+
           }
           
           resolve(extractedText);
@@ -304,27 +293,25 @@ const PDFModule = (function() {
    */
   async function processPDFForChat(pdfFile, onProgress = null) {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📄 PDF PROCESSING: Starting PDF processing');
-      console.log('📁 File name:', pdfFile.name);
-      console.log('📊 File size:', (pdfFile.size / 1024).toFixed(2), 'KB');
-      
+
+
+
+
       if (onProgress) onProgress('Processing PDF...');
       
       // Clear any existing PDF first
       if (currentPDF) {
-        console.log(`🔄 PDF PROCESSING: Replacing previous PDF: ${currentPDF.filename}`);
+
         clearCurrentPDF();
       }
       
       // Extract text from PDF
-      console.log('🔍 PDF PROCESSING: Extracting text from PDF...');
+
       const pdfData = await extractTextFromPDF(pdfFile, onProgress);
-      console.log('✅ PDF PROCESSING: Text extracted successfully');
-      console.log('📊 Extracted text length:', pdfData.text.length, 'characters');
-      console.log('📄 Estimated pages:', pdfData.pages);
-      console.log('📝 Text preview:', pdfData.text.substring(0, 200).replace(/\n/g, ' ') + '...');
-      
+
+
+
+
       // Store current PDF info
       currentPDF = {
         filename: pdfData.filename,
@@ -345,11 +332,11 @@ const PDFModule = (function() {
       const ragEngine = RAGEngine.getInstance();
       
       // Clear previous index (including web page content)
-      console.log('🧹 PDF PROCESSING: Clearing previous index...');
+
       ragEngine.clear();
       
       // Index PDF content
-      console.log('📚 PDF PROCESSING: Indexing PDF content with RAG Engine...');
+
       await ragEngine.indexPage(currentPDFContent, {
         title: currentPDF.filename,
         url: `pdf://${currentPDF.filename}`,
@@ -358,16 +345,10 @@ const PDFModule = (function() {
       });
       
       if (onProgress) onProgress('PDF ready for chat!');
-      
-      console.log(`✅ PDF PROCESSING: PDF indexed successfully`);
-      console.log('📚 PDF info:', {
-        filename: currentPDF.filename,
-        pages: currentPDF.pages,
-        size: `${(currentPDF.size / 1024).toFixed(2)} KB`,
-        contentLength: currentPDFContent.length
-      });
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
+        
+
       return {
         success: true,
         filename: currentPDF.filename,
@@ -385,11 +366,10 @@ const PDFModule = (function() {
    */
   async function chatWithPDF(question, onProgress = null) {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('💬 PDF CHAT: Starting chat with PDF');
-      console.log('📄 PDF:', currentPDF ? currentPDF.filename : 'None');
-      console.log('❓ Question:', question);
-      
+
+
+
+
       if (!currentPDF || !currentPDFContent) {
         throw new Error('No PDF loaded. Please upload a PDF first.');
       }
@@ -401,13 +381,10 @@ const PDFModule = (function() {
       const ragEngine = RAGEngine.getInstance();
       
       if (onProgress) onProgress('Searching PDF content...');
-      
-      console.log('🔍 PDF CHAT: Retrieving relevant chunks...');
+
       // Retrieve only 3 chunks to keep prompt size manageable
       const relevantChunks = ragEngine.retrieve(question, 3);
-      
-      console.log(`📦 PDF CHAT: Retrieved ${relevantChunks.length} chunks`);
-      
+
       if (relevantChunks.length === 0) {
         console.warn('⚠️ PDF CHAT: No relevant chunks found');
         return 'No pude encontrar información relevante en el PDF para responder tu pregunta. ¿Podrías reformular la pregunta?';
@@ -416,7 +393,7 @@ const PDFModule = (function() {
       if (onProgress) onProgress('Generating answer...');
       
       // Build context from retrieved chunks with size limit
-      console.log('📝 PDF CHAT: Building context from chunks...');
+
       let context = 'Información relevante del PDF:\n\n';
       let totalChars = 0;
       const maxContextSize = 3000; // Limit context to 3000 chars
@@ -426,18 +403,15 @@ const PDFModule = (function() {
         const chunkText = chunk.text.substring(0, 1000); // Limit each chunk to 1000 chars
         
         if (totalChars + chunkText.length > maxContextSize) {
-          console.log(`⚠️ PDF CHAT: Context size limit reached, using ${i} chunks`);
+
           break;
         }
         
         context += `[${i + 1}] ${chunkText}\n\n`;
         totalChars += chunkText.length;
-        
-        console.log(`  Chunk ${i + 1}: ${chunkText.length} chars, similarity: ${(chunk.similarity * 100).toFixed(1)}%`);
+
       }
-      
-      console.log(`📊 PDF CHAT: Total context size: ${totalChars} characters`);
-      
+
       // Build optimized prompt
       const prompt = `Basándote en el PDF "${currentPDF.filename}", responde esta pregunta:
 
@@ -447,23 +421,19 @@ Pregunta: ${question}
 
 Responde de forma clara y directa usando la información del PDF. Si la información no es suficiente, dilo.`;
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📤 PDF CHAT: SENDING PROMPT TO AI');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📊 Prompt length:', prompt.length, 'characters');
+
+
+
+
 
       if (prompt.length > 4000) {
         console.warn('⚠️ PDF CHAT: Prompt is very large, may fail');
       }
 
       const answer = await AIModule.aiPrompt(prompt);
-      
-      console.log('✅ PDF CHAT: Received answer from AI');
-      console.log('📊 Answer length:', answer.length, 'characters');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
+
       return answer;
     } catch (error) {
       console.error('❌ PDF CHAT: Error in chatWithPDF:', error);
@@ -482,10 +452,9 @@ Responde de forma clara y directa usando la información del PDF. Si la informac
    */
   async function summarizePDF(onProgress = null) {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📝 PDF SUMMARY: Starting PDF summarization');
-      console.log('📄 PDF:', currentPDF.filename);
-      
+
+
+
       if (!currentPDF || !currentPDFContent) {
         throw new Error('No PDF loaded. Please upload a PDF first.');
       }
@@ -499,11 +468,9 @@ Responde de forma clara y directa usando la información del PDF. Si la informac
       const ragEngine = RAGEngine.getInstance();
       
       // Get key chunks using a summarization query
-      console.log('🔍 PDF SUMMARY: Retrieving key chunks...');
+
       const summaryQuery = 'main topics key points important information summary overview';
       const relevantChunks = ragEngine.retrieve(summaryQuery, 5); // Reduced from 8 to 5
-
-      console.log(`📦 PDF SUMMARY: Retrieved ${relevantChunks.length} chunks`);
 
       if (onProgress) onProgress('Generating summary...');
 
@@ -517,15 +484,13 @@ Responde de forma clara y directa usando la información del PDF. Si la informac
         const chunkText = chunk.text.substring(0, 800); // Limit each chunk
         
         if (totalChars + chunkText.length > maxContextSize) {
-          console.log(`⚠️ PDF SUMMARY: Context size limit reached, using ${i} chunks`);
+
           break;
         }
         
         context += `${chunkText}\n\n`;
         totalChars += chunkText.length;
       }
-
-      console.log(`📊 PDF SUMMARY: Context size: ${totalChars} characters`);
 
       const prompt = `Resume este PDF en español de forma clara y concisa:
 
@@ -537,16 +502,12 @@ ${context}
 
 Crea un resumen estructurado con los puntos principales.`;
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📤 PDF SUMMARY: SENDING PROMPT');
-      console.log('📊 Prompt length:', prompt.length, 'characters');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+
 
       const summary = await AIModule.aiSummarize(prompt);
-      
-      console.log('✅ PDF SUMMARY: Summary generated');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
       return summary;
     } catch (error) {
       console.error('❌ PDF SUMMARY: Error in summarizePDF:', error);
@@ -564,10 +525,9 @@ Crea un resumen estructurado con los puntos principales.`;
    */
   async function extractKeyPointsFromPDF(onProgress = null) {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔑 PDF KEY POINTS: Extracting key points');
-      console.log('📄 PDF:', currentPDF.filename);
-      
+
+
+
       if (!currentPDF || !currentPDFContent) {
         throw new Error('No PDF loaded. Please upload a PDF first.');
       }
@@ -581,11 +541,9 @@ Crea un resumen estructurado con los puntos principales.`;
       const ragEngine = RAGEngine.getInstance();
       
       // Retrieve diverse chunks
-      console.log('🔍 PDF KEY POINTS: Retrieving diverse chunks...');
+
       const query = 'important key main essential critical significant';
       const relevantChunks = ragEngine.retrieve(query, 5); // Reduced from 10 to 5
-
-      console.log(`📦 PDF KEY POINTS: Retrieved ${relevantChunks.length} chunks`);
 
       // Build context with size limit
       let context = '';
@@ -597,15 +555,13 @@ Crea un resumen estructurado con los puntos principales.`;
         const chunkText = chunk.text.substring(0, 800);
         
         if (totalChars + chunkText.length > maxContextSize) {
-          console.log(`⚠️ PDF KEY POINTS: Context size limit reached, using ${i} chunks`);
+
           break;
         }
         
         context += `${chunkText}\n\n`;
         totalChars += chunkText.length;
       }
-
-      console.log(`📊 PDF KEY POINTS: Context size: ${totalChars} characters`);
 
       const prompt = `Extrae los puntos clave de este PDF como viñetas:
 
@@ -616,16 +572,12 @@ ${context}
 
 Lista los puntos más importantes en formato de viñetas (bullets).`;
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📤 PDF KEY POINTS: SENDING PROMPT');
-      console.log('📊 Prompt length:', prompt.length, 'characters');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+
 
       const result = await AIModule.aiPrompt(prompt);
-      
-      console.log('✅ PDF KEY POINTS: Key points extracted');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
       return result;
     } catch (error) {
       console.error('❌ PDF KEY POINTS: Error in extractKeyPointsFromPDF:', error);
@@ -657,8 +609,7 @@ Lista los puntos más importantes en formato de viñetas (bullets).`;
       const ragEngine = RAGEngine.getInstance();
       ragEngine.clear();
     }
-    
-    console.log('📄 Current PDF cleared');
+
   }
 
   /**
@@ -684,3 +635,5 @@ Lista los puntos más importantes en formato de viñetas (bullets).`;
 if (typeof window !== 'undefined') {
   window.PDFModule = PDFModule;
 }
+
+

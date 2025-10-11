@@ -12,11 +12,7 @@ const MenusModule = (function() {
     // Convertir coordenadas del viewport a absolutas
     menu.style.left = (rect.left + window.scrollX) + 'px';
     menu.style.top = (rect.bottom + window.scrollY + 5) + 'px';
-    console.log('📍 Menú posicionado en:', {
-      viewport: { left: rect.left, bottom: rect.bottom },
-      scroll: { scrollX: window.scrollX, scrollY: window.scrollY },
-      absolute: { left: rect.left + window.scrollX, top: rect.bottom + window.scrollY + 5 }
-    });
+
 
     // Load ALL actions from config (both pinned and unpinned)
     const allActions = await ToolbarConfigModule.loadConfig();
@@ -91,9 +87,9 @@ const MenusModule = (function() {
     menu.querySelectorAll('.ai-menu-item').forEach(item => {
       // Activar la bandera en mousedown (antes del mouseup)
       item.addEventListener('mousedown', (e) => {
-        console.log('⬇️ MouseDown en menú');
+
         if (window.setIgnoreNextMouseUp) {
-          console.log('🚫 Activando ignoreNextMouseUp');
+
           window.setIgnoreNextMouseUp();
         }
       });
@@ -105,8 +101,6 @@ const MenusModule = (function() {
         if (e.target.classList.contains('pin-menu-btn')) {
           return;
         }
-
-        console.log('🎯 Click en menú - acción:', item.dataset.action);
 
         const action = item.dataset.action;
         const toolbar = ToolbarModule.getToolbar();
@@ -142,7 +136,7 @@ const MenusModule = (function() {
             top: parseFloat(toolbar.dataset.initialTop) || currentRect.top,
             bottom: parseFloat(toolbar.dataset.initialBottom) || currentRect.bottom
           };
-          console.log('🎯 Rect para diálogo desde menú:', rect);
+
           toolbar.style.display = 'none';
         }
 
@@ -281,3 +275,5 @@ const MenusModule = (function() {
     getTranslateMenu
   };
 })();
+
+

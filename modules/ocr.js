@@ -224,3 +224,5 @@ if (typeof window !== 'undefined') {
   window.OCRModule = OCRModule;
   OCRModule.init();
 }
+
+

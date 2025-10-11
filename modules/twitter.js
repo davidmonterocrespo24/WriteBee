@@ -8,7 +8,7 @@ const TwitterModule = (function() {
                 window.location.hostname.includes('x.com');
 
     if (isTwitter) {
-      console.log('🐦 Twitter/X detectado, iniciando módulo...');
+
       observeTwitter();
     }
   }
@@ -36,8 +36,6 @@ const TwitterModule = (function() {
     // Buscar todas las toolbars (incluyendo el compositor principal de tweets)
     const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
 
-    console.log('🐦 Twitter: Buscando toolbars para compositor...', toolbars.length);
-
     toolbars.forEach(toolbar => {
       // Verificar si ya tiene el botón AI de tweet
       if (toolbar.querySelector('.ai-twitter-btn-tweet')) {
@@ -55,7 +53,7 @@ const TwitterModule = (function() {
           const buttonList = toolbar.querySelector('[data-testid="ScrollSnap-List"]');
 
           if (buttonList && !buttonList.querySelector('.ai-twitter-btn-tweet')) {
-            console.log('🐦 Twitter: Insertando botón en compositor principal');
+
             insertTweetButton(buttonList, toolbar);
           }
         }
@@ -67,8 +65,6 @@ const TwitterModule = (function() {
     // Buscar todas las toolbars
     const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
 
-    console.log('🐦 Twitter: Buscando toolbars...', toolbars.length);
-
     toolbars.forEach(toolbar => {
       // Verificar si ya tiene el botón AI
       if (toolbar.querySelector('.ai-twitter-btn-reply')) {
@@ -79,14 +75,13 @@ const TwitterModule = (function() {
       const buttonList = toolbar.querySelector('[data-testid="ScrollSnap-List"]');
 
       if (buttonList) {
-        console.log('🐦 Twitter: Insertando botón en toolbar');
+
         insertReplyButton(buttonList, toolbar);
       }
     });
   }
 
   function insertTweetButton(buttonList, toolbar) {
-    console.log('🐦 Twitter: Creando botón de tweet...');
 
     // Crear contenedor con la misma estructura que los otros botones
     const buttonWrapper = document.createElement('div');
@@ -115,11 +110,10 @@ const TwitterModule = (function() {
 
       // Prevenir múltiples diálogos
       if (document.querySelector('.ai-twitter-dialog')) {
-        console.log('🐦 Twitter: Ya hay un diálogo abierto');
+
         return;
       }
 
-      console.log('🐦 Twitter: Click en botón de tweet');
       // Buscar el textarea asociado
       const textarea = toolbar.closest('[data-testid="toolBar"]')?.parentElement?.parentElement?.querySelector('[data-testid="tweetTextarea_0"]');
       if (textarea) {
@@ -130,11 +124,10 @@ const TwitterModule = (function() {
     buttonWrapper.appendChild(btn);
     buttonList.appendChild(buttonWrapper);
     twitterButtons.add(btn);
-    console.log('🐦 Twitter: Botón insertado correctamente');
+
   }
 
   function insertReplyButton(buttonList, toolbar) {
-    console.log('🐦 Twitter: Creando botón de respuesta...');
 
     // Crear contenedor con la misma estructura que los otros botones
     const buttonWrapper = document.createElement('div');
@@ -163,11 +156,9 @@ const TwitterModule = (function() {
 
       // Prevenir múltiples diálogos
       if (document.querySelector('.ai-twitter-dialog')) {
-        console.log('🐦 Twitter: Ya hay un diálogo abierto');
+
         return;
       }
-
-      console.log('🐦 Twitter: Click en botón de respuesta');
 
       // Buscar el contenido del tweet para dar contexto
       const toolbarElement = toolbar.closest('[data-testid="toolBar"]');
@@ -177,43 +168,39 @@ const TwitterModule = (function() {
       try {
         // Buscar el tweet container más cercano
         const tweetArticle = toolbarElement?.closest('article');
-        console.log('🐦 Twitter: Article encontrado:', tweetArticle);
 
         if (tweetArticle) {
           const tweetText = tweetArticle.querySelector('[data-testid="tweetText"]');
-          console.log('🐦 Twitter: TweetText encontrado:', tweetText);
 
           if (tweetText) {
             tweetContext = tweetText.innerText || tweetText.textContent;
-            console.log('🐦 Twitter: Contexto extraído:', tweetContext);
+
           }
         }
       } catch (err) {
-        console.log('⚠️ Error extrayendo contexto:', err);
+
       }
 
       // Crear diálogo directamente
-      console.log('🐦 Twitter: Creando diálogo de respuesta...');
+
       const dialog = createTweetDialog(tweetContext, btn);
-      console.log('🐦 Twitter: Diálogo creado:', dialog);
+
       document.body.appendChild(dialog);
-      console.log('🐦 Twitter: Diálogo añadido al body');
 
       // Verificar que está en el DOM
       setTimeout(() => {
         const dialogInDom = document.querySelector('.ai-twitter-dialog');
-        console.log('🐦 Twitter: Diálogo en DOM después de 100ms:', dialogInDom);
+
       }, 100);
     });
 
     buttonWrapper.appendChild(btn);
     buttonList.appendChild(buttonWrapper);
     twitterButtons.add(btn);
-    console.log('🐦 Twitter: Botón insertado correctamente');
+
   }
 
   async function handleCreateTweet(composer, buttonElement) {
-    console.log('📝 Creando tweet...');
 
     // Crear diálogo para crear tweet
     const dialog = createTweetDialog(null, buttonElement);
@@ -221,26 +208,24 @@ const TwitterModule = (function() {
   }
 
   async function handleReplyToTweet(replyBox, buttonElement) {
-    console.log('💬 Generando respuesta a tweet...');
-    console.log('💬 ReplyBox recibido:', replyBox);
-    console.log('💬 ButtonElement recibido:', buttonElement);
+
+
 
     // Extraer el contexto del tweet original
     const tweetContent = extractTweetContent(replyBox);
-    console.log('💬 Contenido del tweet extraído:', tweetContent);
 
     if (!tweetContent) {
-      console.log('❌ No se pudo extraer contenido del tweet');
+
       // No mostrar alert, crear diálogo vacío
-      console.log('💬 Creando diálogo sin contexto...');
+
     }
 
     // Crear diálogo para responder
-    console.log('💬 Llamando a createTweetDialog...');
+
     const dialog = createTweetDialog(tweetContent, buttonElement);
-    console.log('💬 Diálogo creado:', dialog);
+
     document.body.appendChild(dialog);
-    console.log('💬 Diálogo añadido al body');
+
   }
 
   function extractTweetContent(replyBox) {
@@ -708,8 +693,7 @@ IMPORTANTE:
       // Disparar eventos para que Twitter detecte el cambio
       activeTextarea.dispatchEvent(new Event('input', { bubbles: true }));
       activeTextarea.dispatchEvent(new Event('change', { bubbles: true }));
-      
-      console.log('✅ Texto insertado en Twitter');
+
     } else {
       // Fallback: copiar al portapapeles
       navigator.clipboard.writeText(text).then(() => {
@@ -729,3 +713,5 @@ IMPORTANTE:
     init
   };
 })();
+
+

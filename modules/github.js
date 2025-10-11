@@ -8,7 +8,7 @@ const GithubModule = (function() {
     isGithub = window.location.hostname.includes('github.com');
     
     if (isGithub) {
-      console.log('🐙 GitHub detected, starting module...');
+
       observeGithub();
     }
   }
@@ -33,7 +33,7 @@ const GithubModule = (function() {
     
     if (repoInfo && repoInfo !== currentRepo) {
       currentRepo = repoInfo;
-      console.log('📦 New repository detected:', repoInfo);
+
       insertGithubPanel();
     } else if (!repoInfo && githubPanel) {
       removeGithubPanel();
@@ -67,7 +67,7 @@ const GithubModule = (function() {
     const aboutContainer = document.querySelector('.BorderGrid.about-margin[data-pjax]');
     
     if (!aboutContainer) {
-      console.log('⚠️ .BorderGrid.about-margin container not found');
+
       return;
     }
 
@@ -143,7 +143,6 @@ const GithubModule = (function() {
 
     // Insert the panel at the beginning of the About container
     aboutContainer.insertBefore(githubPanel, aboutContainer.firstChild);
-    console.log('✅ GitHub panel inserted');
 
     setupGithubPanelEvents(githubPanel);
   }
@@ -335,7 +334,6 @@ const GithubModule = (function() {
       // 6. Get visible file structure
       data.fileStructure = extractFileStructure();
 
-      console.log('📊 Repository data collected:', data);
       return data;
 
     } catch (error) {
@@ -371,7 +369,7 @@ const GithubModule = (function() {
         const masterResponse = await fetch(masterUrl);
         
         if (!masterResponse.ok) {
-          console.log('README.md not found');
+
           return null;
         }
         
@@ -410,7 +408,7 @@ const GithubModule = (function() {
       return await response.json();
       
     } catch (error) {
-      console.log('package.json not found (may not be a Node.js project)');
+
       return null;
     }
   }
@@ -440,8 +438,7 @@ const GithubModule = (function() {
   }
 
   async function summarizeRepo() {
-    console.log('🐙 Generating repository summary from floating button...');
-    
+
     // Verify we are in a repository
     if (!currentRepo) {
       alert('GitHub repository not detected. Make sure you are on a repository page.');
@@ -508,3 +505,5 @@ const GithubModule = (function() {
     summarizeRepo
   };
 })();
+
+

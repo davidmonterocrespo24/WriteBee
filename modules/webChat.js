@@ -75,52 +75,43 @@ const WebChatModule = (function() {
    */
   async function initializeRAG(onProgress = null) {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔧 INICIALIZANDO RAG ENGINE');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
+
       if (!window.RAGEngine) {
         console.error('❌ RAG Engine NO está cargado en window');
         throw new Error('RAG Engine not loaded');
       }
-      
-      console.log('✅ RAG Engine está disponible en window');
 
       if (onProgress) onProgress('Initializing RAG Engine...');
       
       // Get or create RAG instance
       ragEngine = RAGEngine.getInstance();
-      console.log('✅ RAG Engine instance obtenida');
-      
+
       // Clear previous index
       ragEngine.clear();
-      console.log('🧹 Índice anterior limpiado');
-      
+
       // Extract content
       if (!pageContent) {
-        console.log('📄 Extrayendo contenido de la página...');
+
         pageContent = extractPageContent();
-        console.log('📊 Contenido extraído:', pageContent.length, 'caracteres');
-        console.log('📄 Primeros 200 chars:', pageContent.substring(0, 200));
+
+
       } else {
-        console.log('✅ Usando pageContent ya extraído:', pageContent.length, 'caracteres');
+
       }
       
       if (onProgress) onProgress('Indexing current page...');
       
       // Index current page
       const metadata = getPageMetadata();
-      console.log('📋 Metadata de la página:', metadata);
-      console.log('🔄 Indexando página en RAG Engine...');
-      
+
+
       await ragEngine.indexPage(pageContent, metadata);
-      
-      console.log('✅ Página indexada exitosamente en RAG Engine');
-      
+
       isIndexed = true;
-      
-      console.log('✅ RAG Engine initialized and page indexed');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+
       return true;
     } catch (error) {
       console.error('❌ Error initializing RAG:', error);
@@ -138,10 +129,9 @@ const WebChatModule = (function() {
       }
 
       const links = extractPageLinks();
-      console.log(`🔗 Found ${links.length} internal links`);
 
       if (links.length === 0) {
-        console.log('ℹ️ No links to index');
+
         return;
       }
 
@@ -152,8 +142,7 @@ const WebChatModule = (function() {
       
       // Index relevant links
       await ragEngine.indexLinks(links, question, maxLinks);
-      
-      console.log('✅ Relevant links indexed');
+
     } catch (error) {
       console.error('❌ Error indexing links:', error);
       // Don't throw - continue with current page only
@@ -167,11 +156,9 @@ const WebChatModule = (function() {
     try {
       // Check if we have a PDF loaded
       if (window.PDFModule && typeof PDFModule.hasPDFLoaded === 'function' && PDFModule.hasPDFLoaded()) {
-        console.log('📄 PDF detectado, usando PDFModule.summarizePDF');
+
         return await PDFModule.summarizePDF(onProgress);
       }
-
-      console.log('🌐 Resumiendo página web con RAG');
 
       // Initialize RAG
       if (!isIndexed) {
@@ -236,36 +223,33 @@ Incluye todos los puntos principales, información importante y estructura del c
    */
   async function chatWithPage(question, onProgress = null) {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('💬 WEB CHAT: Starting chat');
-      console.log('❓ Question:', question);
-      
+
+
+
       // Check if we have a PDF loaded
       if (window.PDFModule && typeof PDFModule.hasPDFLoaded === 'function' && PDFModule.hasPDFLoaded()) {
-        console.log('📄 WEB CHAT: Detected PDF loaded, delegating to PDFModule');
+
         return await PDFModule.chatWithPDF(question, onProgress);
       }
 
-      console.log('🌐 WEB CHAT: Using web page content');
-      
       // Initialize RAG if not already done
       if (!isIndexed) {
-        console.log('🔧 WEB CHAT: RAG not indexed, initializing...');
+
         await initializeRAG(onProgress);
       }
 
       // Index relevant links based on question
       if (onProgress) onProgress('Finding relevant content...');
-      console.log('🔗 WEB CHAT: Indexing relevant links...');
+
       await indexRelevantLinks(question, onProgress);
 
       // Retrieve relevant chunks
       if (onProgress) onProgress('Retrieving relevant information...');
-      console.log('🔍 WEB CHAT: Retrieving relevant chunks...');
+
       const relevantChunks = ragEngine.retrieve(question, 5);
 
       // Build context from retrieved chunks
-      console.log('📝 WEB CHAT: Building context...');
+
       const context = ragEngine.buildContext(relevantChunks);
 
       if (onProgress) onProgress('Generating answer...');
@@ -280,18 +264,14 @@ User question: ${question}
 
 Please provide a comprehensive and accurate answer based on the information above. If the information is not sufficient, say so.`;
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📤 WEB CHAT: SENDING PROMPT TO AI');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📊 Prompt length:', prompt.length, 'characters');
+
+
+
+
 
       const answer = await AIModule.aiPrompt(prompt);
 
-      console.log('✅ WEB CHAT: Received answer from AI');
-      console.log('📊 Answer length:', answer.length, 'characters');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
 
       return answer;
     } catch (error) {
@@ -307,8 +287,6 @@ Please provide a comprehensive and accurate answer based on the information abov
       const metadata = getPageMetadata();
       const context = `Based on this web page:\n\nTitle: ${metadata.title}\nURL: ${metadata.url}\n\nContent:\n${pageContent.substring(0, 8000)}\n\nQuestion: ${question}`;
 
-      console.log('⚠️ WEB CHAT: Using fallback prompt');
-      console.log('📤 Fallback prompt length:', context.length, 'characters');
 
       const answer = await AIModule.aiPrompt(context);
       return answer;
@@ -480,7 +458,7 @@ Please provide a comprehensive and accurate answer based on the information abov
    * Clear page content and reset RAG
    */
   function clearPageContent() {
-    console.log('🧹 Limpiando contenido de página y RAG...');
+
     isIndexed = false;
     pageContent = null;
     pageSummary = null;
@@ -494,10 +472,10 @@ Please provide a comprehensive and accurate answer based on the information abov
    * Set page content manually (para cuando viene del side panel)
    */
   function setPageContent(content, metadata = null) {
-    console.log('📝 Estableciendo pageContent manualmente:', content?.length, 'caracteres');
+
     pageContent = content;
     if (metadata) {
-      console.log('📋 Metadata:', metadata);
+
     }
     // Reset indexing flag para forzar re-indexación
     isIndexed = false;
@@ -546,3 +524,5 @@ if (typeof window !== 'undefined') {
     WebChatModule.init();
   }
 }
+
+

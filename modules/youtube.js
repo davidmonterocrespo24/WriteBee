@@ -8,7 +8,7 @@ const YoutubeModule = (function() {
     isYoutube = window.location.hostname.includes('youtube.com');
     
     if (isYoutube) {
-      console.log('📺 YouTube detected, starting module...');
+
       observeYoutube();
     }
   }
@@ -33,7 +33,7 @@ const YoutubeModule = (function() {
     
     if (videoId && videoId !== currentVideoId) {
       currentVideoId = videoId;
-      console.log('📹 New video detected:', videoId);
+
       insertYoutubePanel();
     } else if (!videoId && youtubePanel) {
       removeYoutubePanel();
@@ -54,7 +54,7 @@ const YoutubeModule = (function() {
     const secondary = document.querySelector('#secondary');
     
     if (!secondary) {
-      console.log('⚠️ #secondary container not found');
+
       return;
     }
 
@@ -126,7 +126,6 @@ const YoutubeModule = (function() {
 
     // Insert the panel at the beginning of secondary
     secondary.insertBefore(youtubePanel, secondary.firstChild);
-    console.log('✅ YouTube panel inserted');
 
     setupYoutubePanelEvents(youtubePanel);
   }
@@ -244,14 +243,12 @@ const YoutubeModule = (function() {
         throw new Error('Could not get video ID');
       }
 
-      console.log('📝 Trying to get subtitles for video:', videoId);
-
       // Method 1: Try to access ytInitialPlayerResponse directly from window
       let playerResponse = window.ytInitialPlayerResponse;
       
       // Si no está en window, intentar buscarlo en los scripts de la página
       if (!playerResponse) {
-        console.log('⚠️ ytInitialPlayerResponse no está en window, buscando en scripts...');
+
         playerResponse = extractPlayerResponseFromScripts();
       }
 
@@ -260,7 +257,6 @@ const YoutubeModule = (function() {
         const captionTracks = playerResponse.captions.playerCaptionsTracklistRenderer.captionTracks;
 
         if (captionTracks && captionTracks.length > 0) {
-          console.log('📋 Caption tracks disponibles directamente:', captionTracks);
 
           // Usar la función getSubtitlesInternal con las pistas ya obtenidas
           const subtitles = await getSubtitlesInternal(videoId, captionTracks, 'es');
@@ -275,7 +271,7 @@ const YoutubeModule = (function() {
       }
 
       // Método 2 (Fallback): Si ytInitialPlayerResponse no funciona, hacer fetch del HTML
-      console.log('⚠️ ytInitialPlayerResponse no disponible, usando método de fallback (fetch HTML)...');
+
       const subtitles = await getSubtitlesFromHTML(videoId, 'es');
       
       return subtitles.map(item => ({
@@ -336,8 +332,6 @@ const YoutubeModule = (function() {
       throw new Error(`Formato JSON inválido en captionTracks para el video: ${videoID}`);
     }
 
-    console.log('📋 Caption tracks obtenidos desde HTML:', captionTracks);
-    
     return await getSubtitlesInternal(videoID, captionTracks, lang);
   }
 
@@ -356,7 +350,6 @@ const YoutubeModule = (function() {
       throw new Error('Formato JSON3 inválido');
     }
 
-    console.log(`📝 Procesando ${json.events.length} eventos JSON3...`);
     const subtitles = [];
     
     for (const event of json.events) {
@@ -394,13 +387,11 @@ const YoutubeModule = (function() {
       }
     }
 
-    console.log(`✅ Procesados ${subtitles.length} subtítulos de ${json.events.length} eventos`);
     return subtitles;
   }
 
   // Nueva función interna para manejar la lógica de subtítulos una vez que tenemos captionTracks
   async function getSubtitlesInternal(videoID, captionTracks, lang = 'es') {
-    console.log('🔎 Buscando subtítulos en idioma:', lang);
 
     // Buscar subtítulos en el idioma especificado
     // Prioridad: manual (.lang) > automático (a.lang) > cualquiera que coincida con el idioma
@@ -413,7 +404,7 @@ const YoutubeModule = (function() {
     // Si no encuentra en el idioma especificado, intentar con inglés
     let usedLang = lang;
     if (!finalSubtitle && lang !== 'en') {
-      console.log(`⚠️ No se encontraron subtítulos en ${lang}, intentando con inglés...`);
+
       usedLang = 'en';
       finalSubtitle =
         captionTracks.find((track) => track.vssId === `.en`) ||
@@ -424,7 +415,7 @@ const YoutubeModule = (function() {
 
     // Si aún no encuentra, usar el primer subtítulo disponible
     if (!finalSubtitle && captionTracks.length > 0) {
-      console.log('⚠️ Usando el primer subtítulo disponible');
+
       finalSubtitle = captionTracks[0];
       usedLang = finalSubtitle.languageCode || 'unknown';
     }
@@ -433,26 +424,22 @@ const YoutubeModule = (function() {
       throw new Error(`No se encontraron subtítulos disponibles para el video.`);
     }
 
-    console.log(`✅ Usando subtítulos en: ${usedLang} (${finalSubtitle.vssId || finalSubtitle.languageCode})`);
-
     let transcript;
     try {
       // Siempre añadir &fmt=json3 para preferir el formato JSON
       const jsonUrl = finalSubtitle.baseUrl + '&fmt=json3';
-      console.log('🔄 Intentando obtener subtítulos en formato JSON3 desde:', jsonUrl);
+
       const jsonData = await fetchData(jsonUrl);
       const json = JSON.parse(jsonData);
       
       transcript = parseJson3Subtitles(json);
-      console.log(`✅ Subtítulos obtenidos (JSON3): ${transcript.length} segmentos`);
+
     } catch (jsonError) {
-      console.log('⚠️ Falló la obtención de JSON3, intentando con XML:', jsonError.message);
-      
+
       // Fallback a XML si JSON3 falla
       try {
         const transcriptData = await fetchData(finalSubtitle.baseUrl);
-        console.log('📄 Respuesta XML recibida, primeros 500 caracteres:', transcriptData.substring(0, 500));
-        
+
         // Parsear el XML usando DOMParser (más robusto que regex)
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(transcriptData, 'text/xml');
@@ -464,8 +451,7 @@ const YoutubeModule = (function() {
         }
         
         const textNodes = xmlDoc.querySelectorAll('text');
-        console.log(`📝 Nodos de texto encontrados en XML: ${textNodes.length}`);
-        
+
         if (textNodes.length === 0) {
           throw new Error('No se encontraron nodos <text> en el XML');
         }
@@ -487,9 +473,7 @@ const YoutubeModule = (function() {
             text: text,
           };
         }).filter(item => item.text && item.text.length > 0);
-        
-        console.log(`✅ Subtítulos obtenidos (XML): ${transcript.length} segmentos`);
-        
+
         if (transcript.length === 0) {
           throw new Error('El XML no contiene subtítulos válidos');
         }
@@ -537,3 +521,5 @@ const YoutubeModule = (function() {
 
   return publicAPI;
 })();
+
+

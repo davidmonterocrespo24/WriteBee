@@ -132,3 +132,5 @@ const ToolbarConfigModule = (function() {
     getAction
   };
 })();
+
+

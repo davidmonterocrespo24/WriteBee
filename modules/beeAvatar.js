@@ -66,3 +66,5 @@ const BeeAvatar = (function() {
 if (typeof window !== 'undefined') {
   window.BeeAvatar = BeeAvatar;
 }
+
+

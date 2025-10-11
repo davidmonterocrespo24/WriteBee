@@ -74,39 +74,32 @@ const AIModule = (function() {
 
   async function aiPrompt(prompt, onProgress = null) {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🤖 AI PROMPT: Calling LanguageModel API');
-      console.log('📊 Prompt length:', prompt.length, 'characters');
-      
+
+
+
       // Check if prompt is too large
       if (prompt.length > 4000) {
         console.warn('⚠️ AI PROMPT: Warning - Prompt is very large:', prompt.length, 'chars (recommended: < 4000)');
       }
-      
-      console.log('📝 Prompt preview (first 300 chars):');
-      console.log(prompt.substring(0, 300) + '...');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
+
       const service = getAIService();
       // Use the LanguageModel API directly for general prompts
       if (!('LanguageModel' in self)) {
         throw new Error('LanguageModel API not available');
       }
-      
-      console.log('🔧 AI PROMPT: Creating LanguageModel session...');
+
       const session = await self.LanguageModel.create({
         monitor: service.createMonitor(onProgress)
       });
-      
-      console.log('✅ AI PROMPT: Session created, sending prompt...');
+
       const result = await session.prompt(prompt);
-      
-      console.log('✅ AI PROMPT: Response received');
-      console.log('📊 Response length:', result.length, 'characters');
-      console.log('📝 Response preview (first 200 chars):');
-      console.log(result.substring(0, 200) + '...');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+
+
+
+
+
       session.destroy();
       
       return result;
@@ -221,3 +214,5 @@ const AIModule = (function() {
 if (typeof window !== 'undefined') {
   window.AIModule = AIModule;
 }
+
+

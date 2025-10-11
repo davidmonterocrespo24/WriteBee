@@ -4,10 +4,9 @@ document.addEventListener('mouseup', handleTextSelection);
 document.addEventListener('mousedown', handleClickOutside);
 
 function handleTextSelection(e) {
-  console.log('🔵 handleTextSelection - ignoreNextMouseUp:', ignoreNextMouseUp);
 
   if (ignoreNextMouseUp) {
-    console.log('✅ Ignoring mouseup');
+
     ignoreNextMouseUp = false;
     return;
   }
@@ -15,8 +14,6 @@ function handleTextSelection(e) {
   setTimeout(() => {
     const selection = window.getSelection();
     const text = selection.toString().trim();
-
-    console.log('📝 Selected text:', text);
 
     const allDialogs = document.querySelectorAll('.ai-result-panel, .ai-twitter-dialog, .ai-linkedin-dialog');
     let isInsideDialog = false;
@@ -26,34 +23,28 @@ function handleTextSelection(e) {
       }
     });
 
-    console.log('📦 Dialogs found:', allDialogs.length, '- Click inside:', isInsideDialog);
-
     const menu = MenusModule.getMenu();
     const toolbar = ToolbarModule.getToolbar();
     const isInsideMenu = menu && menu.contains(e.target);
     const isInsideToolbar = toolbar && toolbar.contains(e.target);
 
-    console.log('🔧 Menu exists:', !!menu, '- Click inside:', isInsideMenu);
-    console.log('🔧 Toolbar exists:', !!toolbar, '- Click inside:', isInsideToolbar);
 
     const isTwitterButton = e.target.closest('.ai-twitter-btn-tweet, .ai-twitter-btn-reply');
     const isLinkedInButton = e.target.closest('.ai-linkedin-btn-post, .ai-linkedin-btn-comment');
     const isFloatButton = e.target.closest('.ai-float-btn-container, .ai-float-btn');
 
-    console.log('🐦 Click on Twitter button:', !!isTwitterButton);
-    console.log('💼 Click on LinkedIn button:', !!isLinkedInButton);
-    console.log('🎈 Click on Float button:', !!isFloatButton);
+
 
     if (isInsideDialog || isInsideMenu || isInsideToolbar || isTwitterButton || isLinkedInButton || isFloatButton) {
-      console.log('⏸️ Exiting - click inside UI or module button');
+
       return;
     }
 
     if (text.length > 0) {
-      console.log('✨ Showing toolbar');
+
       ToolbarModule.showToolbar(e.pageX, e.pageY, e.clientX, e.clientY, text);
     } else {
-      console.log('❌ Hiding all');
+
       hideAll();
     }
   }, 10);
@@ -94,12 +85,12 @@ function handleClickOutside(e) {
 }
 
 function hideAll() {
-  console.log('🗑️ hideAll - hiding toolbar, menus and current dialog');
+
   ToolbarModule.hideToolbar();
   MenusModule.hideMenus();
   const currentDialog = DialogModule.getCurrentDialog();
   if (currentDialog) {
-    console.log('🗑️ Removing current dialog');
+
     currentDialog.remove();
   }
 }
@@ -237,16 +228,12 @@ async function handleDescribeImage(imageUrl) {
 // Handle extract page content for chat (from context menu)
 async function handleExtractPageContent() {
   try {
-    console.log('📄 Extrayendo contenido de la página para chat...');
-    
+
     const pageContent = WebChatModule.extractPageContent();
     const metadata = WebChatModule.getPageMetadata();
 
-    console.log('✅ Contenido extraído:', {
-      title: metadata.title,
-      url: metadata.url,
-      contentLength: pageContent.length
-    });
+
+     
 
     const pageData = {
       context: 'page-chat',
@@ -280,3 +267,5 @@ async function handleExtractPageContent() {
     console.error('❌ Error extrayendo contenido de página:', error);
   }
 }
+
+

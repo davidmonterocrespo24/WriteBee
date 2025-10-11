@@ -2,8 +2,6 @@ const OutlookModule = (function() {
   let outlookButton = null;
   let isOutlook = false;
 
-  console.log('🔧 OutlookModule loading...');
-
   function init() {
   // Detect if we are in Outlook
     isOutlook = window.location.hostname.includes('outlook.live.com') || 
@@ -11,10 +9,10 @@ const OutlookModule = (function() {
                 window.location.hostname.includes('outlook.office365.com');
     
     if (isOutlook) {
-  console.log('📧 Outlook detected, starting module...');
+
       observeOutlook();
     } else {
-  console.log('ℹ️ Not in Outlook, module on standby');
+
     }
   }
 
@@ -42,7 +40,7 @@ const OutlookModule = (function() {
                           document.querySelector('div[contenteditable="true"][aria-label]');
     
     if (composeEditor && !outlookButton) {
-  console.log('✍️ Compose editor detected in Outlook');
+
       insertAIButton(composeEditor);
     } else if (!composeEditor && outlookButton) {
   // If the editor is no longer active, remove the button
@@ -57,7 +55,7 @@ const OutlookModule = (function() {
                            composeEditor.parentElement;
     
     if (!editorContainer) {
-  console.log('⚠️ Editor container not found');
+
       return;
     }
 
@@ -85,7 +83,7 @@ const OutlookModule = (function() {
       });
 
       toolbar.appendChild(outlookButton);
-  console.log('✅ AI button inserted in compose toolbar');
+
     } else {
   // If no toolbar, create floating button near the editor
       createFloatingButton(editorContainer, composeEditor);
@@ -113,7 +111,7 @@ const OutlookModule = (function() {
 
     // Insertar antes del editor
     editorContainer.insertBefore(outlookButton, composeEditor);
-  console.log('✅ Floating AI button inserted near the editor');
+
   }
 
   function removeAIButton() {
@@ -124,7 +122,6 @@ const OutlookModule = (function() {
   }
 
   async function handleAIAssistant(composeEditor) {
-  console.log('🤖 AI WriteBee AI activated for Outlook...');
 
   // Try to extract the context of the original email (if replying)
     let originalEmailContent = null;
@@ -136,7 +133,7 @@ const OutlookModule = (function() {
     
     if (originalMessage) {
       originalEmailContent = originalMessage.innerText || originalMessage.textContent;
-  console.log('📧 Original email context found');
+
     }
 
   // Create the assistant dialog
@@ -489,13 +486,11 @@ The email should be clear, cordial, and appropriate for a professional context.`
   // Trigger events so Outlook detects the change
     composeEditor.dispatchEvent(new Event('input', { bubbles: true }));
     composeEditor.dispatchEvent(new Event('change', { bubbles: true }));
-    
-  console.log('✅ Text inserted into Outlook editor');
+
   }
 
   async function handleUnreadSummary() {
-  console.log('📬 Getting unread emails from Outlook...');
-    
+
     try {
       const unreadEmails = await getUnreadEmails();
       
@@ -503,9 +498,7 @@ The email should be clear, cordial, and appropriate for a professional context.`
   alert('No unread emails 🎉');
         return;
       }
-      
-  console.log(`📧 ${unreadEmails.length} unread emails found in Outlook`);
-      
+
   // Create summary dialog
       const dialog = createUnreadSummaryDialog(unreadEmails);
       document.body.appendChild(dialog);
@@ -751,8 +744,8 @@ Be concise but informative.`;
 
   // Hacer disponible globalmente
   window.OutlookModule = publicAPI;
-  
-  console.log('✅ OutlookModule loaded and exported globally', publicAPI);
 
   return publicAPI;
 })();
+
+

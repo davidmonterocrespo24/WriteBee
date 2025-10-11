@@ -8,7 +8,7 @@ const LinkedInModule = (function() {
     isLinkedIn = window.location.hostname.includes('linkedin.com');
 
     if (isLinkedIn) {
-      console.log('💼 LinkedIn detected, starting module...');
+
       observeLinkedIn();
     }
   }
@@ -36,12 +36,10 @@ const LinkedInModule = (function() {
     // Only look for the main comment writing area (not existing comments)
     const commentForms = document.querySelectorAll('.comments-comment-box__form');
 
-    console.log('💼 LinkedIn: Looking for comment forms...', commentForms.length);
-
     commentForms.forEach(form => {
       // Check if the button already exists in this specific form
       if (!form.querySelector('.ai-linkedin-btn-comment')) {
-        console.log('💼 LinkedIn: Inserting button in form');
+
         insertCommentButton(form);
       }
     });
@@ -57,7 +55,6 @@ const LinkedInModule = (function() {
   }
 
   function insertCommentButton(commentForm) {
-  console.log('💼 LinkedIn: Creating comment button...');
 
     const btn = document.createElement('button');
     btn.className = 'ai-linkedin-btn-comment';
@@ -73,24 +70,21 @@ const LinkedInModule = (function() {
 
       // Prevent multiple dialogs
       if (document.querySelector('.ai-linkedin-dialog')) {
-        console.log('💼 LinkedIn: A dialog is already open');
+
         return;
       }
 
-      console.log('💼 LinkedIn: Click on comment button');
       handleCommentResponse(commentForm, btn);
     });
 
     // Find the button container at the bottom right
     const bottomRightContainer = commentForm.querySelector('.display-flex.justify-space-between .display-flex.align-items-center');
 
-    console.log('💼 LinkedIn: bottomRightContainer found:', bottomRightContainer);
-
     if (bottomRightContainer) {
       bottomRightContainer.appendChild(btn);
-      console.log('💼 LinkedIn: Button inserted successfully');
+
     } else {
-      console.log('💼 LinkedIn: No right container found');
+
     }
   }
 
@@ -110,7 +104,7 @@ const LinkedInModule = (function() {
 
       // Prevent multiple dialogs
       if (document.querySelector('.ai-linkedin-dialog')) {
-        console.log('💼 LinkedIn: A dialog is already open');
+
         return;
       }
 
@@ -127,28 +121,25 @@ const LinkedInModule = (function() {
   }
 
   async function handleCommentResponse(commentBox, buttonElement) {
-  console.log('💬 Generating comment reply...');
 
     // Extract the context of the post/comment
     const postContent = extractPostContent(commentBox);
-    console.log('💬 Extracted content:', postContent);
 
     if (!postContent) {
-      console.log('❌ Could not extract content');
+
       alert('Could not extract post content');
       return;
     }
 
     // Create dialog to reply to comments
-    console.log('💬 Creating dialog...');
+
     const dialog = createCommentDialog(postContent, buttonElement);
-    console.log('💬 Dialog created:', dialog);
+
     document.body.appendChild(dialog);
-    console.log('💬 Dialog added to body');
+
   }
 
   function handleCreatePost() {
-  console.log('📝 Creating post...');
 
   // Create dialog to create post
   const dialog = createPostDialog();
@@ -913,3 +904,5 @@ Do not use excessive hashtags, max 3-5 at the end if relevant.`;
     init
   };
 })();
+
+

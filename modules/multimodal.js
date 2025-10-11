@@ -31,7 +31,7 @@ const MultimodalModule = (function() {
         ],
         monitor(m) {
           m.addEventListener("downloadprogress", (e) => {
-            console.log(`📥 Descargando modelo multimodal... ${(e.loaded * 100).toFixed(1)}%`);
+
           });
         }
       });
@@ -69,7 +69,7 @@ const MultimodalModule = (function() {
         ],
         monitor(m) {
           m.addEventListener("downloadprogress", (e) => {
-            console.log(`📥 Descargando modelo de audio... ${(e.loaded * 100).toFixed(1)}%`);
+
           });
         }
       });
@@ -333,3 +333,5 @@ const MultimodalModule = (function() {
 
 // Exponer globalmente
 window.MultimodalModule = MultimodalModule;
+
+

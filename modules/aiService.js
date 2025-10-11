@@ -16,7 +16,7 @@ class AIService {
         return false;
       }
       const availability = await self[apiName].availability();
-  console.log(`📊 ${apiName} availability:`, availability);
+
   return availability === 'available' || availability === 'downloadable';
     } catch (error) {
       console.error(`Error checking ${apiName}:`, error);
@@ -31,7 +31,7 @@ class AIService {
     return (m) => {
       m.addEventListener('downloadprogress', (e) => {
         const percent = Math.round(e.loaded * 100);
-        console.log(`📥 Downloading model: ${percent}%`);
+
         if (onProgress) {
           onProgress(percent);
         }
@@ -524,3 +524,5 @@ class AIService {
 // Export as singleton
 const aiServiceInstance = new AIService();
 window.AIServiceInstance = aiServiceInstance;
+
+

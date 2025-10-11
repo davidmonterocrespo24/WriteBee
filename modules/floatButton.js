@@ -42,7 +42,7 @@ const FloatButtonModule = (function() {
         }
 
         if (response && response.success) {
-          console.log('✅ Side panel opened successfully');
+
         } else {
           console.error('❌ Error opening side panel:', response?.error);
         }
@@ -76,3 +76,5 @@ const FloatButtonModule = (function() {
     removeFloatButton
   };
 })();
+
+

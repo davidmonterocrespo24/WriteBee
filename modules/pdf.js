@@ -1,6 +1,5 @@
 const PDFModule = (function() {
-  console.log('🚀 PDFModule: Iniciando carga del módulo...');
-  
+
   let currentPDF = null;
 
   /**
@@ -38,20 +37,8 @@ const PDFModule = (function() {
     const result = isPDFUrl || isLocalPDF || isChromeExtensionPDF || isPDFContentType || 
                    hasEmbedPDF || hasPDFIframe || isRootEmbed || hasPDFParam;
     
-    console.log('📄 Verificando si es PDF:', {
-      pdfUrl: isPDFUrl,
-      localPDF: isLocalPDF,
-      chromeExtPDF: isChromeExtensionPDF,
-      contentType: isPDFContentType,
-      embedPDF: hasEmbedPDF,
-      pdfIframe: hasPDFIframe,
-      rootEmbed: isRootEmbed,
-      pdfParam: hasPDFParam,
-      protocol: window.location.protocol,
-      pathname: window.location.pathname,
-      url: window.location.href,
-      resultado: result
-    });
+
+      
     
     return result;
   }
@@ -170,29 +157,25 @@ const PDFModule = (function() {
    * Create PDF toolbar
    */
   function createPDFToolbar() {
-    console.log('🔧 createPDFToolbar: Función llamada');
-    
+
     if (document.querySelector('.ai-pdf-toolbar')) {
-      console.log('📄 Toolbar ya existe, no se crea de nuevo');
+
       return;
     }
 
-    console.log('📄 Creando toolbar de PDF...');
-    console.log('📄 document.body existe:', !!document.body);
-    console.log('📄 document.documentElement:', document.documentElement?.tagName);
+
 
     // Asegurarse de que hay un body donde insertar
     if (!document.body) {
-      console.log('⚠️ No hay body aún, creando uno temporal...');
+
       const body = document.createElement('body');
       document.documentElement.appendChild(body);
-      console.log('✅ Body temporal creado');
+
     }
 
     const toolbar = document.createElement('div');
     toolbar.className = 'ai-pdf-toolbar';
-    console.log('📄 Elemento toolbar creado:', toolbar);
-    
+
     toolbar.style.cssText = `
       position: fixed;
       top: 20px;
@@ -207,9 +190,7 @@ const PDFModule = (function() {
       gap: 8px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     `;
-    
-    console.log('📄 Estilos aplicados al toolbar');
-    
+
     toolbar.innerHTML = `
       <button class="ai-pdf-btn" data-action="summarize" title="Resumir PDF" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
@@ -242,23 +223,20 @@ const PDFModule = (function() {
       </button>
     `;
 
-    console.log('📄 Intentando agregar toolbar al body...');
-    console.log('📄 document.body antes de appendChild:', document.body);
-    
+
     try {
       document.body.appendChild(toolbar);
-      console.log('✅ Toolbar de PDF insertado correctamente');
-      console.log('📄 Toolbar en DOM:', document.querySelector('.ai-pdf-toolbar'));
+
+
     } catch (error) {
       console.error('❌ Error al insertar toolbar:', error);
       console.error('❌ Error stack:', error.stack);
     }
 
     // Agregar efectos hover
-    console.log('📄 Agregando event listeners a botones...');
+
     toolbar.querySelectorAll('.ai-pdf-btn').forEach((btn, index) => {
-      console.log(`📄 Agregando listeners al botón ${index + 1}:`, btn.dataset.action);
-      
+
       btn.addEventListener('mouseenter', () => {
         btn.style.transform = 'translateY(-2px)';
         btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
@@ -269,8 +247,6 @@ const PDFModule = (function() {
         btn.style.boxShadow = 'none';
       });
     });
-    
-    console.log('✅ Event listeners agregados');
 
     // Setup event listeners
     toolbar.querySelectorAll('.ai-pdf-btn').forEach(btn => {
@@ -324,28 +300,18 @@ const PDFModule = (function() {
    * Initialize PDF module
    */
   function init() {
-    console.log('🔍 PDFModule.init() llamado');
-    console.log('� Timestamp:', new Date().toISOString());
-    console.log('🔍 document.readyState:', document.readyState);
-    console.log('🔍 window.location:', {
-      href: window.location.href,
-      protocol: window.location.protocol,
-      pathname: window.location.pathname,
-      search: window.location.search
-    });
-    console.log('�📄 Verificando si es página PDF...');
+
+
+
+
     
+
     const isPDF = isPDFPage();
-    console.log('📄 Resultado de isPDFPage():', isPDF);
-    
+
     if (isPDF) {
-      console.log('✅ PDF detectado, esperando a crear toolbar...');
-      console.log('📄 Estado del DOM actual:', {
-        body: !!document.body,
-        bodyTagName: document.body?.tagName,
-        documentElement: document.documentElement?.tagName,
-        childElementCount: document.documentElement?.childElementCount
-      });
+
+
+        
       
       // Intentar crear toolbar varias veces porque el DOM del visor puede tardar
       let attempts = 0;
@@ -353,15 +319,14 @@ const PDFModule = (function() {
       
       const tryCreateToolbar = () => {
         attempts++;
-        console.log(`📄 Intento ${attempts}/${maxAttempts} de crear toolbar...`);
-        console.log(`📄 document.body en intento ${attempts}:`, !!document.body);
-        
+
+
         if (document.body) {
-          console.log(`✅ Body encontrado en intento ${attempts}, creando toolbar...`);
+
           createPDFToolbar();
-          console.log('✅ PDFModule inicializado correctamente');
+
         } else if (attempts < maxAttempts) {
-          console.log(`⏳ Body no disponible en intento ${attempts}, reintentando en 500ms...`);
+
           setTimeout(tryCreateToolbar, 500);
         } else {
           console.error('❌ No se pudo crear toolbar después de', maxAttempts, 'intentos');
@@ -374,7 +339,7 @@ const PDFModule = (function() {
       };
       
       // Empezar a intentar inmediatamente
-      console.log('🚀 Iniciando intentos de crear toolbar...');
+
       tryCreateToolbar();
     } else {
       console.log('ℹ️ No es una página PDF, PDFModule no se inicializa');
@@ -397,15 +362,12 @@ const PDFModule = (function() {
   };
 })();
 
-console.log('📦 PDFModule definido, valor:', PDFModule);
-console.log('📦 Funciones disponibles:', Object.keys(PDFModule));
 
 // Initialize if on PDF page
 if (typeof window !== 'undefined') {
-  console.log('📄 PDFModule cargado, registrando globalmente');
-  console.log('📄 window.location.href:', window.location.href);
-  console.log('📄 window.location.protocol:', window.location.protocol);
-  
+
+
+
   window.PDFModule = PDFModule;
 
   // Inicialización inmediata para archivos locales y chrome-extension PDFs
@@ -413,97 +375,84 @@ if (typeof window !== 'undefined') {
   const isChromeExtPDF = window.location.protocol === 'chrome-extension:' && 
                          (window.location.href.includes('file:///') || window.location.href.includes('.pdf'));
   
-  console.log('🔍 Verificando tipo de archivo:', {
-    isLocalFile,
-    isChromeExtPDF,
-    protocol: window.location.protocol,
-    href: window.location.href
-  });
+
+   
   
   if (isLocalFile || isChromeExtPDF) {
-    console.log('📄 Archivo local o Chrome Extension PDF detectado, inicializando inmediatamente...');
-    console.log('📄 Protocol:', window.location.protocol);
-    console.log('📄 URL:', window.location.href);
-    
+
+
+
     // Para archivos locales, intentar múltiples veces porque el DOM puede no estar listo
     let initAttempts = 0;
     const tryInit = () => {
       initAttempts++;
-      console.log(`📄 Intento de inicialización ${initAttempts} para archivo local/extension...`);
+
       PDFModule.init();
       
       // Verificar que el toolbar se creó
       setTimeout(() => {
         const toolbarExists = document.querySelector('.ai-pdf-toolbar');
-        console.log(`📄 Verificación post-init (intento ${initAttempts}):`, {
-          toolbarExists: !!toolbarExists,
-          toolbar: toolbarExists
-        });
+
         
         if (!toolbarExists && initAttempts < 5) {
-          console.log('📄 Toolbar no encontrado, reintentando en 300ms...');
+
           setTimeout(tryInit, 300);
         } else if (toolbarExists) {
-          console.log('🎉 ¡Toolbar creado exitosamente!');
+
         } else {
           console.error('❌ No se pudo crear el toolbar después de 5 intentos');
         }
       }, 200);
     };
-    
-    console.log('🚀 Iniciando secuencia de inicialización...');
+
     tryInit();
   } else {
-    console.log('📄 URL web estándar detectada, usando método estándar...');
+
     // Para URLs web, usar el método estándar
     if (document.readyState === 'loading') {
-      console.log('📄 DOM en estado loading, esperando DOMContentLoaded...');
+
       document.addEventListener('DOMContentLoaded', () => {
-        console.log('📄 DOMContentLoaded disparado, inicializando PDFModule');
+
         PDFModule.init();
       });
     } else {
-      console.log('📄 DOM ya cargado, inicializando PDFModule inmediatamente');
+
       PDFModule.init();
     }
   }
   
   // Fallback adicional después de 1 segundo para todos los casos
   setTimeout(() => {
-    console.log('⏰ Verificación adicional después de 1 segundo...');
-    console.log('⏰ Toolbar existe:', !!document.querySelector('.ai-pdf-toolbar'));
-    console.log('⏰ Es PDF:', PDFModule.isPDFPage());
-    
+
+
+
     if (!document.querySelector('.ai-pdf-toolbar') && PDFModule.isPDFPage()) {
-      console.log('📄 Toolbar no encontrado, reintentando inicialización...');
+
       PDFModule.init();
     } else if (document.querySelector('.ai-pdf-toolbar')) {
-      console.log('✅ Toolbar ya existe, no es necesario reintentar');
+
     } else {
-      console.log('ℹ️ No es un PDF, no se crea toolbar');
+
     }
   }, 1000);
   
   // Fallback final después de 2 segundos
   setTimeout(() => {
-    console.log('⏰⏰ Verificación final después de 2 segundos...');
-    console.log('⏰⏰ Toolbar existe:', !!document.querySelector('.ai-pdf-toolbar'));
-    console.log('⏰⏰ Es PDF:', PDFModule.isPDFPage());
-    console.log('⏰⏰ Estado del DOM:', {
-      readyState: document.readyState,
-      body: !!document.body,
-      documentElement: !!document.documentElement
-    });
+
+
+
+
     
     if (!document.querySelector('.ai-pdf-toolbar') && PDFModule.isPDFPage()) {
-      console.log('📄 ÚLTIMO INTENTO: Forzando creación de toolbar...');
+
       PDFModule.init();
     } else if (document.querySelector('.ai-pdf-toolbar')) {
-      console.log('🎉 ¡Toolbar funcionando correctamente!');
+
     } else {
-      console.log('ℹ️ No es un PDF o el toolbar ya existe');
+
     }
   }, 2000);
-  
-  console.log('✅ PDFModule completamente inicializado y listeners registrados');
+
 }
+
+

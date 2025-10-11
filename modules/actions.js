@@ -1,25 +1,20 @@
 const ActionsModule = (function() {
   async function executeAction(action, param = null, rect = null, selectedText = '') {
-    console.log('⚙️ executeAction CALLED');
-    console.log('⚙️ executeAction - action:', action, 'param:', param);
-    console.log('⚙️ executeAction - rect received:', rect);
+
+
+
     MenusModule.hideMenus();
 
-    console.log('📊 Creating dialog with typing indicator');
     const dialog = DialogModule.createDialog(action, '', selectedText, rect);
-    console.log('📊 Dialog created, adding to DOM...');
+
     document.body.appendChild(dialog);
-    console.log('✅ Dialog added to DOM');
-    console.log('📊 Dialog position after adding to DOM:', {
-      left: dialog.style.left,
-      top: dialog.style.top,
-      boundingRect: dialog.getBoundingClientRect()
-    });
+
+
 
     if (dialog.adjustPosition) {
-      console.log('🔄 Calling dialog.adjustPosition()...');
+
       setTimeout(() => {
-        console.log('⏰ setTimeout executed, calling adjustPosition now');
+
         dialog.adjustPosition();
       }, 0);
     }
@@ -116,3 +111,5 @@ const ActionsModule = (function() {
     executeAction
   };
 })();
+
+

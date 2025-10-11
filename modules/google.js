@@ -9,7 +9,7 @@ const GoogleModule = (function() {
                (window.location.pathname === '/search' || window.location.search.includes('q='));
     
     if (isGoogle) {
-      console.log('🔍 Google Search detectado, iniciando módulo...');
+
       observeGoogle();
     }
   }
@@ -29,7 +29,7 @@ const GoogleModule = (function() {
     const sidebarObserver = new MutationObserver(() => {
       // Solo intentar insertar si no existe el panel y hay una query
       if (!googlePanel && getSearchQuery()) {
-        console.log('🔄 Sidebar detectado por MutationObserver, intentando insertar panel...');
+
         insertGooglePanel();
       }
     });
@@ -50,7 +50,7 @@ const GoogleModule = (function() {
     
     if (query && query !== currentQuery) {
       currentQuery = query;
-      console.log('🔍 Nueva búsqueda detectada:', query);
+
       insertGooglePanel();
     } else if (!query && googlePanel) {
       removeGooglePanel();
@@ -66,8 +66,6 @@ const GoogleModule = (function() {
   function insertGooglePanel() {
     // Remover panel anterior si existe
     removeGooglePanel();
-
-    console.log('📍 Creando panel flotante en el lado derecho');
 
     // Crear panel de AI (siempre flotante a la derecha)
     googlePanel = document.createElement('div');
@@ -161,8 +159,7 @@ const GoogleModule = (function() {
 
     // Insertar el panel en el body (flotante a la derecha)
     document.body.appendChild(googlePanel);
-    console.log('✅ Panel de Google insertado (flotante derecha)');
-    
+
     setupGooglePanelEvents(googlePanel);
     
     // Activar automáticamente el resumen al aparecer el panel
@@ -170,15 +167,14 @@ const GoogleModule = (function() {
       const summaryBtn = googlePanel.querySelector('.summary-btn');
       
       if (summaryBtn) {
-        console.log('🚀 Activando resumen automático...');
+
         summaryBtn.click();
       }
     }, 500); // Pequeño delay para asegurar que todo esté configurado
   }
 
   function createFloatingSidebar() {
-    console.log('🎈 Creando panel flotante como fallback');
-    
+
     // Crear panel de AI flotante
     googlePanel = document.createElement('div');
     googlePanel.className = 'ai-google-panel ai-google-panel-floating';
@@ -271,8 +267,7 @@ const GoogleModule = (function() {
 
     // Insertar en el body
     document.body.appendChild(googlePanel);
-    console.log('✅ Panel flotante de Google insertado');
-    
+
     setupGooglePanelEvents(googlePanel);
   }
 
@@ -399,8 +394,7 @@ const GoogleModule = (function() {
 
   async function getFirstSearchResult() {
     try {
-      console.log('🔍 Buscando primer resultado de búsqueda...');
-      
+
       // Múltiples selectores para diferentes versiones de Google
       const selectors = [
         '.g',
@@ -418,13 +412,13 @@ const GoogleModule = (function() {
       for (const selector of selectors) {
         searchResults = document.querySelectorAll(selector);
         if (searchResults.length > 0) {
-          console.log(`✅ Encontrados ${searchResults.length} resultados con selector: ${selector}`);
+
           break;
         }
       }
 
       if (searchResults.length === 0) {
-        console.log('⚠️ No se encontraron resultados con selectores comunes');
+
         throw new Error('No se encontraron resultados de búsqueda en la página');
       }
 
@@ -463,11 +457,9 @@ const GoogleModule = (function() {
             const urlMatch = url.match(/url=([^&]+)/);
             if (urlMatch) {
               url = decodeURIComponent(urlMatch[1]);
-              console.log('🔄 URL limpiada de Google Translate:', url);
+
             }
           }
-
-          console.log('📍 Candidato encontrado:', { url: url.substring(0, 50), title: title.substring(0, 50) });
 
           // Verificar que no sea un anuncio, mapa, o resultado especial de Google
           if (url && 
@@ -478,9 +470,7 @@ const GoogleModule = (function() {
               !result.querySelector('[data-text-ad]') &&
               !result.classList.contains('ads-ad') &&
               title.length > 0) {
-            
-            console.log('✅ Primer resultado válido encontrado:', title);
-            
+
             // Intentar obtener el contenido completo de la página
             const content = await fetchPageContent(url, snippet);
             
@@ -503,8 +493,7 @@ const GoogleModule = (function() {
 
   async function fetchPageContent(url, fallbackSnippet) {
     try {
-      console.log('🌐 Intentando obtener contenido de:', url);
-      
+
       // Intentar fetch (puede fallar por CORS)
       const response = await fetch(url, {
         mode: 'cors',
@@ -541,7 +530,7 @@ const GoogleModule = (function() {
       for (const selector of contentSelectors) {
         contentElement = doc.querySelector(selector);
         if (contentElement) {
-          console.log(`✅ Contenido encontrado con selector: ${selector}`);
+
           break;
         }
       }
@@ -549,8 +538,7 @@ const GoogleModule = (function() {
       if (contentElement) {
         const text = contentElement.innerText || contentElement.textContent;
         const cleanText = text.trim().replace(/\s+/g, ' ');
-  console.log(`✅ Content obtained: ${cleanText.length} characters`);
-        
+
   // Limit to 8000 characters to not overload the AI
   return cleanText.substring(0, 8000);
       }
@@ -558,9 +546,8 @@ const GoogleModule = (function() {
       throw new Error('No se pudo extraer contenido');
       
     } catch (error) {
-      console.log('⚠️ No se pudo obtener contenido completo (CORS o error):', error.message);
-      console.log('📝 Usando snippet de Google como fallback');
-      
+
+
       // Si falla, usar el snippet de Google que es más largo
       return fallbackSnippet || 'No se pudo obtener el contenido';
     }
@@ -600,8 +587,7 @@ Extrae los insights (puntos clave, conclusiones importantes, datos relevantes) d
   }
 
   async function summarizeResults() {
-    console.log('🔍 Generando resumen de resultados de Google...');
-    
+
     const results = getSearchResults();
     
     if (results.length === 0) {
@@ -772,3 +758,5 @@ Genera un resumen claro, bien estructurado y útil en español.`;
 
   return publicAPI;
 })();
+
+

@@ -315,42 +315,38 @@ const RAGEngine = (function() {
     }
 
     async indexPage(pageContent, pageMetadata) {
-      console.log('🔍 RAG: Indexing page:', pageMetadata.title);
-      console.log('📄 RAG: Content length:', pageContent.length, 'characters');
-      console.log('📍 RAG: Source type:', pageMetadata.source || 'current_page');
-      
+
+
+
       // Set current source
       this.currentSource = pageMetadata.source || 'current_page';
       
       // Create chunks
-      console.log('✂️ RAG: Creating chunks with size=300, overlap=50...');
+
       const chunks = this.chunkCreator.createChunks(pageContent, {
         source: this.currentSource,
         title: pageMetadata.title,
         url: pageMetadata.url,
         ...pageMetadata
       });
-      console.log(`📦 RAG: Created ${chunks.length} chunks`);
-      
+
       // Log first chunk as example
       if (chunks.length > 0) {
-        console.log('📝 RAG: First chunk preview:', chunks[0].text.substring(0, 100) + '...');
+
       }
 
       // Tokenize all chunks
-      console.log('🔤 RAG: Tokenizing chunks...');
+
       const allTokens = chunks.map(chunk => 
         this.vectorizer.tokenize(chunk.text)
       );
-      console.log('🔤 RAG: Total tokens across all chunks:', allTokens.reduce((sum, tokens) => sum + tokens.length, 0));
 
       // Compute IDF
-      console.log('📊 RAG: Computing IDF (Inverse Document Frequency)...');
+
       this.vectorizer.computeIDF(allTokens);
-      console.log('📊 RAG: Vocabulary size:', this.vectorizer.vocabulary.size, 'unique terms');
 
       // Vectorize chunks
-      console.log('🎯 RAG: Vectorizing chunks...');
+
       chunks.forEach((chunk, idx) => {
         const tokens = allTokens[idx];
         const tf = this.vectorizer.computeTF(tokens);
@@ -364,16 +360,14 @@ const RAGEngine = (function() {
       });
 
       this.isIndexed = true;
-      console.log(`✅ RAG: Successfully indexed ${chunks.length} chunks from ${this.currentSource}`);
-      console.log(`📚 RAG: Total index size: ${this.index.length} chunks`);
+
+
     }
 
     async indexLinks(links, question, maxLinks = 5) {
-      console.log(`🔗 Analyzing ${links.length} links...`);
-      
+
       // Score and rank URLs
       const relevantURLs = this.urlScorer.rankURLs(links, question, maxLinks);
-      console.log('📊 Top relevant URLs:', relevantURLs);
 
       // Fetch and index relevant pages
       const fetchPromises = relevantURLs.map(async url => {
@@ -426,7 +420,6 @@ const RAGEngine = (function() {
         });
       });
 
-      console.log(`✅ Indexed ${allChunks.length} chunks from ${relevantURLs.length} linked pages`);
     }
 
     extractTextFromDoc(doc) {
@@ -450,24 +443,20 @@ const RAGEngine = (function() {
         return [];
       }
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔍 RAG RETRIEVE: Starting retrieval process');
-      console.log('❓ Query:', query);
-      console.log('📚 Index size:', this.index.length, 'chunks');
-      console.log('🎯 Requesting top', topK, 'results');
+
+
+
 
       // Vectorize query
-      console.log('🔤 RAG: Tokenizing query...');
+
       const queryTokens = this.vectorizer.tokenize(query);
-      console.log('🔤 RAG: Query tokens:', queryTokens.slice(0, 20).join(', '), queryTokens.length > 20 ? '...' : '');
-      console.log('🔤 RAG: Total query tokens:', queryTokens.length);
-      
+
+
       const queryTF = this.vectorizer.computeTF(queryTokens);
       const queryVector = this.vectorizer.vectorize(queryTokens, queryTF);
-      console.log('🎯 RAG: Query vector size:', queryVector.size, 'dimensions');
 
       // Compute similarities
-      console.log('📊 RAG: Computing cosine similarity with all chunks...');
+
       const results = this.index.map(item => ({
         ...item,
         similarity: this.vectorizer.cosineSimilarity(queryVector, item.vector)
@@ -482,12 +471,10 @@ const RAGEngine = (function() {
       });
 
       const topResults = results.slice(0, topK);
-      
-      console.log('📊 RAG: Top', topK, 'results:');
+
       topResults.forEach((r, idx) => {
-        console.log(`  ${idx + 1}. Similarity: ${(r.similarity * 100).toFixed(1)}% | Source: ${r.metadata.source} | Preview: ${r.text.substring(0, 80).replace(/\n/g, ' ')}...`);
+
       });
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       return topResults;
     }
@@ -498,10 +485,8 @@ const RAGEngine = (function() {
         return '';
       }
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📝 RAG BUILD CONTEXT: Creating prompt context');
-      console.log('📦 RAG: Using', retrievedChunks.length, 'chunks');
-      
+
+
       let context = 'Relevant information:\n\n';
       let totalChars = 0;
       
@@ -515,16 +500,13 @@ const RAGEngine = (function() {
         const chunkText = `[${idx + 1}] ${source}\n${chunk.text}\n\n`;
         context += chunkText;
         totalChars += chunk.text.length;
-        
-        console.log(`  Chunk ${idx + 1}:`);
-        console.log(`    Source: ${source}`);
-        console.log(`    Similarity: ${(chunk.similarity * 100).toFixed(1)}%`);
-        console.log(`    Length: ${chunk.text.length} chars`);
-        console.log(`    Preview: ${chunk.text.substring(0, 100).replace(/\n/g, ' ')}...`);
+
+
+
+
+
       });
 
-      console.log('📊 RAG: Total context length:', totalChars, 'characters');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       return context;
     }
@@ -574,3 +556,5 @@ const RAGEngine = (function() {
 if (typeof window !== 'undefined') {
   window.RAGEngine = RAGEngine;
 }
+
+
