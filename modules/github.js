@@ -439,9 +439,16 @@ const GithubModule = (function() {
 
   async function summarizeRepo() {
 
-    // Verify we are in a repository
+    // If no repository is detected, summarize the current page instead
     if (!currentRepo) {
-      alert('GitHub repository not detected. Make sure you are on a repository page.');
+      console.log('No GitHub repository detected. Summarizing current page instead...');
+
+      // Call the page summarization from FloatButtons module
+      if (typeof FloatButtonsModule !== 'undefined') {
+        await summarizePageContent();
+      } else {
+        alert('Page summarization module not available.');
+      }
       return;
     }
 
@@ -491,6 +498,170 @@ const GithubModule = (function() {
         }
       }
     }
+  }
+
+  // Helper function to summarize page content when not on a repository
+  async function summarizePageContent() {
+    try {
+      // Verify WebChatModule is available
+      if (typeof WebChatModule === 'undefined') {
+        console.error('WebChatModule not available');
+        alert('Chat module not available. Please reload the page.');
+        return;
+      }
+
+      // First, clear any existing conversation to start fresh
+      chrome.runtime.sendMessage({
+        action: 'clearConversation'
+      });
+
+      // Open side panel first (while user gesture is valid)
+      await new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({
+          action: 'openSidePanel',
+          data: {
+            context: 'page-summary-loading',
+            pageTitle: document.title,
+            pageUrl: window.location.href,
+            action: 'summarize',
+            isLoading: true,
+            newConversation: true  // Flag to indicate this is a new conversation
+          }
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error opening side panel:', chrome.runtime.lastError);
+            reject(chrome.runtime.lastError);
+          } else if (!response || !response.success) {
+            console.error('Error in response:', response);
+            reject(new Error(response?.error || 'Unknown error'));
+          } else {
+            resolve();
+          }
+        });
+      });
+
+      // Small delay to ensure side panel is ready
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Extract page content
+      const pageContent = extractCurrentPageContent();
+
+      if (!pageContent.text || pageContent.text.length < 50) {
+        throw new Error('Could not extract enough content from the page');
+      }
+
+      // Index page with RAG Engine if available
+      if (typeof RAGEngine !== 'undefined') {
+        const ragEngine = RAGEngine.getInstance();
+        ragEngine.clear();
+        await ragEngine.indexPage(pageContent.text, {
+          title: pageContent.title,
+          url: window.location.href,
+          source: 'current_page'
+        });
+      }
+
+      // Generate summary (loading dots will be shown automatically)
+      const summary = await WebChatModule.summarizePage();
+
+      // Send summary to side panel with newConversation flag
+      // Include user message in the data
+      chrome.runtime.sendMessage({
+        action: 'chatData',
+        data: {
+          webChatMode: true,
+          pageTitle: pageContent.title,
+          pageUrl: window.location.href,
+          pageContent: pageContent.text,
+          selectedText: '',
+          currentAnswer: summary,
+          action: 'summarize',
+          context: 'page-summary',
+          newConversation: true,  // Flag to indicate this is a new conversation
+          userMessage: `I want to summarize this page: ${pageContent.title}` // Include user message
+        }
+      });
+
+    } catch (error) {
+      console.error('Error summarizing page:', error);
+
+      let errorMessage = 'Error summarizing page: ';
+      if (error.message && error.message.includes('Extension context invalidated')) {
+        errorMessage += 'Extension was reloaded. Please reload the page and try again.';
+      } else if (error.message && error.message.includes('not available')) {
+        errorMessage += 'AI service not available. Make sure you have Chrome Canary with APIs enabled.';
+      } else {
+        errorMessage += error.message || 'Unknown error';
+      }
+
+      alert(errorMessage);
+    }
+  }
+
+  // Extract content from current page
+  function extractCurrentPageContent() {
+    const title = document.title || 'Untitled';
+    let mainContent = null;
+
+    // Try to find main content areas
+    const mainSelectors = [
+      'main',
+      'article',
+      '[role="main"]',
+      '.main-content',
+      '#main-content',
+      '.content',
+      '#content'
+    ];
+
+    for (const selector of mainSelectors) {
+      mainContent = document.querySelector(selector);
+      if (mainContent) break;
+    }
+
+    // If no main content found, use body
+    if (!mainContent) {
+      mainContent = document.body;
+    }
+
+    // Elements to exclude
+    const excludeSelectors = [
+      'script',
+      'style',
+      'noscript',
+      'iframe',
+      'nav',
+      'header',
+      'footer',
+      '.navigation',
+      '.menu',
+      '.sidebar',
+      '[class*="ai-"]'
+    ];
+
+    // Clone content to avoid affecting the page
+    const contentClone = mainContent.cloneNode(true);
+
+    // Remove excluded elements
+    excludeSelectors.forEach(selector => {
+      const elements = contentClone.querySelectorAll(selector);
+      elements.forEach(el => el.remove());
+    });
+
+    // Extract text
+    let text = contentClone.innerText || contentClone.textContent || '';
+
+    // Clean text
+    text = text
+      .replace(/\s+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
+    return {
+      title,
+      text,
+      length: text.length
+    };
   }
 
   // Initialize when DOM is ready

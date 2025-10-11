@@ -336,10 +336,10 @@ ${text}`;
 
       if (typeof RAGEngine !== 'undefined') {
         const ragEngine = RAGEngine.getInstance();
-        
+
         // Clear previous index
         ragEngine.clear();
-        
+
         // Index current page
         await ragEngine.indexPage(pageContent.text, {
           title: pageContent.title,
@@ -351,17 +351,25 @@ ${text}`;
         console.warn('⚠️ RAGEngine no disponible');
       }
 
-      // Generar resumen inicial
+      // Show loading indicator with user message
+      chrome.runtime.sendMessage({
+        action: 'showLoading',
+        data: {
+          userMessage: `I want to summarize this page: ${pageContent.title}`,
+          isLoading: true
+        }
+      });
 
+      // Small delay to ensure loading is shown
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Generate summary (loading dots will be shown)
       const summary = await WebChatModule.summarizePage((progress) => {
 
       });
 
-
-      
-
-      // Enviar el resumen al side panel que YA está abierto
-
+      // Send summary to side panel that is already open
+      // Include user message in the data
       chrome.runtime.sendMessage({
         action: 'chatData',
         data: {
@@ -372,11 +380,12 @@ ${text}`;
           selectedText: '',
           currentAnswer: summary,
           action: 'summarize',
-          context: 'page-summary'
+          context: 'page-summary',
+          userMessage: `I want to summarize this page: ${pageContent.title}` // Include user message
         }
       }, (response) => {
         if (chrome.runtime.lastError) {
-          console.error('❌ Error al enviar datos:', chrome.runtime.lastError);
+          console.error('Error sending data:', chrome.runtime.lastError);
         } else {
 
         }
@@ -545,17 +554,21 @@ async function translateFullPage() {
 
     // Verificar si es necesario traducir
     if (pageLanguage.toLowerCase() === targetLanguage.code.toLowerCase()) {
-      const shouldContinue = await showConfirmationDialog(
-        '¿Continuar con la traducción?',
-        `La página parece estar en ${targetLanguage.name}. ¿Deseas traducir de todas formas?`,
-        'Sí, traducir',
+      const shouldSelectAgain = await showConfirmationDialog(
+        'Mismo idioma detectado',
+        `La página ya está en ${targetLanguage.name}. Por favor, elige un idioma diferente para traducir.`,
+        'Elegir otro idioma',
         'Cancelar'
       );
-      
-      if (!shouldContinue) {
+
+      if (shouldSelectAgain) {
         resetTranslateButton(translateBtn);
-        return;
+        // Volver a mostrar el diálogo de selección de idiomas
+        await translateFullPage();
+      } else {
+        resetTranslateButton(translateBtn);
       }
+      return;
     }
 
     // Seleccionar elementos a traducir
@@ -609,9 +622,9 @@ async function translateFullPage() {
 function selectElementsToTranslate() {
   const elements = [];
 
-  // Selectores más amplios y prioritarios
+  // Wide-range selectors with priority
   const selectors = [
-    // Contenido principal
+    // Main content - paragraphs and headings
     'main p', 'main h1, main h2, main h3, main h4, main h5, main h6',
     'article p', 'article h1, article h2, article h3, article h4, article h5, article h6',
     '[role="main"] p', '[role="main"] h1, [role="main"] h2, [role="main"] h3, [role="main"] h4, [role="main"] h5, [role="main"] h6',
@@ -619,26 +632,45 @@ function selectElementsToTranslate() {
     '.post p', '.post h1, .post h2, .post h3, .post h4, .post h5, .post h6',
     '.entry p', '.entry h1, .entry h2, .entry h3, .entry h4, .entry h5, .entry h6',
 
-    // Elementos del body si no hay contenido principal estructurado
-    'body > p', 'body > h1, body > h2, body > h3, body > h4, body > h5, body > h6',
+    // Links and buttons in main content
+    'main a', 'main button',
+    'article a', 'article button',
+    '[role="main"] a', '[role="main"] button',
+    '.content a', '.content button',
+    '.post a', '.post button',
+    '.entry a', '.entry button',
 
-    // Contenedores comunes
+    // Spans with visible text in main content
+    'main span', 'article span', '[role="main"] span', '.content span',
+
+    // Body elements if no structured main content
+    'body > p', 'body > h1, body > h2, body > h3, body > h4, body > h5, body > h6',
+    'body > a', 'body > button', 'body > span',
+
+    // Common containers
     '.container p', '.wrapper p', '.page p', '.site-content p',
     '.container h1, .container h2, .container h3, .container h4, .container h5, .container h6',
     '.wrapper h1, .wrapper h2, .wrapper h3, .wrapper h4, .wrapper h5, .wrapper h6',
+    '.container a', '.container button',
+    '.wrapper a', '.wrapper button',
+    '.page a', '.page button',
+    '.site-content a', '.site-content button',
 
-    // Listas y otros elementos de contenido
+    // Lists and other content elements
     'main li', 'article li', '[role="main"] li',
     'main td, main th', 'article td, article th', '[role="main"] td, [role="main"] th',
 
-    // Elementos con clases comunes de contenido
+    // Elements with common content classes
     '.content li', '.post li', '.entry li',
     '.content td, .content th', '.post td, .post th', '.entry td, .entry th',
 
-    // Párrafos en secciones comunes
+    // Sections - paragraphs and headings
     'section p', '.section p', '.block p',
     'section h1, section h2, section h3, section h4, section h5, section h6',
-    '.section h1, .section h2, .section h3, .section h4, .section h5, .section h6'
+    '.section h1, .section h2, .section h3, .section h4, .section h5, .section h6',
+    'section a', 'section button',
+    '.section a', '.section button',
+    '.block a', '.block button'
   ];
 
   const foundElements = new Set();
@@ -675,12 +707,16 @@ function selectElementsToTranslate() {
           return;
         }
 
-        // Obtener texto completo del elemento (incluyendo hijos)
+        // Get full text of the element (including children)
         let text = getFullText(element);
 
         if (!text || text.length < 3) return;
-        if (text.match(/^[\d\s\W]+$/)) return; // Solo números/símbolos
-        if (text.includes('http://') || text.includes('https://')) return;
+        if (text.match(/^[\d\s\W]+$/)) return; // Only numbers/symbols
+
+        // For links and buttons, don't filter by URL content
+        // For other elements, skip if they contain URLs (likely navigation/meta content)
+        const isLinkOrButton = element.tagName === 'A' || element.tagName === 'BUTTON';
+        if (!isLinkOrButton && (text.includes('http://') || text.includes('https://'))) return;
 
         elements.push({
           element: element,
