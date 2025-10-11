@@ -445,7 +445,7 @@
       if (currentAnswer) {
         conversationHistory.push({
           role: 'user',
-          content: `${action === 'summarize' ? 'Resumen' : action === 'translate' ? 'Traducción' : action === 'explain' ? 'Explicación' : 'Consulta'}: ${selectedText}`,
+          content: `${action === 'summarize' ? 'Summary' : action === 'translate' ? 'Translation' : action === 'explain' ? 'Explanation' : 'Query'}: ${selectedText}`,
           timestamp: Date.now()
         });
 
@@ -483,7 +483,7 @@
       // Mostrar indicador de página
       if (pageTitle || pageUrl) {
         updatePageIndicator({
-          title: pageTitle || 'Página web',
+          title: pageTitle || 'Web page',
           url: pageUrl
         });
       }
@@ -511,7 +511,7 @@
       if (context === 'page-chat') {
 
         // Agregar mensaje del usuario (automático)
-        const userMessage = `Resume esta página: ${pageTitle}`;
+        const userMessage = `Summarize this page: ${pageTitle}`;
         conversationHistory.push({
           role: 'user',
           content: userMessage,
@@ -561,7 +561,7 @@
             if (loadingIndex !== -1) {
               conversationHistory[loadingIndex] = {
                 role: 'assistant',
-                content: '❌ Error generando el resumen. Por favor, intenta preguntar algo sobre la página.',
+                content: '❌ Error generating the summary. Please try asking something about the page.',
                 timestamp: Date.now()
               };
               renderChatHistory();
@@ -748,7 +748,7 @@
           }
           assistantMessage.isTyping = false;
         } else {
-          throw new Error('WebChatModule no está disponible');
+          throw new Error('WebChatModule is not available');
         }
       }
       // Si hay imagen, procesarla con multimodal según la acción

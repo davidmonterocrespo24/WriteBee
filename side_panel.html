@@ -767,23 +767,23 @@
   <div class="chat-messages" id="chatMessages">
     <div class="empty-state">
       <div class="empty-state-icon">💬</div>
-      <h2>Comienza una conversación</h2>
-      <p>Escribe un mensaje o usa el botón "Continuar en el chat" desde cualquier diálogo AI</p>
+      <h2>Start a conversation</h2>
+      <p>Write a message or use the "Continue in chat" button from any AI dialog</p>
       <div class="suggestion-chips">
-        <button class="suggestion-chip" data-suggestion="Ayúdame a escribir un correo profesional">
-          ✉️ Escribir correo
+        <button class="suggestion-chip" data-suggestion="Help me write a professional email">
+          ✉️ Write email
         </button>
-        <button class="suggestion-chip" data-suggestion="Resume este texto en 3 puntos clave">
-          📝 Resumir texto
+        <button class="suggestion-chip" data-suggestion="Summarize this text in 3 key points">
+          📝 Summarize text
         </button>
-        <button class="suggestion-chip" data-suggestion="Traduce este texto al inglés">
-          🌐 Traducir...
+        <button class="suggestion-chip" data-suggestion="Translate this text to English">
+          🌐 Translate...
         </button>
-        <button class="suggestion-chip" data-suggestion="Explícame este concepto de forma simple">
-          💡 Explicar
+        <button class="suggestion-chip" data-suggestion="Explain this concept in a simple way">
+          💡 Explain
         </button>
-        <button class="suggestion-chip" data-suggestion="Sube un PDF para chatear con él">
-          📄 Subir PDF
+        <button class="suggestion-chip" data-suggestion="Upload a PDF to chat with it">
+          📄 Upload PDF
         </button>
       </div>
     </div>
@@ -800,7 +800,7 @@
         <textarea
           id="chatInput"
           class="chat-input"
-          placeholder="Escribe tu mensaje..."
+          placeholder="Write your message..."
           rows="1"
         ></textarea>
         <div class="input-actions">
@@ -841,7 +841,7 @@
   </div>
 
   <script>
-    console.log('🎯 side_panel.html cargado - scripts inline ejecutándose');
+    console.log('🎯 side_panel.html loaded - inline scripts executing');
     console.log('📍 Location:', window.location.href);
     console.log('📂 Base URI:', document.baseURI);
   </script>
@@ -867,8 +867,8 @@
   <script src="modules/webChat.js"></script>
   <script src="side_panel.js"></script>
   <script>
-    console.log('🏁 Todos los scripts cargados');
-    console.log('🔍 Verificando módulos después de cargar scripts:', {
+    console.log('🏁 All scripts loaded');
+    console.log('🔍 Verifying modules after loading scripts:', {
       MarkdownRenderer: typeof MarkdownRenderer,
       AIServiceInstance: typeof window.AIServiceInstance,
       AIModule: typeof AIModule,

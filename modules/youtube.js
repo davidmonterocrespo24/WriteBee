@@ -282,7 +282,7 @@ const YoutubeModule = (function() {
 
     } catch (error) {
       console.error('Error en getVideoSubtitles:', error);
-      throw new Error('No se pudieron obtener los subtítulos. Asegúrate de que el video tenga subtítulos disponibles (manuales o automáticos). Detalle: ' + error.message);
+      throw new Error('Could not get subtitles. Make sure the video has available subtitles (manual or automatic). Detail: ' + error.message);
     }
   }
 
@@ -314,14 +314,14 @@ const YoutubeModule = (function() {
     
     // Asegurar que tenemos acceso a los datos de subtítulos
     if (!data.includes('captionTracks')) {
-      throw new Error(`No se encontraron subtítulos para el video: ${videoID}`);
+      throw new Error(`No subtitles found for the video: ${videoID}`);
     }
     
     const regex = /"captionTracks":(\[.*?\])/;
     const match = regex.exec(data);
     
     if (!match || !match[1]) {
-      throw new Error(`No se pudieron analizar los subtítulos del video: ${videoID}`);
+      throw new Error(`Could not parse subtitles for the video: ${videoID}`);
     }
 
     let captionTracks;
@@ -329,7 +329,7 @@ const YoutubeModule = (function() {
       captionTracks = JSON.parse(match[1]);
     } catch (error) {
       console.error('Error al parsear captionTracks:', error.message);
-      throw new Error(`Formato JSON inválido en captionTracks para el video: ${videoID}`);
+      throw new Error(`Invalid JSON format in captionTracks for the video: ${videoID}`);
     }
 
     return await getSubtitlesInternal(videoID, captionTracks, lang);
@@ -347,7 +347,7 @@ const YoutubeModule = (function() {
   // Parsear subtítulos en formato JSON3 de YouTube
   function parseJson3Subtitles(json) {
     if (!json.events || !Array.isArray(json.events)) {
-      throw new Error('Formato JSON3 inválido');
+      throw new Error('Invalid JSON3 format');
     }
 
     const subtitles = [];

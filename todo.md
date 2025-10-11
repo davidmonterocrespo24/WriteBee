@@ -1,5 +1,5 @@
-Da error cuando la pagina esta en espanol yu le digho q si quiero traducir
-Erro al traducir: Estado de disponibilidad desconocido
+Gives error when the page is in Spanish and I tell it that I want to translate
+Error translating: Unknown availability status
 
-En el modo de github cuando no hay repositorio dice esto
+In GitHub mode when there is no repository it says this
 GitHub repository not detected. Make sure you are on a repository page.
