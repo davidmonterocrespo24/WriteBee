@@ -4,7 +4,7 @@
   --border: #ffffffcc;
   --icon: #ffffffde;
   --icon-dim: #ffffff88;
-  --accent: #ffd400;
+    --accent: #6d6fff;
   --purple: #ffd400;
   --bee-yellow: #ffd400;
   --chat-panel-width: 420px;
@@ -2305,15 +2305,17 @@
   transition: all 0.15s ease;
 }
 
+
 .ai-linkedin-insert-btn {
-  background: #0a66c2;
-  border-color: #0a66c2;
-  color: white;
+  background: #ffd400;
+  border-color: #ffd400;
+  color: #222;
 }
 
 .ai-linkedin-insert-btn:hover {
-  background: #004182;
-  border-color: #004182;
+  background: #ffd400;
+  border-color: #ffd400;
+  color: #222;
 }
 
 .ai-linkedin-copy-btn:hover,
@@ -2339,19 +2341,20 @@
   background: #141925;
 }
 
+
 .ai-linkedin-generate-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #6d6fff;
+  background: #ffd400;
   border: none;
-  color: #fff;
+  color: #222;
   padding: 10px 16px;
   border-radius: 12px;
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(109, 111, 255, 0.35);
+  box-shadow: 0 6px 16px rgba(255, 212, 0, 0.35);
   transition: all 0.15s ease;
 }
 

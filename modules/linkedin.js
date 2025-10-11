@@ -97,11 +97,11 @@ const LinkedInModule = (function() {
   function insertPostButton(postFooterContainer) {
     const btn = document.createElement('button');
     btn.className = 'ai-linkedin-btn-post';
-  btn.setAttribute('aria-label', 'Generate with AI');
+  btn.setAttribute('aria-label', 'AI WriteBee');
     btn.setAttribute('type', 'button');
     btn.style.cssText = 'margin-right: 8px;';
     btn.innerHTML = `
-      <span class="artdeco-button__text">Generate with AI</span>
+      <span class="artdeco-button__text">AI WriteBee</span>
     `;
 
     btn.addEventListener('click', (e) => {
@@ -234,7 +234,7 @@ const LinkedInModule = (function() {
 
       <div class="ai-result-body">
         <div class="ai-linkedin-context">
-          <div class="ai-linkedin-context-label">📌 Post context:</div>
+          <div class="ai-linkedin-context-label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> Post context:</div>
           <div class="ai-linkedin-context-content">${postContext.substring(0, 200)}${postContext.length > 200 ? '...' : ''}</div>
         </div>
 
@@ -261,7 +261,7 @@ const LinkedInModule = (function() {
           </button>
           <div class="spacer"></div>
           <div class="ai-linkedin-lang">
-            <span>🌐</span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20"/></svg></span>
             <select class="ai-linkedin-lang-select">
               <option value="es">spanish</option>
               <option value="en">english</option>
@@ -424,7 +424,7 @@ const LinkedInModule = (function() {
 
       <div class="ai-linkedin-footer">
         <div class="ai-linkedin-lang">
-          <span>🌐</span>
+          <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20"/></svg></span>
           <select class="ai-linkedin-lang-select">
             <option value="en">english</option>
             <option value="es">spanish</option>
