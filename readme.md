@@ -1,200 +1,311 @@
-# 🤖 AI Text Assistant - Chrome Extension
+# WriteBee - AI Text Assistant
 
-AI-powered text assistant for Chrome that helps you work with text on any website, with special integrations for Gmail and YouTube.
+![Version](https://img.shields.io/badge/version-1.1-blue)
+![Chrome](https://img.shields.io/badge/chrome-extension-green)
+![License](https://img.shields.io/badge/license-MIT-orange)
 
-## ✨ Main Features
+An intelligent Chrome extension that brings powerful AI capabilities directly to your browser. WriteBee enhances your web experience with on-device AI features for text processing, summarization, translation, and more.
 
-### 📝 Universal Text Assistant
-- **Summarize** - Summarize any selected text
-- **Translate** - Translate to multiple languages
-- **Explain** - Explain complex concepts
-- **Rewrite** - Improve writing
-- **Expand** - Add more details
-- **Answer** - Answer questions
+## ✨ Features
 
-### 🌐 Advanced Web Chat with RAG
-**NEW!** Chat with any web page using Retrieval-Augmented Generation:
-- 🔍 **Smart Content Analysis** - Vectorizes page content into searchable chunks
-- 🔗 **Multi-Page Intelligence** - Analyzes relevant links based on your question
-- 🎯 **Precise Answers** - Retrieves only the most relevant information
-- ⚡ **Fast & Lightweight** - Uses TF-IDF vectorization (no external APIs needed)
-- 🧠 **Context-Aware** - Prioritizes current page but explores related pages when needed
-- 📊 **URL Intelligence** - Determines which links to check based on question context
+### 🤖 AI-Powered Text Processing
+- **Summarize** - Generate concise summaries of long texts
+- **Translate** - Multi-language translation support
+- **Rewrite** - Improve and rephrase text
+- **Explain** - Get clear explanations of complex content
+- **Grammar Check** - Fix grammar and spelling errors
+- **Expand Text** - Add details and examples to your writing
 
-**Example:** You're on a company's homepage and ask "How do I contact support?" 
-The system will:
-1. Analyze all links on the page
-2. Identify `/contact` or `/support` as most relevant
-3. Vectorize that page's content
-4. Find the exact contact information
-5. Provide a precise answer
+### 🎯 Platform-Specific Integrations
 
-[See detailed RAG documentation](RAG_DOCUMENTATION.md)
+#### 📺 YouTube
+- **Automatic Video Summarization** - Generates summaries automatically when you open a video
+- **Hierarchical Chunking** - Handles videos of any length using smart text splitting
+- **Progress Tracking** - Visual feedback during summary generation
+- **Copy & Regenerate** - Easy sharing and refinement options
 
-### 📧 Gmail Integration
-When viewing an email in Gmail:
-1. An **"AI Response"** button appears in the toolbar
-2. Clicking opens a dialog that:
-   - 📋 **Automatically summarizes the received email**
-   - ✍️ **Requests your input** on what to include in the response
-   - 🤖 **Generates a professional response** based on context
-   - ✏️ **Allows editing** the response before sending
-   - 📤 **Inserts directly** into Gmail editor
+#### 📧 Gmail
+- Smart email composition assistance
+- Quick reply suggestions
+- Email summarization
 
-### 📺 YouTube Integration
-When watching a video on YouTube:
-1. An **AI panel** appears above the recommended videos list
-2. The panel allows you to:
-   - 📋 **Summarize the video** using available subtitles
-   - ⏱️ **Include timestamps** in the summary
-   - 🎯 **Extract key points** from the content
-   - 📄 **Copy and regenerate** the summary
-   - ✅ **Works with subtitles** in Spanish and English
+#### 📱 WhatsApp Web
+- Message enhancement tools
+- Quick response generation
+- Text formatting assistance
+
+#### 🐦 Twitter / X
+- Tweet composition help
+- Thread summarization
+- Engagement optimization
+
+#### 💼 LinkedIn
+- Professional content assistance
+- Post optimization
+- Message drafting
+
+#### 🐙 GitHub
+- Code explanation
+- Documentation help
+- Issue and PR summarization
+
+#### 🔍 Google Search
+- Search result summarization
+- Content analysis
+
+#### 📄 PDF Support
+- Extract and summarize PDF content
+- Chat with PDF documents
+- Translate PDF text
+
+### 🎨 User Interface
+- **Floating Toolbar** - Context-aware AI actions on any webpage
+- **Side Panel** - Full-featured AI chat interface with prompt library
+- **Prompt Library** - Reusable prompt templates for common tasks
+- **Context Menus** - Right-click AI actions
+- **Markdown Support** - Beautiful formatted output
 
 ## 🚀 Installation
 
-1. Download or clone this repository
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable **Developer mode** (top right corner)
-4. Click **"Load unpacked extension"**
-5. Select the extension folder
+### Requirements
+- **Chrome Browser**: Version 138 or later
+- **Operating System**:
+  - Windows 10/11
+  - macOS 13+ (Ventura and later)
+  - Linux
+  - ChromeOS (Chromebook Plus)
+- **Storage**: At least 22 GB free space (for Gemini Nano model)
+- **Memory**:
+  - GPU Inference: 4+ GB VRAM
+  - CPU Inference: 16+ GB RAM, 4+ cores
+- **Network**: Unlimited or unmetered connection (for initial model download)
 
-## 🎯 How to Use
+### Setup
 
-### General Use
-1. Select any text on a web page
-2. A floating toolbar will appear
-3. Click on the desired action (summarize, translate, etc.)
-4. The result appears in an interactive dialog
+1. **Clone or Download** this repository
+   ```bash
+   git clone https://github.com/yourusername/writebee.git
+   ```
 
-### In Gmail
-1. Open an email
-2. Click the purple **"AI Response"** button
-3. Read the email summary
-4. Write what you want to include in your response
-5. Click **"Generate Response"**
-6. Edit if necessary
-7. Click **"Insert in Gmail"**
+2. **Open Chrome Extensions**
+   - Navigate to `chrome://extensions/`
+   - Enable "Developer mode" (toggle in top right)
 
-### On YouTube
-1. Open a video with available subtitles
-2. Look for the AI panel above recommended videos
-3. Select the options you want (timestamps, key points)
-4. Click **"Generate Video Summary"**
-5. Read, copy or regenerate the summary as needed
+3. **Load the Extension**
+   - Click "Load unpacked"
+   - Select the `WriteBee` folder
 
-## 🛠️ Requirements
+4. **Initial Setup**
+   - The extension will download the Gemini Nano model on first use
+   - This may take some time depending on your connection
+   - Monitor download progress in the extension popup
 
-- Google Chrome with support for Chrome AI APIs
-- The following APIs must be available:
-  - Summarizer API
-  - Translator API
-  - LanguageModel API (Prompt API)
-  - Proofreader API
-  - Rewriter API
-  - Writer API
-  - LanguageDetector API
+## 🛠️ Technology Stack
 
-## 📁 Project Structure
+### AI APIs
+- **Chrome AI APIs** (Built-in AI)
+  - Summarizer API - Text summarization
+  - Translator API - Multi-language translation
+  - Language Model API - General AI prompts
+  - Rewriter API - Text refinement
+  - Writer API - Content generation
+  - Language Detector API - Automatic language detection
 
+### External APIs
+- **YouTranscripts API** - YouTube video transcript extraction
+
+### Core Technologies
+- Vanilla JavaScript (ES6+)
+- Chrome Extension Manifest V3
+- DOMParser for XML/HTML processing
+- Markdown rendering
+
+## 📖 Usage
+
+### Basic Text Actions
+
+1. **Select Text** on any webpage
+2. **AI Toolbar appears** with available actions
+3. **Click an action** to process the text
+4. **View results** in the side panel or inline
+
+### YouTube Video Summaries
+
+1. **Open any YouTube video** with subtitles
+2. **Summary panel appears** automatically in the sidebar
+3. **Summary generates automatically** (or click the button)
+4. **View key points** in markdown format
+5. **Copy or regenerate** as needed
+
+### Side Panel Chat
+
+1. **Click the extension icon** to open the side panel
+2. **Type your question or request**
+3. **Get AI-powered responses**
+4. **Continue the conversation** with context
+
+### Prompt Library
+
+1. **Click the library icon** (book icon) in the chat input area
+2. **Browse categorized prompts**:
+   - **Text**: Summarize, Translate, Explain, Expand, Simplify
+   - **Writing**: Make Professional, Make Casual, Write Email
+   - **Formatting**: To Bullet Points
+   - **Custom**: Your own saved prompts
+3. **Search prompts** using the search box
+4. **Click a prompt** to insert it into the chat
+5. **Create custom prompts** with the "+ Add Custom Prompt" button
+6. **Delete prompts** using the trash icon (appears on hover)
+
+### Context Menu Actions
+
+1. **Right-click** on selected text or images
+2. **Choose an AI action** from the menu:
+   - Check Grammar
+   - Explain Image
+   - Extract Text (OCR)
+   - And more...
+
+## 🔧 Configuration
+
+### Supported Languages
+- English (en)
+- Spanish (es)
+- Japanese (ja)
+- And more via Translator API
+
+### Customization
+- Adjust summary length (short, medium, long)
+- Choose summary type (key-points, tldr, teaser, headline)
+- Select output format (markdown, plain-text)
+
+## 🎯 Advanced Features
+
+### Prompt Library System
+WriteBee includes a powerful prompt library that helps you work faster:
+
+- **Pre-built Templates** - Ready-to-use prompts for common tasks
+- **Categorized Organization** - Prompts organized by category (Text, Writing, Formatting)
+- **Custom Prompts** - Create and save your own reusable prompts
+- **Search Functionality** - Quickly find prompts by name or content
+- **Template Variables** - Use parameters like `{language}` in your prompts
+- **Persistent Storage** - All prompts saved locally using Chrome Storage
+- **Beautiful UI** - Integrated seamlessly with WriteBee's design language
+
+**How to Use:**
+1. Click the library icon in the chat input
+2. Select a prompt or create a custom one
+3. The prompt is inserted into your chat input
+4. Add any additional context and send
+
+### Hierarchical Summarization
+For large texts (like long YouTube videos), WriteBee uses a sophisticated hierarchical approach:
+
+1. **Split** - Divides text into 4,000-character chunks
+2. **Summarize** - Creates short TLDR for each chunk
+3. **Combine** - Merges all summaries
+4. **Final Summary** - Generates comprehensive key points
+
+This ensures videos of any length can be summarized effectively.
+
+### Smart Text Processing
+- Automatic removal of noise (`[Music]`, `[Applause]`, etc.)
+- Whitespace normalization
+- Language detection and adaptation
+- Context-aware summarization
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Setup
+
+1. Clone the repository
+2. Make your changes
+3. Test thoroughly in Chrome
+4. Submit a PR with a clear description
+
+### Code Structure
 ```
-extensionAI2/
-├── manifest.json          # Extension configuration
+WriteBee/
+├── manifest.json           # Extension configuration
+├── background.js          # Background service worker
 ├── content.js            # Main content script
+├── side_panel.html       # Side panel UI
+├── side_panel.js         # Side panel logic
 ├── styles.css            # Global styles
 ├── modules/
-│   ├── actions.js        # Actions management
-│   ├── ai.js            # AI APIs interface
-│   ├── aiService.js     # AI service (main logic)
-│   ├── dialog.js        # Interactive dialogs
+│   ├── ai.js            # AI module wrapper
+│   ├── aiService.js     # AI API service
+│   ├── promptLibrary.js # Prompt library system
+│   ├── youtube.js       # YouTube integration
+│   ├── gmail.js         # Gmail integration
+│   ├── whatsapp.js      # WhatsApp integration
 │   ├── markdown.js      # Markdown renderer
-│   ├── menus.js         # Context menus
-│   ├── toolbar.js       # Floating toolbar
-│   ├── ragEngine.js     # 🔍 RAG Engine (NEW!)
-│   ├── webChat.js       # 🌐 Web chat with RAG
-│   ├── gmail.js         # 📧 Gmail integration
-│   └── youtube.js       # 📺 YouTube integration
-├── readme.md            # This file
-└── RAG_DOCUMENTATION.md # 📖 RAG Engine documentation
+│   ├── ocr.js          # OCR functionality
+│   └── ...             # Other modules
+└── libs/
+    └── pdf.min.js       # PDF processing
 ```
-
-## 🎨 Dialog Features
-
-- **Draggable** - Move the dialog wherever you want
-- **Pinnable** - Keep multiple dialogs open
-- **Follow-up chat** - Ask additional questions
-- **Copy results** - One click to copy
-- **Regenerate** - Get alternative responses
-- **Edit** - Modify the responses
-- **Read aloud** - Listen to the responses
-- **Mode switching** - Change between actions without closing
-
-## 🔧 API Configuration
-
-The extension uses native Chrome AI APIs. Make sure you have:
-
-1. Chrome Canary or Dev (latest version)
-2. Flags enabled in `chrome://flags`:
-   - `#optimization-guide-on-device-model`
-   - `#prompt-api-for-gemini-nano`
-   - `#summarization-api-for-gemini-nano`
-   - `#translation-api`
-
-## 📝 Notes
-
-### Gmail
-- The extension automatically detects when you open Gmail
-- Works best with text-format emails
-- Generated response can be edited before inserting
-
-### YouTube
-- The video **must have available subtitles**
-- Works with automatic or manual subtitles
-- Prefers subtitles in Spanish, then English
-- Summary may take time depending on video length
 
 ## 🐛 Troubleshooting
 
-### APIs are not available
-- Verify you are using Chrome Canary/Dev
-- Check the flags in `chrome://flags`
-- Restart Chrome after changing flags
+### Model Download Issues
+- Ensure you have enough free space (22+ GB)
+- Check your internet connection
+- Visit `chrome://on-device-internals` to check model status
 
-### Button doesn't appear in Gmail
-- Refresh the Gmail page
-- Verify the extension is enabled
-- Check browser console for errors
+### Summarization Errors
+- **"Input too large"** - The hierarchical chunking should handle this automatically
+- **"No subtitles"** - Ensure the YouTube video has captions enabled
+- **"API not available"** - Check Chrome version and system requirements
 
-### Can't get YouTube subtitles
-- Verify the video has subtitles (CC)
-- Manually activate subtitles if not automatic
-- Some private videos may not work
+### Performance Issues
+- Close unused tabs to free up memory
+- Ensure GPU drivers are up to date
+- Check system resources in Task Manager
 
-## 🚀 Upcoming Features
+## 📝 Privacy & Security
 
-- [ ] More customization options
-- [ ] Support for more languages
-- [ ] Integration with more services (Twitter, LinkedIn, etc.)
-- [ ] Custom response templates
-- [ ] History of generated responses
-- [ ] Dark/light mode
+- **On-Device Processing** - Most AI features run locally using Chrome's built-in AI
+- **No Data Collection** - Your data stays on your device
+- **Minimal Permissions** - Only requests necessary permissions
+- **External API** - YouTube transcripts fetched via youtranscripts.com API
+
+## 🔄 Updates
+
+### Version 1.2
+- ✅ Integrated Prompt Library in side panel chat
+- ✅ Pre-built prompt templates for common tasks
+- ✅ Custom prompt creation and management
+- ✅ Search and categorization system
+- ✅ WriteBee-themed UI with yellow gradient design
+
+### Version 1.1
+- ✅ Automatic YouTube video summarization
+- ✅ Hierarchical text chunking for large content
+- ✅ Direct API integration with youtranscripts.com
+- ✅ Improved error handling and user feedback
+- ✅ Performance optimizations
 
 ## 📄 License
 
-This project is open source and available under the MIT license.
+MIT License - feel free to use and modify as needed.
 
-## 🤝 Contributions
+## 🙏 Acknowledgments
 
-Contributions are welcome. Please:
-1. Fork the repository
-2. Create a branch for your feature
-3. Commit your changes
-4. Submit a pull request
+- Chrome AI team for the built-in AI APIs
+- youtranscripts.com for transcript API
+- All contributors and users
 
-## 📧 Contact
+## 📧 Support
 
-For questions, suggestions or to report bugs, please open an issue in the repository.
+For issues, questions, or suggestions:
+- Open an issue on GitHub
+- Contact: [your-email@example.com]
 
 ---
 
-**Made with ❤️ using Chrome AI APIs**
+**Note**: This extension requires Chrome 138+ with the Chrome AI trial enabled. Features may vary based on your system configuration and available resources.
+
+**Made with ❤️ using Chrome's Built-in AI**

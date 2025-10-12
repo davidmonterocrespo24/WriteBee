@@ -216,9 +216,15 @@ const PromptLibraryModule = (function() {
             <div class="ai-prompt-category-title">${cat}</div>
             ${getPromptsByCategory(cat).map(p => `
               <div class="ai-prompt-item" data-id="${p.id}">
-                <span class="ai-prompt-icon">${p.icon}</span>
                 <span class="ai-prompt-name">${p.name}</span>
-                ${p.custom ? '<button class="ai-prompt-delete" data-id="' + p.id + '">×</button>' : ''}
+                <button class="ai-prompt-delete" data-id="${p.id}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                </button>
               </div>
             `).join('')}
           </div>
@@ -235,9 +241,9 @@ const PromptLibraryModule = (function() {
       const query = e.target.value;
       if (query.length > 0) {
         const results = searchPrompts(query);
-        updatePickerResults(picker, results);
+        updatePickerResults(picker, results, onSelect);
       } else {
-        updatePickerCategories(picker);
+        updatePickerCategories(picker, onSelect);
       }
     });
 
@@ -258,13 +264,13 @@ const PromptLibraryModule = (function() {
         const promptId = btn.dataset.id;
         if (confirm('Delete this prompt?')) {
           await deletePrompt(promptId);
-          updatePickerCategories(picker);
+          updatePickerCategories(picker, onSelect);
         }
       });
     });
 
     picker.querySelector('.ai-btn-add-prompt')?.addEventListener('click', () => {
-      showAddPromptDialog(picker);
+      showAddPromptDialog(picker, onSelect);
     });
 
     return picker;
@@ -273,21 +279,51 @@ const PromptLibraryModule = (function() {
   /**
    * Update picker with search results
    */
-  function updatePickerResults(picker, results) {
+  function updatePickerResults(picker, results, onSelect) {
     const body = picker.querySelector('.ai-prompt-picker-body');
     body.innerHTML = results.map(p => `
       <div class="ai-prompt-item" data-id="${p.id}">
-        <span class="ai-prompt-icon">${p.icon}</span>
         <span class="ai-prompt-name">${p.name}</span>
-        ${p.custom ? '<button class="ai-prompt-delete" data-id="' + p.id + '">×</button>' : ''}
+        <button class="ai-prompt-delete" data-id="${p.id}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </button>
       </div>
     `).join('');
+
+    // Re-attach event listeners for prompt items
+    body.querySelectorAll('.ai-prompt-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const promptId = item.dataset.id;
+        const prompt = prompts.find(p => p.id === promptId);
+        if (prompt && onSelect) {
+          onSelect(prompt);
+          picker.remove();
+        }
+      });
+    });
+
+    // Re-attach event listeners for delete buttons
+    body.querySelectorAll('.ai-prompt-delete').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const promptId = btn.dataset.id;
+        if (confirm('Delete this prompt?')) {
+          await deletePrompt(promptId);
+          updatePickerCategories(picker, onSelect);
+        }
+      });
+    });
   }
 
   /**
    * Update picker with categories
    */
-  function updatePickerCategories(picker) {
+  function updatePickerCategories(picker, onSelect) {
     const categories = [...new Set(prompts.map(p => p.category))];
     const body = picker.querySelector('.ai-prompt-picker-body');
     body.innerHTML = categories.map(cat => `
@@ -295,19 +331,49 @@ const PromptLibraryModule = (function() {
         <div class="ai-prompt-category-title">${cat}</div>
         ${getPromptsByCategory(cat).map(p => `
           <div class="ai-prompt-item" data-id="${p.id}">
-            <span class="ai-prompt-icon">${p.icon}</span>
             <span class="ai-prompt-name">${p.name}</span>
-            ${p.custom ? '<button class="ai-prompt-delete" data-id="' + p.id + '">×</button>' : ''}
+            <button class="ai-prompt-delete" data-id="${p.id}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
           </div>
         `).join('')}
       </div>
     `).join('');
+
+    // Re-attach event listeners for prompt items
+    body.querySelectorAll('.ai-prompt-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const promptId = item.dataset.id;
+        const prompt = prompts.find(p => p.id === promptId);
+        if (prompt && onSelect) {
+          onSelect(prompt);
+          picker.remove();
+        }
+      });
+    });
+
+    // Re-attach event listeners for delete buttons
+    body.querySelectorAll('.ai-prompt-delete').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const promptId = btn.dataset.id;
+        if (confirm('Delete this prompt?')) {
+          await deletePrompt(promptId);
+          updatePickerCategories(picker, onSelect);
+        }
+      });
+    });
   }
 
   /**
    * Show add prompt dialog
    */
-  function showAddPromptDialog(parentElement) {
+  function showAddPromptDialog(parentElement, onSelect) {
     const dialog = document.createElement('div');
     dialog.className = 'ai-add-prompt-dialog';
     dialog.innerHTML = `
@@ -341,7 +407,7 @@ const PromptLibraryModule = (function() {
 
       if (name && text) {
         await addPrompt(name, text, icon, category);
-        updatePickerCategories(parentElement);
+        updatePickerCategories(parentElement, onSelect);
         dialog.remove();
       }
     });

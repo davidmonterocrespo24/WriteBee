@@ -20,6 +20,7 @@
   const voiceBtn = document.getElementById('voiceBtn');
   const attachImageBtn = document.getElementById('attachImageBtn');
   const attachPdfBtn = document.getElementById('attachPdfBtn');
+  const promptLibraryBtn = document.getElementById('promptLibraryBtn');
   const imageInput = document.getElementById('imageInput');
   const pdfInput = document.getElementById('pdfInput');
   const chatAttachments = document.getElementById('chatAttachments');
@@ -134,6 +135,16 @@
     console.error('❌ pdfInput not found');
   }
 
+  if (promptLibraryBtn) {
+    promptLibraryBtn.addEventListener('click', () => {
+
+      openPromptLibrary();
+    });
+
+  } else {
+    console.error('❌ promptLibraryBtn not found');
+  }
+
   /**
    * Setup suggestion chips
    */
@@ -142,13 +153,13 @@
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         const suggestion = chip.dataset.suggestion;
-        
+
         // If it's the suggestion to upload PDF, open the file selector
         if (suggestion === 'Upload a PDF to chat with it') {
           pdfInput.click();
           return;
         }
-        
+
         chatInput.value = suggestion;
         chatInput.focus();
         handleInputChange();
@@ -156,6 +167,73 @@
         // sendMessage();
       });
     });
+  }
+
+  /**
+   * Open prompt library picker
+   */
+  function openPromptLibrary() {
+
+
+    // Check if PromptLibraryModule is available
+    if (typeof PromptLibraryModule === 'undefined') {
+      console.error('❌ PromptLibraryModule is not available');
+      alert('Prompt Library module is not loaded');
+      return;
+    }
+
+    // Get selected text if any (from chat input)
+    const selectedText = chatInput.value.trim();
+
+    // Create prompt picker
+    const picker = PromptLibraryModule.createPromptPicker((prompt) => {
+
+
+      // When a prompt is selected, populate the chat input
+      let finalPrompt = prompt.prompt;
+
+      // If there's text in the input, append it to the prompt
+      if (selectedText) {
+        finalPrompt = prompt.prompt + '\n\n' + selectedText;
+      }
+
+      // Set the input value
+      chatInput.value = finalPrompt;
+      chatInput.focus();
+      handleInputChange();
+
+      // Auto-resize textarea
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+    });
+
+    // Position the picker near the prompt library button
+    const rect = promptLibraryBtn.getBoundingClientRect();
+    picker.style.position = 'fixed';
+    picker.style.bottom = '80px';
+    picker.style.right = '16px';
+    picker.style.left = 'auto';
+    picker.style.top = 'auto';
+    picker.style.maxHeight = '500px';
+    picker.style.zIndex = '10000';
+
+    // Force opaque background
+    picker.style.backgroundColor = '#26262c';
+    picker.style.opacity = '1';
+
+    // Add to body
+    document.body.appendChild(picker);
+
+    // Close on outside click
+    setTimeout(() => {
+      const closeOnClickOutside = (e) => {
+        if (!picker.contains(e.target) && e.target !== promptLibraryBtn) {
+          picker.remove();
+          document.removeEventListener('click', closeOnClickOutside);
+        }
+      };
+      document.addEventListener('click', closeOnClickOutside);
+    }, 100);
   }
 
   /**

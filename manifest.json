@@ -9,7 +9,8 @@
     "aiLanguageModelOriginTrial",
     "sidePanel",
     "storage",
-    "contextMenus"
+    "contextMenus",
+    "offscreen"
   ],
   "host_permissions": [
     "https://web.whatsapp.com/*",

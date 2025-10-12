@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WriteBee Assistant</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
     * {
       margin: 0;
@@ -831,6 +832,14 @@
         <div class="input-actions">
           <input type="file" id="imageInput" accept="image/*" style="display: none;">
           <input type="file" id="pdfInput" accept=".pdf" style="display: none;">
+          <button class="input-btn" id="promptLibraryBtn" title="Prompt Library">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              <line x1="10" y1="8" x2="16" y2="8"/>
+              <line x1="10" y1="12" x2="16" y2="12"/>
+            </svg>
+          </button>
           <button class="input-btn" id="attachImageBtn" title="Attach image">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
@@ -887,6 +896,7 @@
   <script src="modules/aiService.js"></script>
   <script src="modules/ai.js"></script>
   <script src="modules/multimodal.js"></script>
+  <script src="modules/promptLibrary.js"></script>
   <script src="modules/ragEngine.js"></script>
   <script src="modules/pdfModule.js"></script>
   <script src="modules/webChat.js"></script>
@@ -898,6 +908,7 @@
       AIServiceInstance: typeof window.AIServiceInstance,
       AIModule: typeof AIModule,
       MultimodalModule: typeof MultimodalModule,
+      PromptLibraryModule: typeof PromptLibraryModule,
       RAGEngine: typeof RAGEngine,
       PDFModule: typeof PDFModule,
       WebChatModule: typeof WebChatModule
