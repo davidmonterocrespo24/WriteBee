@@ -162,6 +162,34 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // Listener para mensajes desde content scripts
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Handle YouTube transcript API requests (bypass CORS)
+  if (request.action === 'fetchYoutubeTranscript') {
+    const API_ENDPOINT = 'https://www.youtranscripts.com/api/transcript/';
+
+    fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: request.videoUrl })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        sendResponse({ success: true, data: data });
+      })
+      .catch(error => {
+        console.error('Error fetching transcript:', error);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true; // Keep channel open for async response
+  }
+
   if (request.action === 'openSidePanel') {
 
     // Guardar datos temporalmente

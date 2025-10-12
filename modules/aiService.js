@@ -42,16 +42,18 @@ class AIService {
   /**
    * Summarizes text using Summarizer API
    */
-  async summarize(text, onProgress = null) {
+  async summarize(text, onProgress = null, options = {}) {
     try {
       if (!await this.checkAvailability('Summarizer')) {
-  throw new Error('The Summarizer API is not available in this browser.');
+        throw new Error('The Summarizer API is not available in this browser.');
       }
 
       const summarizer = await self.Summarizer.create({
-        type: 'key-points',
-        format: 'markdown',
-        length: 'long',
+        type: options.type || 'key-points',
+        format: options.format || 'markdown',
+        length: options.length || 'long',
+        sharedContext: options.sharedContext || '',
+        outputLanguage: 'en', // Specify output language to avoid warnings
         monitor: this.createMonitor(onProgress)
       });
 
@@ -60,7 +62,136 @@ class AIService {
 
       return result;
     } catch (error) {
-  console.error('Error in summarize:', error);
+      console.error('Error in summarize:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Summarizes large text by chunking it into smaller parts
+   * Uses a hierarchical summarization strategy with very small chunks
+   */
+  async summarizeLargeText(text, onProgress = null, options = {}) {
+    try {
+      if (!await this.checkAvailability('Summarizer')) {
+        throw new Error('The Summarizer API is not available in this browser.');
+      }
+
+      // Very conservative chunk size (approximately 800-1000 tokens)
+      const MAX_CHUNK_SIZE = 4000;
+      const chunks = [];
+
+      // Split text into manageable chunks
+      if (text.length <= MAX_CHUNK_SIZE) {
+        // Text is small enough, summarize directly
+        return await this.summarize(text, onProgress, options);
+      }
+
+      // Split by sentences to avoid cutting mid-sentence
+      const sentences = text.split(/(?<=[.!?])\s+/);
+      let currentChunk = '';
+
+      for (const sentence of sentences) {
+        if ((currentChunk + sentence).length > MAX_CHUNK_SIZE && currentChunk.length > 0) {
+          chunks.push(currentChunk.trim());
+          currentChunk = sentence;
+        } else {
+          currentChunk += (currentChunk ? ' ' : '') + sentence;
+        }
+      }
+
+      if (currentChunk.trim()) {
+        chunks.push(currentChunk.trim());
+      }
+
+      console.log(`📊 Hierarchical Summarization Strategy:`);
+      console.log(`   - Original text: ${text.length} characters`);
+      console.log(`   - Split into ${chunks.length} chunks of ~${MAX_CHUNK_SIZE} chars each`);
+      console.log(`   - Strategy: Summarize each → Combine → Final summary`);
+
+      // Level 1: Summarize each small chunk
+      const level1Summaries = [];
+      for (let i = 0; i < chunks.length; i++) {
+        if (onProgress) {
+          const percent = Math.round(((i + 1) / (chunks.length * 1.5)) * 100);
+          onProgress(percent);
+        }
+
+        console.log(`   📝 Level 1: Chunk ${i + 1}/${chunks.length} (${chunks[i].length} chars)`);
+
+        try {
+          const summary = await this.summarize(chunks[i], null, {
+            type: 'tldr', // Use shorter 'tldr' type for intermediate summaries
+            format: 'plain-text',
+            length: 'short',
+            sharedContext: `Part ${i + 1} of ${chunks.length} of a video transcript.`,
+            outputLanguage: 'en'
+          });
+
+          level1Summaries.push(summary);
+          console.log(`   ✓ Chunk ${i + 1} summarized (${summary.length} chars)`);
+        } catch (error) {
+          console.error(`   ✗ Error summarizing chunk ${i + 1}:`, error.message);
+          // Try to use a smaller portion of the chunk
+          const halfChunk = chunks[i].substring(0, Math.floor(chunks[i].length / 2));
+          try {
+            const summary = await this.summarize(halfChunk, null, {
+              type: 'tldr',
+              format: 'plain-text',
+              length: 'short',
+              outputLanguage: 'en'
+            });
+            level1Summaries.push(summary);
+            console.log(`   ✓ Chunk ${i + 1} (half) summarized`);
+          } catch (retryError) {
+            console.log(`   ⚠ Skipping chunk ${i + 1}`);
+          }
+        }
+
+        // Delay between chunks
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+
+      if (level1Summaries.length === 0) {
+        throw new Error('Could not summarize any chunks');
+      }
+
+      console.log(`   ✓ Level 1 complete: ${level1Summaries.length} summaries created`);
+
+      // Level 2: Combine all summaries
+      const combinedText = level1Summaries.join(' ');
+      console.log(`   📝 Level 2: Creating final summary (${combinedText.length} chars)`);
+
+      if (onProgress) onProgress(90);
+
+      // If combined is still too large, recursively summarize
+      if (combinedText.length > MAX_CHUNK_SIZE) {
+        console.log(`   ⚠ Combined summaries too large, applying recursive summarization`);
+        return await this.summarizeLargeText(combinedText, onProgress, {
+          type: 'key-points',
+          format: 'markdown',
+          length: 'long',
+          sharedContext: 'Create a comprehensive summary from these partial summaries of a video.',
+          outputLanguage: 'en'
+        });
+      }
+
+      // Final summary with desired options
+      const finalSummary = await this.summarize(combinedText, null, {
+        type: options.type || 'key-points',
+        format: options.format || 'markdown',
+        length: options.length || 'long',
+        sharedContext: 'Create a comprehensive summary from these partial summaries of a video transcript.',
+        outputLanguage: 'en'
+      });
+
+      if (onProgress) onProgress(100);
+      console.log(`   ✓ Final summary created (${finalSummary.length} chars)`);
+
+      return finalSummary;
+
+    } catch (error) {
+      console.error('Error in summarizeLargeText:', error);
       throw error;
     }
   }

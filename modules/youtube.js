@@ -138,7 +138,7 @@ const YoutubeModule = (function() {
   }
 
   function setupYoutubePanelEvents(panel) {
-    // Toggle expandir/contraer
+    // Toggle expand/collapse
     const toggleBtn = panel.querySelector('.ai-youtube-toggle');
     const content = panel.querySelector('.ai-youtube-content');
     let isExpanded = true;
@@ -179,9 +179,6 @@ const YoutubeModule = (function() {
   }
 
   async function generateVideoSummary(btn, resultDiv, resultContent) {
-    const includeTimestamps = document.getElementById('ai-yt-timestamps').checked;
-    const includeKeypoints = document.getElementById('ai-yt-keypoints').checked;
-
     btn.disabled = true;
     btn.innerHTML = '<span style="opacity: 0.6;">Getting subtitles...</span>';
     resultDiv.style.display = 'none';
@@ -196,20 +193,22 @@ const YoutubeModule = (function() {
 
       btn.innerHTML = '<span style="opacity: 0.6;">Generating summary...</span>';
 
-      // Prepare the subtitle text
-      let subtitleText = '';
-      if (includeTimestamps) {
-        subtitleText = subtitles.map(s => `[${formatTime(s.start)}] ${s.text}`).join('\n');
-      } else {
-        subtitleText = subtitles.map(s => s.text).join(' ');
-      }
+      // Prepare the subtitle text (optimized for AI)
+      // Remove duplicate/repetitive text and clean up
+      let subtitleText = subtitles.map(s => s.text.trim()).join(' ');
 
-      // Generate the summary using AI
-      const prompt = includeKeypoints 
-        ? `Summarize the following YouTube video content extracting the most important key points. Organize the summary in markdown format with clear sections:\n\n${subtitleText}`
-        : `Summarize the following YouTube video content clearly and concisely:\n\n${subtitleText}`;
+      // Clean up the text to reduce size
+      subtitleText = subtitleText
+        .replace(/\s+/g, ' ') // Multiple spaces to single space
+        .replace(/\[Music\]/gi, '') // Remove [Music] tags
+        .replace(/\[Applause\]/gi, '') // Remove [Applause] tags
+        .replace(/\[Laughter\]/gi, '') // Remove [Laughter] tags
+        .trim();
 
-      const summary = await AIModule.aiSummarize(prompt, (percent) => {
+      console.log(`Prepared transcript: ${subtitleText.length} characters`);
+
+      // Generate the summary using AI (no need for additional prompt, just the transcript)
+      const summary = await AIModule.aiSummarize(subtitleText, (percent) => {
         btn.innerHTML = `<span style="opacity: 0.6;">Processing ${percent}%</span>`;
       });
 
@@ -243,254 +242,39 @@ const YoutubeModule = (function() {
         throw new Error('Could not get video ID');
       }
 
-      // Method 1: Try to access ytInitialPlayerResponse directly from window
-      let playerResponse = window.ytInitialPlayerResponse;
-      
-      // If not in window, try to find it in the page scripts
-      if (!playerResponse) {
-
-        playerResponse = extractPlayerResponseFromScripts();
+      // Check if YoutubeTranscript library is available
+      if (typeof YoutubeTranscript === 'undefined') {
+        throw new Error('YoutubeTranscript library is not loaded');
       }
 
-      // Check if we have valid playerResponse
-      if (playerResponse && playerResponse.captions && playerResponse.captions.playerCaptionsTracklistRenderer) {
-        const captionTracks = playerResponse.captions.playerCaptionsTracklistRenderer.captionTracks;
+      console.log(`Fetching transcript for video: ${videoId}`);
 
-        if (captionTracks && captionTracks.length > 0) {
+      // Use the youtranscripts.com API via our library
+      const transcript = await YoutubeTranscript.fetchTranscript(videoId);
 
-          // Use the getSubtitlesInternal function with the tracks already obtained
-          const subtitles = await getSubtitlesInternal(videoId, captionTracks, 'es');
-          
-          // Map the format to be compatible with the rest of the code
-          return subtitles.map(item => ({
-            start: item.start,
-            duration: item.dur,
-            text: item.text
-          }));
-        }
+      if (!transcript || transcript.length === 0) {
+        throw new Error('No subtitles available for this video');
       }
 
-      // Method 2 (Fallback): If ytInitialPlayerResponse doesn't work, fetch the HTML
+      console.log(`Successfully fetched ${transcript.length} subtitle entries`);
 
-      const subtitles = await getSubtitlesFromHTML(videoId, 'es');
-      
-      return subtitles.map(item => ({
-        start: item.start,
-        duration: item.dur,
-        text: item.text
+      // Transform to our expected format (start, duration, text)
+      return transcript.map(item => ({
+        start: item.offset || 0,
+        duration: item.duration || 0,
+        text: item.text || ''
       }));
 
     } catch (error) {
-      console.error('Error en getVideoSubtitles:', error);
+      console.error('Error in getVideoSubtitles:', error);
+
+      // Provide more helpful error messages
+      if (error.message.includes('No transcript available')) {
+        throw new Error('This video does not have subtitles available. Please try a video with captions enabled.');
+      }
+
       throw new Error('Could not get subtitles. Make sure the video has available subtitles (manual or automatic). Detail: ' + error.message);
     }
-  }
-
-  // Function to extract playerResponse from the page scripts
-  function extractPlayerResponseFromScripts() {
-    try {
-      const scripts = document.querySelectorAll('script');
-      
-      for (const script of scripts) {
-        const content = script.textContent;
-        if (content && content.includes('ytInitialPlayerResponse')) {
-          const match = content.match(/var ytInitialPlayerResponse\s*=\s*({.+?});/);
-          if (match && match[1]) {
-            return JSON.parse(match[1]);
-          }
-        }
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error extrayendo playerResponse de scripts:', error);
-      return null;
-    }
-  }
-
-  // Fallback function: get subtitles from HTML (original method)
-  async function getSubtitlesFromHTML(videoID, lang = 'es') {
-    const data = await fetchData(`https://www.youtube.com/watch?v=${videoID}`);
-    
-    // Ensure we have access to subtitle data
-    if (!data.includes('captionTracks')) {
-      throw new Error(`No subtitles found for the video: ${videoID}`);
-    }
-    
-    const regex = /"captionTracks":(\[.*?\])/;
-    const match = regex.exec(data);
-    
-    if (!match || !match[1]) {
-      throw new Error(`Could not parse subtitles for the video: ${videoID}`);
-    }
-
-    let captionTracks;
-    try {
-      captionTracks = JSON.parse(match[1]);
-    } catch (error) {
-      console.error('Error al parsear captionTracks:', error.message);
-      throw new Error(`Invalid JSON format in captionTracks for the video: ${videoID}`);
-    }
-
-    return await getSubtitlesInternal(videoID, captionTracks, lang);
-  }
-
-  // Helper function to fetch data
-  async function fetchData(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.text();
-  }
-
-  // Parse subtitles in YouTube JSON3 format
-  function parseJson3Subtitles(json) {
-    if (!json.events || !Array.isArray(json.events)) {
-      throw new Error('Invalid JSON3 format');
-    }
-
-    const subtitles = [];
-    
-    for (const event of json.events) {
-      // Solo procesar eventos que tienen segmentos de texto
-      if (!event.segs || !Array.isArray(event.segs)) {
-        continue;
-      }
-
-      // Check if the event is only for append (line break)
-      if (event.aAppend === 1) {
-        // Estos eventos son solo para formateo, los saltamos
-        continue;
-      }
-
-      const startTime = event.tStartMs / 1000; // Convertir de ms a segundos
-      const duration = event.dDurationMs / 1000; // Convertir de ms a segundos
-      
-      // Construir el texto completo del evento combinando todos los segmentos
-      let fullText = '';
-      
-      for (const segment of event.segs) {
-        if (segment.utf8 && segment.utf8 !== '\n') {
-          fullText += segment.utf8;
-        }
-      }
-      
-      // Add the subtitle if it has valid text
-      const trimmedText = fullText.trim();
-      if (trimmedText) {
-        subtitles.push({
-          start: startTime,
-          dur: duration,
-          text: trimmedText
-        });
-      }
-    }
-
-    return subtitles;
-  }
-
-  // New internal function to handle subtitle logic once we have captionTracks
-  async function getSubtitlesInternal(videoID, captionTracks, lang = 'es') {
-
-    // Search for subtitles in the specified language
-    // Priority: manual (.lang) > automatic (a.lang) > any that matches the language
-    let finalSubtitle =
-      captionTracks.find((track) => track.vssId === `.${lang}`) || // Manual
-      captionTracks.find((track) => track.vssId === `a.${lang}`) || // Automatic
-      captionTracks.find((track) => track.languageCode === lang) || // Direct language code
-      captionTracks.find((track) => track.languageCode && track.languageCode.startsWith(lang)); // Starts with the language code
-
-    // If not found in the specified language, try with English
-    let usedLang = lang;
-    if (!finalSubtitle && lang !== 'en') {
-
-      usedLang = 'en';
-      finalSubtitle =
-        captionTracks.find((track) => track.vssId === `.en`) ||
-        captionTracks.find((track) => track.vssId === `a.en`) ||
-        captionTracks.find((track) => track.languageCode === 'en') ||
-        captionTracks.find((track) => track.languageCode && track.languageCode.startsWith('en'));
-    }
-
-    // If still not found, use the first available subtitle
-    if (!finalSubtitle && captionTracks.length > 0) {
-
-      finalSubtitle = captionTracks[0];
-      usedLang = finalSubtitle.languageCode || 'unknown';
-    }
-
-    if (!finalSubtitle || !finalSubtitle.baseUrl) {
-      throw new Error(`No subtitles available for the video.`);
-    }
-
-    let transcript;
-    try {
-      // Always add &fmt=json3 to prefer JSON format
-      const jsonUrl = finalSubtitle.baseUrl + '&fmt=json3';
-
-      const jsonData = await fetchData(jsonUrl);
-      const json = JSON.parse(jsonData);
-      
-      transcript = parseJson3Subtitles(json);
-
-    } catch (jsonError) {
-
-      // Fallback a XML si JSON3 falla
-      try {
-        const transcriptData = await fetchData(finalSubtitle.baseUrl);
-
-        // Parse the XML using DOMParser (more robust than regex)
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(transcriptData, 'text/xml');
-        
-        // Verificar si hay errores de parseo
-        const parseError = xmlDoc.querySelector('parsererror');
-        if (parseError) {
-          throw new Error('Error al parsear XML: ' + parseError.textContent);
-        }
-        
-        const textNodes = xmlDoc.querySelectorAll('text');
-
-        if (textNodes.length === 0) {
-          throw new Error('No se encontraron nodos <text> en el XML');
-        }
-        
-        transcript = Array.from(textNodes).map(node => {
-          const start = parseFloat(node.getAttribute('start') || '0');
-          const dur = parseFloat(node.getAttribute('dur') || '0');
-          const text = node.textContent
-            .replace(/&amp;/gi, '&')
-            .replace(/&lt;/gi, '<')
-            .replace(/&gt;/gi, '>')
-            .replace(/&quot;/gi, '"')
-            .replace(/&#39;/gi, "'")
-            .trim();
-          
-          return {
-            start: start,
-            dur: dur,
-            text: text,
-          };
-        }).filter(item => item.text && item.text.length > 0);
-
-        if (transcript.length === 0) {
-          throw new Error('The XML does not contain valid subtitles');
-        }
-        
-      } catch (xmlError) {
-        console.error('❌ Error procesando XML:', xmlError);
-        throw new Error('Could not parse subtitles in any format. ' + xmlError.message);
-      }
-    }
-
-    return transcript;
-  }
-
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   // Initialize when DOM is ready
@@ -511,12 +295,12 @@ const YoutubeModule = (function() {
         const resultContent = panel.querySelector('.ai-youtube-result-content');
         await generateVideoSummary(summarizeBtn, resultDiv, resultContent);
       } else {
-        alert('Por favor, abre un video de YouTube primero');
+        alert('Please open a YouTube video first');
       }
     }
   };
 
-  // Hacer disponible globalmente
+  // Make globally available
   window.YoutubeModule = publicAPI;
 
   return publicAPI;

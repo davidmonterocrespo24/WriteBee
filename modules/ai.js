@@ -5,9 +5,24 @@ const AIModule = (function() {
   async function aiSummarize(text, onProgress = null) {
     try {
       const service = getAIService();
+      // Check if text is too large and use chunking strategy
+      if (text.length > 15000) {
+        console.log('Text is large, using chunked summarization strategy');
+        return await service.summarizeLargeText(text, onProgress);
+      }
       return await service.summarize(text, onProgress);
     } catch (error) {
       console.error('Error in aiSummarize:', error);
+      // If error is about quota, try chunking
+      if (error.message && error.message.toLowerCase().includes('too large')) {
+        try {
+          console.log('Retrying with chunked summarization');
+          const service = getAIService();
+          return await service.summarizeLargeText(text, onProgress);
+        } catch (retryError) {
+          return `✕ Error summarizing: ${retryError.message}`;
+        }
+      }
       return `✕ Error summarizing: ${error.message}`;
     }
   }

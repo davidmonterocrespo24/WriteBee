@@ -13,6 +13,8 @@
   ],
   "host_permissions": [
     "https://web.whatsapp.com/*",
+    "https://www.youtube.com/*",
+    "https://www.youtranscripts.com/*",
     "file:///*"
   ],
   "web_accessible_resources": [
@@ -55,6 +57,7 @@
       "match_about_blank": true,
       "match_origin_as_fallback": true,
       "js": [
+        "libs/youtube-transcript.js",
         "modules/markdown.js",
         "modules/aiService.js",
         "modules/ai.js",

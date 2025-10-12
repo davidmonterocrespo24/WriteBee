@@ -342,21 +342,21 @@ const TwitterModule = (function() {
           </button>
           ` : `
           <button class="ai-twitter-chip" data-tone="informative">
-            <span class="emoji">📚</span>Informativo
+            <svg class="doc" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M8 12h8M8 16h8"/></svg>Informativo
           </button>
           <button class="ai-twitter-chip" data-tone="casual">
-            <span class="emoji">😎</span>Casual
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Casual
           </button>
           <button class="ai-twitter-chip" data-tone="professional">
-            <span class="emoji">💼</span>Profesional
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25zm2.92 2.33h-.5v-.5l9.9-9.9.5.5-9.9 9.9zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z"/></svg>Profesional
           </button>
           <button class="ai-twitter-chip" data-tone="viral">
-            <span class="emoji">🚀</span>Viral
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Viral
           </button>
           `}
           <div class="spacer"></div>
           <div class="ai-twitter-lang">
-            <span>🌐</span>
+            <svg class="translate" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h9"/><path d="M8 5s.3 5-4 9"/><path d="M12 9h-8"/><path d="M14 19l4-10 4 10"/><path d="M15.5 15h5"/></svg>
             <select class="ai-twitter-lang-select">
               <option value="es">español</option>
               <option value="en">english</option>
@@ -402,7 +402,7 @@ const TwitterModule = (function() {
       </div>
 
       <div class="ai-twitter-footer">
-        <button class="ai-twitter-generate-btn">
+        <button class="ai-twitter-generate-btn" style="background-color: #ffc107;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
           </svg>
@@ -713,5 +713,3 @@ IMPORTANTE:
     init
   };
 })();
-
-
