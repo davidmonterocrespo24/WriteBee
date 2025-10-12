@@ -80,21 +80,6 @@ const YoutubeModule = (function() {
       </div>
 
       <div class="ai-youtube-content">
-        <div class="ai-youtube-info">
-          Generate an intelligent summary of this video using available subtitles.
-        </div>
-
-        <div class="ai-youtube-options">
-          <label class="ai-youtube-checkbox">
-            <input type="checkbox" id="ai-yt-timestamps" checked />
-            <span>Include timestamps</span>
-          </label>
-          <label class="ai-youtube-checkbox">
-            <input type="checkbox" id="ai-yt-keypoints" checked />
-            <span>Key points</span>
-          </label>
-        </div>
-
         <button class="ai-youtube-summarize-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
@@ -242,26 +227,32 @@ const YoutubeModule = (function() {
         throw new Error('Could not get video ID');
       }
 
-      // Check if YoutubeTranscript library is available
-      if (typeof YoutubeTranscript === 'undefined') {
-        throw new Error('YoutubeTranscript library is not loaded');
-      }
-
+      const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
       console.log(`Fetching transcript for video: ${videoId}`);
 
-      // Use the youtranscripts.com API via our library
-      const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+      // Call background script directly to fetch transcript via API
+      const response = await chrome.runtime.sendMessage({
+        action: 'fetchYoutubeTranscript',
+        videoUrl: videoUrl
+      });
 
-      if (!transcript || transcript.length === 0) {
-        throw new Error('No subtitles available for this video');
+      if (!response || !response.success) {
+        throw new Error(response?.error || 'Failed to fetch transcript from API');
       }
 
-      console.log(`Successfully fetched ${transcript.length} subtitle entries`);
+      const data = response.data;
+
+      // Check if transcript is available
+      if (!data || !data.transcript || !Array.isArray(data.transcript)) {
+        throw new Error('No transcript available for this video');
+      }
+
+      console.log(`Successfully fetched ${data.transcript.length} subtitle entries`);
 
       // Transform to our expected format (start, duration, text)
-      return transcript.map(item => ({
-        start: item.offset || 0,
-        duration: item.duration || 0,
+      return data.transcript.map(item => ({
+        start: parseFloat(item.start || item.offset || 0),
+        duration: parseFloat(item.duration || item.dur || 0),
         text: item.text || ''
       }));
 
