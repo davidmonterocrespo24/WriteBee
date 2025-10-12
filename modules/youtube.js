@@ -52,7 +52,7 @@ const YoutubeModule = (function() {
 
     // Find the related videos container (secondary)
     const secondary = document.querySelector('#secondary');
-    
+
     if (!secondary) {
 
       return;
@@ -70,7 +70,7 @@ const YoutubeModule = (function() {
         </div>
         <div class="ai-youtube-title">
           <strong>AI Assistant</strong>
-          <span>Summarize this video</span>
+          <span>Video Summary</span>
         </div>
         <button class="ai-youtube-toggle" aria-label="Expand/Collapse">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -113,6 +113,14 @@ const YoutubeModule = (function() {
     secondary.insertBefore(youtubePanel, secondary.firstChild);
 
     setupYoutubePanelEvents(youtubePanel);
+
+    // Auto-click the button to start generating summary automatically
+    setTimeout(() => {
+      const summarizeBtn = youtubePanel.querySelector('.ai-youtube-summarize-btn');
+      if (summarizeBtn) {
+        summarizeBtn.click();
+      }
+    }, 500);
   }
 
   function removeYoutubePanel() {
@@ -171,7 +179,7 @@ const YoutubeModule = (function() {
     try {
       // Get the video subtitles
       const subtitles = await getVideoSubtitles();
-      
+
       if (!subtitles || subtitles.length === 0) {
         throw new Error('No subtitles available for this video. The video must have subtitles enabled.');
       }
@@ -179,20 +187,19 @@ const YoutubeModule = (function() {
       btn.innerHTML = '<span style="opacity: 0.6;">Generating summary...</span>';
 
       // Prepare the subtitle text (optimized for AI)
-      // Remove duplicate/repetitive text and clean up
       let subtitleText = subtitles.map(s => s.text.trim()).join(' ');
 
       // Clean up the text to reduce size
       subtitleText = subtitleText
-        .replace(/\s+/g, ' ') // Multiple spaces to single space
-        .replace(/\[Music\]/gi, '') // Remove [Music] tags
-        .replace(/\[Applause\]/gi, '') // Remove [Applause] tags
-        .replace(/\[Laughter\]/gi, '') // Remove [Laughter] tags
+        .replace(/\s+/g, ' ')
+        .replace(/\[Music\]/gi, '')
+        .replace(/\[Applause\]/gi, '')
+        .replace(/\[Laughter\]/gi, '')
         .trim();
 
       console.log(`Prepared transcript: ${subtitleText.length} characters`);
 
-      // Generate the summary using AI (no need for additional prompt, just the transcript)
+      // Generate the summary using AI
       const summary = await AIModule.aiSummarize(subtitleText, (percent) => {
         btn.innerHTML = `<span style="opacity: 0.6;">Processing ${percent}%</span>`;
       });
@@ -219,6 +226,7 @@ const YoutubeModule = (function() {
       `;
     }
   }
+
 
   async function getVideoSubtitles() {
     try {
