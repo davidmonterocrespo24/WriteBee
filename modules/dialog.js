@@ -388,17 +388,17 @@ const DialogModule = (function() {
               case 'translate':
                 // Use aiAnswerStream with a prompt instead of Translator API
                 const targetLangMap = {
-                  'es': 'español',
-                  'en': 'inglés',
-                  'fr': 'francés',
-                  'de': 'alemán',
-                  'it': 'italiano',
-                  'pt': 'portugués',
-                  'ja': 'japonés',
-                  'zh': 'chino'
+                  'es': 'Spanish',
+                  'en': 'English',
+                  'fr': 'French',
+                  'de': 'German',
+                  'it': 'Italian',
+                  'pt': 'Portuguese',
+                  'ja': 'Japanese',
+                  'zh': 'Chinese'
                 };
                 const targetLangName = targetLangMap[currentLang] || currentLang;
-                const translatePrompt = `Traduce el siguiente texto a ${targetLangName}. Solo proporciona la traducción, sin explicaciones adicionales:\n\n${selectedText}`;
+                const translatePrompt = `Translate the following text to ${targetLangName}. Provide only the translation, without additional explanations:\n\n${selectedText}`;
                 result = await AIModule.aiAnswerStream(translatePrompt, onChunk, abortController.signal);
                 break;
               case 'explain':
@@ -489,17 +489,17 @@ const DialogModule = (function() {
         try {
           // Use aiAnswerStream with a prompt instead of Translator API
           const targetLangMap = {
-            'es': 'español',
-            'en': 'inglés',
-            'fr': 'francés',
-            'de': 'alemán',
-            'it': 'italiano',
-            'pt': 'portugués',
-            'ja': 'japonés',
-            'zh': 'chino'
+            'es': 'Spanish',
+            'en': 'English',
+            'fr': 'French',
+            'de': 'German',
+            'it': 'Italian',
+            'pt': 'Portuguese',
+            'ja': 'Japanese',
+            'zh': 'Chinese'
           };
           const targetLangName = targetLangMap[newLang] || newLang;
-          const translatePrompt = `Traduce el siguiente texto a ${targetLangName}. Solo proporciona la traducción, sin explicaciones adicionales:\n\n${selectedText}`;
+          const translatePrompt = `Translate the following text to ${targetLangName}. Provide only the translation, without additional explanations:\n\n${selectedText}`;
           
           const onChunk = (chunk) => {
             if (answerDiv) {
@@ -545,17 +545,17 @@ const DialogModule = (function() {
             case 'translate':
               // Use aiAnswerStream with a prompt instead of Translator API
               const targetLangMap = {
-                'es': 'español',
-                'en': 'inglés',
-                'fr': 'francés',
-                'de': 'alemán',
-                'it': 'italiano',
-                'pt': 'portugués',
-                'ja': 'japonés',
-                'zh': 'chino'
+                'es': 'Spanish',
+                'en': 'English',
+                'fr': 'French',
+                'de': 'German',
+                'it': 'Italian',
+                'pt': 'Portuguese',
+                'ja': 'Japanese',
+                'zh': 'Chinese'
               };
               const targetLangName = targetLangMap[currentLang] || currentLang;
-              const translatePrompt = `Traduce el siguiente texto a ${targetLangName}. Solo proporciona la traducción, sin explicaciones adicionales:\n\n${selectedText}`;
+              const translatePrompt = `Translate the following text to ${targetLangName}. Provide only the translation, without additional explanations:\n\n${selectedText}`;
               result = await AIModule.aiAnswerStream(translatePrompt, onChunk);
               break;
             case 'explain':

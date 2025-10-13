@@ -39,25 +39,6 @@ chrome.runtime.onInstalled.addListener(() => {
     title: 'Chat with this Page',
     contexts: ['page']
   });
-  
-  // PDF Actions - disponible en todas las páginas
-  chrome.contextMenus.create({
-    id: 'pdf-summarize',
-    title: 'Resumir PDF',
-    contexts: ['page']
-  });
-  
-  chrome.contextMenus.create({
-    id: 'pdf-translate',
-    title: 'Traducir PDF',
-    contexts: ['page']
-  });
-  
-  chrome.contextMenus.create({
-    id: 'pdf-chat',
-    title: 'Chat con PDF',
-    contexts: ['page']
-  });
 
 });
 
@@ -128,35 +109,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       // Abrir panel de todas formas
       chrome.sidePanel.open({ windowId: tab.windowId });
     });
-  } else if (info.menuItemId === 'pdf-summarize' || 
-             info.menuItemId === 'pdf-translate' || 
-             info.menuItemId === 'pdf-chat') {
-    // Detectar si es un PDF
-    const url = tab.url.toLowerCase();
-    const isPDF = url.endsWith('.pdf') || 
-                  url.includes('.pdf?') || 
-                  url.includes('.pdf#') ||
-                  (url.startsWith('chrome-extension://') && url.includes('.pdf'));
-    
-    if (isPDF) {
-
-      // Abrir side panel con la acción específica
-      pendingChatData = {
-        pdfMode: true,
-        pdfUrl: tab.url,
-        pdfAction: info.menuItemId.replace('pdf-', '')
-      };
-      
-      chrome.sidePanel.open({ windowId: tab.windowId });
-    } else {
-      // Notificar al usuario que no es un PDF
-      chrome.tabs.sendMessage(tab.id, {
-        action: 'showNotification',
-        message: 'Esta página no es un PDF. Abre un archivo PDF para usar estas funciones.'
-      }).catch(() => {
-
-      });
-    }
   }
 });
 

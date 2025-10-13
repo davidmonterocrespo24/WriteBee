@@ -1071,9 +1071,9 @@ function showDownloadProgress() {
         </path>
       </svg>
       <div>
-        <div>Descargando modelo de traducción...</div>
+        <div>Downloading translation model...</div>
         <div style="font-size: 12px; color: #a5a7b1; margin-top: 4px;">
-          Esto puede tomar unos momentos
+          This may take a few moments
         </div>
       </div>
     </div>
@@ -1093,9 +1093,9 @@ function updateDownloadProgress(percentage) {
           </path>
         </svg>
         <div>
-          <div>Descargando modelo de traducción...</div>
+          <div>Downloading translation model...</div>
           <div style="font-size: 12px; color: #a5a7b1; margin-top: 4px;">
-            ${percent}% completado
+            ${percent}% completed
           </div>
         </div>
       </div>
@@ -1173,7 +1173,7 @@ function resetTranslateButton(btn) {
         ">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
             <h2 style="margin: 0; color: #e4e6eb; font-size: 20px; font-weight: 600;">
-              🌐 Selecciona el idioma de traducción
+              🌐 Select translation language
             </h2>
             <button class="ai-lang-close-btn" style="
               background: none;
@@ -1199,7 +1199,7 @@ function resetTranslateButton(btn) {
             border-radius: 8px;
             border-left: 3px solid #4285F4;
           ">
-            💡 Sugerido: <strong style="color: #4285F4;">${suggestedLang.flag} ${suggestedLang.name}</strong> (idioma del sistema)
+            💡 Suggested: <strong style="color: #4285F4;">${suggestedLang.flag} ${suggestedLang.name}</strong> (system language)
           </div>
 
           <div class="ai-language-grid" style="
