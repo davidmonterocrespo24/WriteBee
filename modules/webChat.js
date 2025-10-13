@@ -3,6 +3,7 @@ const WebChatModule = (function() {
   let pageSummary = null;
   let ragEngine = null;
   let isIndexed = false;
+  let cachedMetadata = null;
 
   /**
    * Extract text content from current page
@@ -11,9 +12,15 @@ const WebChatModule = (function() {
     // Get ALL content including navigation, excluding only WriteBee elements
     const content = [];
 
-    // Helper function to check if element is part of WriteBee extension
-    const isWriteBeeElement = (element) => {
-      if (!element) return false;
+    // Helper function to check if element should be excluded
+    const shouldExcludeElement = (element) => {
+      if (!element) return true;
+
+      // Exclude script, style, and other non-visible elements
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      if (['script', 'style', 'noscript', 'iframe', 'embed', 'object', 'svg'].includes(tagName)) {
+        return true;
+      }
 
       // Check if element or any parent has WriteBee classes/attributes
       let current = element;
@@ -62,8 +69,18 @@ const WebChatModule = (function() {
     // 1. Navigation menus (IMPORTANT for finding "games" link)
     const navs = document.querySelectorAll('nav, [role="navigation"], header, .menu, .nav, [class*="menu"], [class*="nav"]');
     navs.forEach(nav => {
-      if (isWriteBeeElement(nav)) return;
-      const text = nav.innerText.trim();
+      if (shouldExcludeElement(nav)) return;
+
+      // Clone and clean
+      const clone = nav.cloneNode(true);
+      // Remove all unwanted elements including WriteBee extension elements
+      clone.querySelectorAll('script, style, noscript, iframe, embed, object, svg').forEach(el => el.remove());
+      clone.querySelectorAll('[data-writebee]').forEach(el => el.remove());
+      clone.querySelectorAll('[data-ai-extension]').forEach(el => el.remove());
+      clone.querySelectorAll('[class*="writebee-"], [id*="writebee-"]').forEach(el => el.remove());
+      clone.querySelectorAll('[class*="ai-"], [id*="ai-"]').forEach(el => el.remove());
+
+      const text = clone.innerText.trim();
       if (text.length > 10) {
         sections.push(`[Navigation Menu]\n${text}`);
       }
@@ -73,7 +90,13 @@ const WebChatModule = (function() {
     const article = document.querySelector('article, main, [role="main"]');
     if (article) {
       const clone = article.cloneNode(true);
-      clone.querySelectorAll('[class*="writebee-"], [class*="ai-"], [id*="writebee-"]').forEach(el => el.remove());
+      // Remove all unwanted elements including WriteBee extension elements
+      clone.querySelectorAll('script, style, noscript, iframe, embed, object, svg').forEach(el => el.remove());
+      clone.querySelectorAll('[data-writebee]').forEach(el => el.remove());
+      clone.querySelectorAll('[data-ai-extension]').forEach(el => el.remove());
+      clone.querySelectorAll('[class*="writebee-"], [id*="writebee-"]').forEach(el => el.remove());
+      clone.querySelectorAll('[class*="ai-"], [id*="ai-"]').forEach(el => el.remove());
+
       const text = clone.innerText.trim();
       if (text) {
         sections.push(`[Main Content]\n${text}`);
@@ -84,7 +107,7 @@ const WebChatModule = (function() {
     const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, a[href]');
     const seenText = new Set();
     elements.forEach(el => {
-      if (isWriteBeeElement(el)) return;
+      if (shouldExcludeElement(el)) return;
 
       const text = el.innerText.trim();
       // Avoid duplicates but include shorter navigation items
@@ -106,7 +129,25 @@ const WebChatModule = (function() {
     });
 
     // Combine all sections
-    const allContent = [...sections, ...content].join('\n\n');
+    let allContent = [...sections, ...content].join('\n\n');
+
+    // Clean up excessive whitespace to reduce tokens
+    allContent = allContent
+      // Remove WriteBee extension text patterns (specific combinations)
+      .replace(/Extract Text \(OCR\)\s*Explain Image\s*Describe Image/g, '')
+      .replace(/Extract Text \(OCR\)/g, '')
+      .replace(/Explain Image/g, '')
+      .replace(/Describe Image/g, '')
+      // Replace multiple spaces with single space
+      .replace(/[ \t]+/g, ' ')
+      // Replace multiple newlines with maximum 2 newlines
+      .replace(/\n{3,}/g, '\n\n')
+      // Remove spaces at start/end of lines
+      .replace(/^[ \t]+|[ \t]+$/gm, '')
+      // Remove empty lines that only contain whitespace
+      .replace(/^\s*\n/gm, '\n')
+      // Final trim
+      .trim();
 
     console.log('📄 EXTRACTION DETAILS:');
     console.log('  - Navigation sections:', navs.length);
@@ -121,6 +162,13 @@ const WebChatModule = (function() {
    * Get page metadata
    */
   function getPageMetadata() {
+    // If metadata was cached (from side panel), use it
+    if (cachedMetadata) {
+      console.log('📋 Using cached metadata:', cachedMetadata);
+      return cachedMetadata;
+    }
+
+    // Otherwise, extract from current document
     return {
       title: document.title,
       url: window.location.href,
@@ -176,9 +224,14 @@ const WebChatModule = (function() {
       // Clear previous index
       ragEngine.clear();
 
-      // ALWAYS extract fresh content to avoid cached WriteBee elements
-      console.log('📄 Extracting fresh page content...');
-      pageContent = extractPageContent();
+      // If pageContent was already set manually (e.g., from side panel), use it
+      // Otherwise, extract fresh content from current document
+      if (!pageContent || pageContent.length === 0) {
+        console.log('📄 Extracting fresh page content from current document...');
+        pageContent = extractPageContent();
+      } else {
+        console.log('📄 Using pre-set page content (from side panel or other source)');
+      }
 
       console.log('📄 Page content length:', pageContent.length, 'characters');
       console.log('📄 First 200 chars:', pageContent.substring(0, 200));
@@ -192,7 +245,10 @@ const WebChatModule = (function() {
 
       isIndexed = true;
 
+      // Log indexing statistics
+      const indexSize = ragEngine.index ? ragEngine.index.length : 0;
       console.log('✅ RAG Engine initialized and indexed');
+      console.log(`📊 Index statistics: ${indexSize} chunks created`);
 
       return true;
     } catch (error) {
@@ -559,6 +615,7 @@ Answer:`;
     isIndexed = false;
     pageContent = null;
     pageSummary = null;
+    cachedMetadata = null;
     // Limpiar RAG engine
     if (typeof RAGEngine !== 'undefined') {
       RAGEngine.clearContext();
@@ -582,10 +639,14 @@ Answer:`;
    * Set page content manually (para cuando viene del side panel)
    */
   function setPageContent(content, metadata = null) {
+    console.log('📝 Setting page content manually');
+    console.log('  - Content length:', content ? content.length : 0, 'characters');
+    console.log('  - Metadata:', metadata);
 
     pageContent = content;
     if (metadata) {
-
+      cachedMetadata = metadata;
+      console.log('  - Cached metadata:', cachedMetadata);
     }
     // Reset indexing flag to force re-indexing
     isIndexed = false;

@@ -413,7 +413,9 @@
           // First set the content in the module
           WebChatModule.setPageContent(pageContent, {
             title: pageTitle,
-            url: pageUrl
+            url: pageUrl,
+            description: '',
+            domain: pageUrl ? new URL(pageUrl).hostname : ''
           });
 
           // Then index
@@ -588,7 +590,9 @@
           // First set the content in the module
           WebChatModule.setPageContent(pageContent, {
             title: pageTitle,
-            url: pageUrl
+            url: pageUrl,
+            description: '',
+            domain: pageUrl ? new URL(pageUrl).hostname : ''
           });
 
           // Luego indexar

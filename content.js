@@ -300,7 +300,7 @@ async function handleExtractPageContent() {
       webChatMode: true,
       pageTitle: metadata.title,
       pageUrl: metadata.url,
-      pageContent: pageContent.substring(0, 10000)
+      pageContent: pageContent.substring(0, 50000) // Increased from 10k to 50k for better context
     };
 
     // Always open side panel with the data

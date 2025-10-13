@@ -443,37 +443,63 @@ const RAGEngine = (function() {
         return [];
       }
 
-
-
-
-
-      // Vectorize query
-
+      // Vectorize query for semantic similarity
       const queryTokens = this.vectorizer.tokenize(query);
-
-
       const queryTF = this.vectorizer.computeTF(queryTokens);
       const queryVector = this.vectorizer.vectorize(queryTokens, queryTF);
 
-      // Compute similarities
+      // Extract keywords from query (non-stopwords)
+      const queryKeywords = new Set(queryTokens);
+      const queryLower = query.toLowerCase();
 
-      const results = this.index.map(item => ({
-        ...item,
-        similarity: this.vectorizer.cosineSimilarity(queryVector, item.vector)
-      }));
+      // Compute hybrid score: semantic similarity + keyword matching
+      const results = this.index.map(item => {
+        // 1. Semantic similarity (TF-IDF cosine similarity)
+        const semanticScore = this.vectorizer.cosineSimilarity(queryVector, item.vector);
 
-      // Sort by similarity and prioritize current page
+        // 2. Keyword matching score
+        let keywordScore = 0;
+        const textLower = item.text.toLowerCase();
+
+        // Direct keyword matches (exact matches in text)
+        queryKeywords.forEach(keyword => {
+          if (textLower.includes(keyword)) {
+            keywordScore += 0.3; // Boost for each keyword match
+          }
+        });
+
+        // Phrase matching (original query appears in text)
+        if (textLower.includes(queryLower)) {
+          keywordScore += 1.0; // Strong boost for exact phrase match
+        }
+
+        // 3. Combine scores (weighted: 60% semantic, 40% keywords)
+        const hybridScore = (semanticScore * 0.6) + (keywordScore * 0.4);
+
+        return {
+          ...item,
+          semanticScore,
+          keywordScore,
+          similarity: hybridScore
+        };
+      });
+
+      // Sort by hybrid similarity and prioritize current page
       results.sort((a, b) => {
         // Boost current page chunks
-        const aBoost = a.metadata.source === 'current_page' ? 0.2 : 0;
-        const bBoost = b.metadata.source === 'current_page' ? 0.2 : 0;
+        const aBoost = a.metadata.source === 'current_page' ? 0.15 : 0;
+        const bBoost = b.metadata.source === 'current_page' ? 0.15 : 0;
         return (b.similarity + bBoost) - (a.similarity + aBoost);
       });
 
-      const topResults = results.slice(0, topK);
+      // Filter out chunks with very low scores
+      const filteredResults = results.filter(r => r.similarity > 0.05);
 
+      const topResults = filteredResults.slice(0, topK);
+
+      console.log(`🔍 Hybrid retrieval for "${query}":`);
       topResults.forEach((r, idx) => {
-
+        console.log(`  [${idx+1}] Score: ${r.similarity.toFixed(3)} (semantic: ${r.semanticScore.toFixed(3)}, keyword: ${r.keywordScore.toFixed(3)}) - "${r.text.substring(0, 60)}..."`);
       });
 
       return topResults;

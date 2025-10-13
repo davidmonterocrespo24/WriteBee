@@ -32,6 +32,7 @@ const ImageActionsModule = (function() {
     // Create container for the button
     const container = document.createElement('div');
     container.className = 'writebee-img-action-container';
+    container.setAttribute('data-writebee', 'true');
     container.innerHTML = `
       <style>
         .writebee-img-action-container {
@@ -163,6 +164,7 @@ const ImageActionsModule = (function() {
     wrapper.style.position = 'relative';
     wrapper.style.display = 'inline-block';
     wrapper.className = 'writebee-img-wrapper';
+    wrapper.setAttribute('data-writebee', 'true');
 
     // Wrap the image
     img.parentNode.insertBefore(wrapper, img);
