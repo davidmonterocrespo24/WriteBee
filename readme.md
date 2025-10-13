@@ -1,9 +1,5 @@
 # WriteBee - AI Text Assistant
 
-![Version](https://img.shields.io/badge/version-1.1-blue)
-![Chrome](https://img.shields.io/badge/chrome-extension-green)
-![License](https://img.shields.io/badge/license-MIT-orange)
-
 An intelligent Chrome extension that brings powerful AI capabilities directly to your browser. WriteBee enhances your web experience with on-device AI features for text processing, summarization, translation, and more.
 
 ## ✨ Features
@@ -19,10 +15,10 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 ### 🎯 Platform-Specific Integrations
 
 #### 📺 YouTube
-- **Automatic Video Summarization** - Generates summaries automatically when you open a video
-- **Hierarchical Chunking** - Handles videos of any length using smart text splitting
-- **Progress Tracking** - Visual feedback during summary generation
-- **Copy & Regenerate** - Easy sharing and refinement options
+- Automatic Video Summarization
+- Hierarchical Chunking
+- Progress Tracking
+- Copy & Regenerate
 
 #### 📧 Gmail
 - Smart email composition assistance
@@ -45,7 +41,7 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 - Message drafting
 
 #### 🐙 GitHub
-- Code explanation
+- Repository summary
 - Documentation help
 - Issue and PR summarization
 

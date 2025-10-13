@@ -113,6 +113,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Extract page content and send to side panel
     handleExtractPageContent();
     sendResponse({ success: true });
+  } else if (request.action === 'generateText') {
+    // Generate text in textarea/contenteditable
+    handleGenerateText();
+    sendResponse({ success: true });
   } else if (request.action === 'showMicrophonePermission') {
     // Show microphone permission overlay
     handleShowMicrophonePermission(sendResponse);
@@ -293,7 +297,7 @@ async function handleExtractPageContent() {
     const metadata = WebChatModule.getPageMetadata();
 
 
-     
+
 
     const pageData = {
       context: 'page-chat',
@@ -312,7 +316,7 @@ async function handleExtractPageContent() {
         console.error('Error opening side panel:', chrome.runtime.lastError);
         return;
       }
-      
+
       // Also try to send to side panel directly (in case it was already open)
       setTimeout(() => {
         chrome.runtime.sendMessage({
@@ -325,6 +329,110 @@ async function handleExtractPageContent() {
     });
   } catch (error) {
     console.error('❌ Error extrayendo contenido de página:', error);
+  }
+}
+
+// Handle generate text in textarea/contenteditable
+async function handleGenerateText() {
+  try {
+    // Get the focused element
+    const activeElement = document.activeElement;
+
+    // Check if it's a textarea or contenteditable
+    if (!activeElement ||
+        (activeElement.tagName !== 'TEXTAREA' &&
+         activeElement.tagName !== 'INPUT' &&
+         !activeElement.isContentEditable)) {
+      console.warn('No textarea or contenteditable element focused');
+      return;
+    }
+
+    // Get current text content
+    let currentText = '';
+    if (activeElement.isContentEditable) {
+      currentText = activeElement.innerText || activeElement.textContent || '';
+    } else {
+      currentText = activeElement.value || '';
+    }
+
+    // Extract context: placeholder, label, surrounding text
+    let context = '';
+
+    // Get placeholder
+    const placeholder = activeElement.placeholder || activeElement.getAttribute('placeholder') || '';
+    if (placeholder) {
+      context += `Placeholder: "${placeholder}"\n`;
+    }
+
+    // Get associated label
+    const label = activeElement.labels?.[0]?.textContent ||
+                  document.querySelector(`label[for="${activeElement.id}"]`)?.textContent ||
+                  activeElement.closest('label')?.textContent || '';
+    if (label) {
+      context += `Field label: "${label.trim()}"\n`;
+    }
+
+    // Get aria-label
+    const ariaLabel = activeElement.getAttribute('aria-label');
+    if (ariaLabel) {
+      context += `Description: "${ariaLabel}"\n`;
+    }
+
+    // Get name attribute
+    const name = activeElement.name || activeElement.getAttribute('name');
+    if (name) {
+      context += `Field name: "${name}"\n`;
+    }
+
+    // Build prompt for AI
+    const prompt = currentText.trim()
+      ? `Based on the following context and partial text, continue writing or complete the text in a natural and helpful way:\n\n${context}\nCurrent text: "${currentText}"\n\nGenerate a continuation or completion that fits the context:`
+      : `Based on the following context, generate appropriate text for this field:\n\n${context}\nGenerate text that would be suitable for this field:`;
+
+    // Get element position for dialog
+    const rect = activeElement.getBoundingClientRect();
+    const toolbarRect = {
+      left: rect.left + window.scrollX,
+      top: rect.top + window.scrollY,
+      bottom: rect.bottom + window.scrollY
+    };
+
+    // Store reference to the element for later insertion
+    window.__generateTextTarget = activeElement;
+
+    // Use ActionsModule to execute the generation with dialog
+    ActionsModule.executeAction('expand', null, toolbarRect, prompt, (generatedText) => {
+      // Callback to insert generated text
+      const target = window.__generateTextTarget;
+      if (target && generatedText) {
+        if (target.isContentEditable) {
+          // For contenteditable
+          target.focus();
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          range.collapse(false); // Move to end
+          selection.removeAllRanges();
+          selection.addRange(range);
+          document.execCommand('insertText', false, generatedText);
+        } else {
+          // For textarea/input
+          const start = target.selectionStart || target.value.length;
+          const end = target.selectionEnd || target.value.length;
+          const textBefore = target.value.substring(0, start);
+          const textAfter = target.value.substring(end);
+          target.value = textBefore + generatedText + textAfter;
+          target.selectionStart = target.selectionEnd = start + generatedText.length;
+        }
+        // Trigger input event
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      window.__generateTextTarget = null;
+    });
+
+  } catch (error) {
+    console.error('❌ Error generating text:', error);
+    alert('Error generating text: ' + error.message);
   }
 }
 

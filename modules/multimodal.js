@@ -12,7 +12,7 @@ const MultimodalModule = (function() {
 
     const availability = await LanguageModel.availability({
       expectedInputs: [{ type: "image" }],
-      expectedOutputs: [{ type: "text", languages: ["es", "en"] }]
+      expectedOutputs: [{ type: "text", languages: ["en"] }]
     });
 
     if (availability === "unavailable") {
@@ -22,11 +22,11 @@ const MultimodalModule = (function() {
     if (!session) {
       session = await LanguageModel.create({
         expectedInputs: [{ type: "image" }],
-        expectedOutputs: [{ type: "text", languages: ["es", "en"] }],
+        expectedOutputs: [{ type: "text", languages: ["en"] }],
         initialPrompts: [
           {
             role: "system",
-            content: "Eres un asistente experto en análisis visual. Describes imágenes de forma clara, precisa y útil. Puedes generar alt text, resumir contenido visual, traducir texto en imágenes y responder preguntas sobre lo que ves."
+            content: "You are an expert assistant in visual analysis. You describe images clearly, precisely, and helpfully. You can generate alt text, summarize visual content, translate text in images, and answer questions about what you see."
           }
         ],
         monitor(m) {
@@ -50,7 +50,7 @@ const MultimodalModule = (function() {
 
     const availability = await LanguageModel.availability({
       expectedInputs: [{ type: "audio" }],
-      expectedOutputs: [{ type: "text", languages: ["es", "en"] }]
+      expectedOutputs: [{ type: "text", languages: ["en"] }]
     });
 
     if (availability === "unavailable") {
@@ -60,11 +60,11 @@ const MultimodalModule = (function() {
     if (!audioSession) {
       audioSession = await LanguageModel.create({
         expectedInputs: [{ type: "audio" }],
-        expectedOutputs: [{ type: "text", languages: ["es", "en"] }],
+        expectedOutputs: [{ type: "text", languages: ["en"] }],
         initialPrompts: [
           {
             role: "system",
-            content: "Eres un transcriptor y resumidor experto. Transcribes audio con precisión, corriges muletillas y puedes resumir o responder preguntas sobre el contenido hablado."
+            content: "You are an expert transcriber and summarizer. You transcribe audio with precision, correct filler words, and can summarize or answer questions about spoken content."
           }
         ],
         monitor(m) {
@@ -84,7 +84,7 @@ const MultimodalModule = (function() {
    * @param {string} prompt - Instrucción opcional (ej: "Describe la imagen", "Genera alt text")
    * @param {function} onProgress - Callback para streaming
    */
-  async function describeImage(imageFile, prompt = "Describe la imagen de forma detallada.", onProgress = null) {
+  async function describeImage(imageFile, prompt = "Describe the image in detail.", onProgress = null) {
     try {
       const sess = await initImageSession();
 
@@ -126,13 +126,13 @@ const MultimodalModule = (function() {
   async function processImageWithAction(imageFile, action, context = "", onProgress = null) {
     const prompts = {
       ocr: "Extract all visible text from this image. Return ONLY the extracted text, nothing else. If there's no text, say 'No text found'.",
-      summarize: "Resume el contenido visible en esta imagen de forma concisa.",
-      translate: `Traduce todo el texto visible en esta imagen a ${context || 'español'}.`,
-      explain: "Explica qué muestra esta imagen de forma detallada.",
-      expand: "Describe esta imagen en detalle, expandiendo sobre todos los elementos visibles.",
-      answer: `Responde esta pregunta sobre la imagen: ${context}`,
-      rewrite: "Reescribe el texto visible en esta imagen de forma más clara y profesional.",
-      alttext: "Genera un alt text corto y descriptivo para esta imagen (máximo 125 caracteres)."
+      summarize: "Summarize the visible content in this image concisely.",
+      translate: `Translate all visible text in this image to ${context || 'English'}.`,
+      explain: "Explain what this image shows in detail.",
+      expand: "Describe this image in detail, expanding on all visible elements.",
+      answer: `Answer this question about the image: ${context}`,
+      rewrite: "Rewrite the visible text in this image in a clearer and more professional way.",
+      alttext: "Generate a short and descriptive alt text for this image (maximum 125 characters)."
     };
 
     const prompt = prompts[action] || prompts.explain;
@@ -150,8 +150,8 @@ const MultimodalModule = (function() {
       const sess = await initAudioSession();
 
       const instruction = mode === 'summary'
-        ? "Resume el contenido hablado en un párrafo claro y conciso."
-        : "Transcribe fielmente el audio al español, corrigiendo muletillas y pausas innecesarias.";
+        ? "Summarize the spoken content in a clear and concise paragraph."
+        : "Transcribe the audio faithfully to English, correcting filler words and unnecessary pauses.";
 
       // Adjuntar audio
       await sess.append([
@@ -165,8 +165,8 @@ const MultimodalModule = (function() {
       ]);
 
       const question = mode === 'summary'
-        ? "Devuelve solo el resumen."
-        : "Devuelve solo la transcripción.";
+        ? "Return only the summary."
+        : "Return only the transcription.";
 
       // Hacer streaming del resultado
       if (onProgress) {
@@ -198,13 +198,13 @@ const MultimodalModule = (function() {
       const sess = await initAudioSession();
 
       const prompts = {
-        summarize: "Transcribe y resume el contenido del audio de forma concisa.",
-        translate: `Transcribe el audio y tradúcelo a ${context || 'inglés'}.`,
-        explain: "Transcribe el audio y explica los conceptos principales mencionados.",
-        expand: "Transcribe el audio y expande sobre los puntos principales mencionados.",
-        answer: `Transcribe el audio y responde: ${context}`,
-        rewrite: "Transcribe el audio y reescríbelo de forma más clara y profesional.",
-        transcribe: "Transcribe fielmente el audio."
+        summarize: "Transcribe and summarize the audio content concisely.",
+        translate: `Transcribe the audio and translate it to ${context || 'English'}.`,
+        explain: "Transcribe the audio and explain the main concepts mentioned.",
+        expand: "Transcribe the audio and expand on the main points mentioned.",
+        answer: `Transcribe the audio and answer: ${context}`,
+        rewrite: "Transcribe the audio and rewrite it in a clearer and more professional way.",
+        transcribe: "Transcribe the audio faithfully."
       };
 
       const instruction = prompts[action] || prompts.transcribe;
@@ -221,7 +221,7 @@ const MultimodalModule = (function() {
 
       // Hacer streaming del resultado
       if (onProgress) {
-        const stream = sess.promptStreaming("Procesa el audio según la instrucción.");
+        const stream = sess.promptStreaming("Process the audio according to the instruction.");
         let fullText = "";
         for await (const chunk of stream) {
           fullText += chunk;
@@ -229,7 +229,7 @@ const MultimodalModule = (function() {
         }
         return fullText;
       } else {
-        return await sess.prompt("Procesa el audio según la instrucción.");
+        return await sess.prompt("Process the audio according to the instruction.");
       }
     } catch (error) {
       console.error('Error al procesar audio:', error);

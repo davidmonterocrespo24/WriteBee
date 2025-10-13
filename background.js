@@ -33,6 +33,13 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ['selection']
   });
 
+  // Generate text in textarea
+  chrome.contextMenus.create({
+    id: 'generate-text',
+    title: 'Generate Text',
+    contexts: ['editable']
+  });
+
   // Chat with page
   chrome.contextMenus.create({
     id: 'chat-with-page',
@@ -97,6 +104,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.tabs.sendMessage(tab.id, {
       action: 'checkGrammar',
       text: info.selectionText
+    });
+  } else if (info.menuItemId === 'generate-text') {
+    // Send message to content script to generate text
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'generateText',
+      editableInfo: info.editable
     });
   } else if (info.menuItemId === 'chat-with-page') {
     // Request page content from content script
