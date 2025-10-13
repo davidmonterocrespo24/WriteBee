@@ -4,6 +4,12 @@ const AIModule = (function() {
 
   async function aiSummarize(text, onProgress = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiSummarize):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       // Check if text is too large and use chunking strategy
       if (text.length > 15000) {
@@ -29,6 +35,13 @@ const AIModule = (function() {
 
   async function aiTranslate(text, targetLang, onProgress = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiTranslate):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Target language:', targetLang);
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.translate(text, targetLang, onProgress);
     } catch (error) {
@@ -39,6 +52,12 @@ const AIModule = (function() {
 
   async function aiExplain(text, onProgress = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiExplain):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.explain(text, onProgress);
     } catch (error) {
@@ -49,6 +68,12 @@ const AIModule = (function() {
 
   async function aiRewrite(text, onProgress = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiRewrite):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.rewrite(text, onProgress);
     } catch (error) {
@@ -59,6 +84,12 @@ const AIModule = (function() {
 
   async function aiExpand(text, onProgress = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiExpand):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.expand(text, onProgress);
     } catch (error) {
@@ -69,6 +100,12 @@ const AIModule = (function() {
 
   async function aiAnswer(text, onProgress = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiAnswer):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.answer(text, onProgress);
     } catch (error) {
@@ -79,6 +116,16 @@ const AIModule = (function() {
 
   async function aiChat(conversationHistory, onProgress = null) {
     try {
+      const totalLength = conversationHistory.reduce((sum, msg) => sum + msg.content.length, 0);
+      console.log('🤖 AI INPUT SENT TO API (aiChat):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Conversation history length:', conversationHistory.length, 'messages');
+      console.log('Total text length:', totalLength, 'characters, ~' + Math.ceil(totalLength / 4) + ' tokens');
+      conversationHistory.forEach((msg, i) => {
+        console.log(`Message ${i + 1} (${msg.role}):`, msg.content.substring(0, 200) + (msg.content.length > 200 ? '...' : ''));
+      });
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.chat(conversationHistory, onProgress);
     } catch (error) {
@@ -97,7 +144,12 @@ const AIModule = (function() {
         console.warn('⚠️ AI PROMPT: Warning - Prompt is very large:', prompt.length, 'chars (recommended: < 4000)');
       }
 
-
+      // Log the complete prompt
+      console.log('🤖 AI PROMPT SENT TO API (aiPrompt):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log(prompt);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📊 Prompt stats: ' + prompt.length + ' characters, ~' + Math.ceil(prompt.length / 4) + ' tokens');
 
       const service = getAIService();
       // Use the LanguageModel API directly for general prompts
@@ -137,6 +189,12 @@ const AIModule = (function() {
   // Streaming functions
   async function aiSummarizeStream(text, onChunk, signal = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiSummarizeStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.summarizeStream(text, onChunk, signal);
     } catch (error) {
@@ -147,6 +205,12 @@ const AIModule = (function() {
 
   async function aiRewriteStream(text, onChunk, signal = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiRewriteStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.rewriteStream(text, onChunk, signal);
     } catch (error) {
@@ -157,6 +221,12 @@ const AIModule = (function() {
 
   async function aiWriteStream(prompt, onChunk, signal = null) {
     try {
+      console.log('🤖 AI PROMPT SENT TO API (aiWriteStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log(prompt);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📊 Prompt stats: ' + prompt.length + ' characters, ~' + Math.ceil(prompt.length / 4) + ' tokens');
+
       const service = getAIService();
       return await service.writeStream(prompt, onChunk, signal);
     } catch (error) {
@@ -167,6 +237,13 @@ const AIModule = (function() {
 
   async function aiTranslateStream(text, targetLang, onChunk, signal = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiTranslateStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Target language:', targetLang);
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.translateStream(text, targetLang, onChunk, signal);
     } catch (error) {
@@ -177,6 +254,12 @@ const AIModule = (function() {
 
   async function aiExplainStream(text, onChunk, signal = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiExplainStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.explainStream(text, onChunk, signal);
     } catch (error) {
@@ -187,6 +270,12 @@ const AIModule = (function() {
 
   async function aiExpandStream(text, onChunk, signal = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiExpandStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.expandStream(text, onChunk, signal);
     } catch (error) {
@@ -197,6 +286,12 @@ const AIModule = (function() {
 
   async function aiAnswerStream(text, onChunk, signal = null) {
     try {
+      console.log('🤖 AI INPUT SENT TO API (aiAnswerStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       const service = getAIService();
       return await service.answerStream(text, onChunk, signal);
     } catch (error) {

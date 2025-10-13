@@ -8,26 +8,113 @@ const WebChatModule = (function() {
    * Extract text content from current page
    */
   function extractPageContent() {
-    // Get main content, excluding scripts, styles, nav, footer, etc.
+    // Get ALL content including navigation, excluding only WriteBee elements
     const content = [];
 
-    // Try to get article content first
-    const article = document.querySelector('article, main, [role="main"]');
-    
-    if (article) {
-      content.push(article.innerText);
-    } else {
-      // Get all paragraphs and headings
-      const elements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li');
-      elements.forEach(el => {
-        const text = el.innerText.trim();
-        if (text.length > 20) { // Filter out very short text
-          content.push(text);
+    // Helper function to check if element is part of WriteBee extension
+    const isWriteBeeElement = (element) => {
+      if (!element) return false;
+
+      // Check if element or any parent has WriteBee classes/attributes
+      let current = element;
+      while (current && current !== document.body) {
+        const classList = current.classList || [];
+        const className = current.className || '';
+        const id = current.id || '';
+
+        // Check for WriteBee-specific classes, IDs, or attributes
+        if (
+          // Image action buttons
+          classList.contains('writebee-img-action-container') ||
+          classList.contains('writebee-img-action-menu') ||
+          classList.contains('writebee-img-wrapper') ||
+          // Microphone permission overlay
+          id === 'writebee-mic-permission-overlay' ||
+          className.includes('writebee-mic') ||
+          // AI dialogs and panels
+          classList.contains('ai-result-panel') ||
+          classList.contains('ai-twitter-dialog') ||
+          classList.contains('ai-linkedin-dialog') ||
+          // Float buttons
+          classList.contains('ai-float-btn-container') ||
+          classList.contains('ai-float-btn') ||
+          // Toolbars and menus
+          classList.contains('ai-toolbar') ||
+          classList.contains('ai-menu') ||
+          // Other WriteBee elements
+          className.includes('writebee-') ||
+          className.includes('ai-') ||
+          current.hasAttribute('data-writebee') ||
+          current.hasAttribute('data-ai-extension')
+        ) {
+          return true;
         }
-      });
+
+        current = current.parentElement;
+      }
+
+      return false;
+    };
+
+    // IMPROVED: Extract content from multiple sections
+    const sections = [];
+
+    // 1. Navigation menus (IMPORTANT for finding "games" link)
+    const navs = document.querySelectorAll('nav, [role="navigation"], header, .menu, .nav, [class*="menu"], [class*="nav"]');
+    navs.forEach(nav => {
+      if (isWriteBeeElement(nav)) return;
+      const text = nav.innerText.trim();
+      if (text.length > 10) {
+        sections.push(`[Navigation Menu]\n${text}`);
+      }
+    });
+
+    // 2. Main content
+    const article = document.querySelector('article, main, [role="main"]');
+    if (article) {
+      const clone = article.cloneNode(true);
+      clone.querySelectorAll('[class*="writebee-"], [class*="ai-"], [id*="writebee-"]').forEach(el => el.remove());
+      const text = clone.innerText.trim();
+      if (text) {
+        sections.push(`[Main Content]\n${text}`);
+      }
     }
 
-    return content.join('\n\n');
+    // 3. Important elements (headings, paragraphs, lists, links)
+    const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, a[href]');
+    const seenText = new Set();
+    elements.forEach(el => {
+      if (isWriteBeeElement(el)) return;
+
+      const text = el.innerText.trim();
+      // Avoid duplicates but include shorter navigation items
+      if (text.length > 5 && !seenText.has(text)) {
+        seenText.add(text);
+
+        // Include link href if it's an anchor
+        if (el.tagName === 'A' && el.href) {
+          const url = new URL(el.href, window.location.href);
+          if (url.hostname === window.location.hostname) {
+            content.push(`${text} [Link: ${el.href}]`);
+          } else {
+            content.push(text);
+          }
+        } else {
+          content.push(text);
+        }
+      }
+    });
+
+    // Combine all sections
+    const allContent = [...sections, ...content].join('\n\n');
+
+    console.log('📄 EXTRACTION DETAILS:');
+    console.log('  - Navigation sections:', navs.length);
+    console.log('  - Total sections:', sections.length);
+    console.log('  - Individual elements:', content.length);
+    console.log('  - Final content length:', allContent.length, 'characters');
+
+    return allContent;
   }
 
   /**
@@ -76,41 +163,36 @@ const WebChatModule = (function() {
   async function initializeRAG(onProgress = null) {
     try {
 
-
-
       if (!window.RAGEngine) {
         console.error('❌ RAG Engine is NOT loaded in window');
         throw new Error('RAG Engine not loaded');
       }
 
       if (onProgress) onProgress('Initializing RAG Engine...');
-      
+
       // Get or create RAG instance
       ragEngine = RAGEngine.getInstance();
 
       // Clear previous index
       ragEngine.clear();
 
-      // Extract content
-      if (!pageContent) {
+      // ALWAYS extract fresh content to avoid cached WriteBee elements
+      console.log('📄 Extracting fresh page content...');
+      pageContent = extractPageContent();
 
-        pageContent = extractPageContent();
+      console.log('📄 Page content length:', pageContent.length, 'characters');
+      console.log('📄 First 200 chars:', pageContent.substring(0, 200));
 
-
-      } else {
-
-      }
-      
       if (onProgress) onProgress('Indexing current page...');
-      
+
       // Index current page
       const metadata = getPageMetadata();
-
 
       await ragEngine.indexPage(pageContent, metadata);
 
       isIndexed = true;
 
+      console.log('✅ RAG Engine initialized and indexed');
 
       return true;
     } catch (error) {
@@ -243,26 +325,41 @@ Include all the main points, important information and content structure.`;
 
       await indexRelevantLinks(question, onProgress);
 
-      // Retrieve relevant chunks
+      // Retrieve relevant chunks (increased from 5 to 8 for better coverage)
       if (onProgress) onProgress('Retrieving relevant information...');
 
-      const relevantChunks = ragEngine.retrieve(question, 5);
+      const relevantChunks = ragEngine.retrieve(question, 8);
+
+      console.log(`🔍 Retrieved ${relevantChunks.length} relevant chunks for question: "${question}"`);
 
       // Build context from retrieved chunks
-
       const context = ragEngine.buildContext(relevantChunks);
+
+      // Extract all internal links from page
+      const pageLinks = extractPageLinks();
+      const linksContext = pageLinks.length > 0
+        ? `\n\nAvailable pages on this site:\n${pageLinks.slice(0, 10).map((link, i) => `${i+1}. ${link}`).join('\n')}`
+        : '';
 
       if (onProgress) onProgress('Generating answer...');
 
       // Build prompt with context
       const metadata = getPageMetadata();
       const prompt = `You are answering a question about the website: ${metadata.title}
+Current URL: ${metadata.url}
 
-${context}
+${context}${linksContext}
 
 User question: ${question}
 
-Please provide a comprehensive and accurate answer based on the information above. If the information is not sufficient, say so.`;
+Instructions:
+- Provide a comprehensive and accurate answer based on the information above
+- If you find relevant links in the "Available pages" section, mention them with their full URLs
+- If the answer mentions navigation items or menu options, specify where they are located
+- If you see a link that matches what the user is asking for, include it in your answer
+- If the information is not sufficient, say so clearly
+
+Answer:`;
 
 
 
@@ -458,7 +555,7 @@ Please provide a comprehensive and accurate answer based on the information abov
    * Clear page content and reset RAG
    */
   function clearPageContent() {
-
+    console.log('🧹 Clearing page content and RAG cache...');
     isIndexed = false;
     pageContent = null;
     pageSummary = null;
@@ -466,6 +563,19 @@ Please provide a comprehensive and accurate answer based on the information abov
     if (typeof RAGEngine !== 'undefined') {
       RAGEngine.clearContext();
     }
+    // Clear RAG engine instance if exists
+    if (ragEngine) {
+      ragEngine.clear();
+    }
+  }
+
+  /**
+   * Force re-index of current page (useful after page changes)
+   */
+  async function forceReindex(onProgress = null) {
+    console.log('🔄 Forcing page re-index...');
+    clearPageContent();
+    return await initializeRAG(onProgress);
   }
 
   /**
@@ -508,6 +618,7 @@ Please provide a comprehensive and accurate answer based on the information abov
     clearPageContent,
     setPageContent,
     hasPDFLoaded,
+    forceReindex,
     init
   };
 })();

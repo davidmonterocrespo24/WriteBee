@@ -25,7 +25,7 @@ const TwitterModule = (function() {
       subtree: true
     });
 
-    // Verificar inmediatamente
+    // Check immediately
     setTimeout(() => {
       checkForTweetComposer();
       checkForReplyBoxes();
@@ -33,7 +33,7 @@ const TwitterModule = (function() {
   }
 
   function checkForTweetComposer() {
-    // Buscar todas las toolbars (incluyendo el compositor principal de tweets)
+    // Find all toolbars (including the main tweet composer)
     const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
 
     toolbars.forEach(toolbar => {
@@ -42,10 +42,10 @@ const TwitterModule = (function() {
         return;
       }
 
-      // Buscar si esta toolbar tiene el compositor principal (tweetTextarea_0)
+      // Find if this toolbar has the main composer (tweetTextarea_0)
       const mainComposer = toolbar.closest('div')?.querySelector('[data-testid="tweetTextarea_0"]');
 
-      // Solo insertar en el compositor principal del home (no en respuestas)
+      // Only insert in the main home composer (not in replies)
       if (mainComposer) {
         const isInMainTimeline = !toolbar.closest('[role="dialog"]');
 
@@ -62,7 +62,7 @@ const TwitterModule = (function() {
   }
 
   function checkForReplyBoxes() {
-    // Buscar todas las toolbars
+    // Find all toolbars
     const toolbars = document.querySelectorAll('[data-testid="toolBar"]');
 
     toolbars.forEach(toolbar => {
@@ -71,7 +71,7 @@ const TwitterModule = (function() {
         return;
       }
 
-      // Buscar la lista de botones dentro de la toolbar
+      // Find the button list inside the toolbar
       const buttonList = toolbar.querySelector('[data-testid="ScrollSnap-List"]');
 
       if (buttonList) {
@@ -83,14 +83,14 @@ const TwitterModule = (function() {
 
   function insertTweetButton(buttonList, toolbar) {
 
-    // Crear contenedor con la misma estructura que los otros botones
+    // Create container with the same structure as the other buttons
     const buttonWrapper = document.createElement('div');
     buttonWrapper.setAttribute('role', 'presentation');
     buttonWrapper.className = 'css-175oi2r r-14tvyh0 r-cpa5s6';
 
     const btn = document.createElement('button');
     btn.className = 'ai-twitter-btn-tweet css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l';
-    btn.setAttribute('aria-label', 'Generar con AI');
+    btn.setAttribute('aria-label', 'Generate with AI');
     btn.setAttribute('role', 'button');
     btn.setAttribute('type', 'button');
     btn.style.cssText = 'background-color: rgba(0, 0, 0, 0); border-color: rgba(0, 0, 0, 0);';
@@ -108,13 +108,13 @@ const TwitterModule = (function() {
       e.preventDefault();
       e.stopPropagation();
 
-      // Prevenir múltiples diálogos
+      // Prevent multiple dialogs
       if (document.querySelector('.ai-twitter-dialog')) {
 
         return;
       }
 
-      // Buscar el textarea asociado
+      // Find the associated textarea
       const textarea = toolbar.closest('[data-testid="toolBar"]')?.parentElement?.parentElement?.querySelector('[data-testid="tweetTextarea_0"]');
       if (textarea) {
         handleCreateTweet(textarea, btn);
@@ -129,14 +129,14 @@ const TwitterModule = (function() {
 
   function insertReplyButton(buttonList, toolbar) {
 
-    // Crear contenedor con la misma estructura que los otros botones
+    // Create container with the same structure as the other buttons
     const buttonWrapper = document.createElement('div');
     buttonWrapper.setAttribute('role', 'presentation');
     buttonWrapper.className = 'css-175oi2r r-14tvyh0 r-cpa5s6';
 
     const btn = document.createElement('button');
     btn.className = 'ai-twitter-btn-reply css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l';
-    btn.setAttribute('aria-label', 'Respuesta AI');
+    btn.setAttribute('aria-label', 'AI Response');
     btn.setAttribute('role', 'button');
     btn.setAttribute('type', 'button');
     btn.style.cssText = 'background-color: rgba(0, 0, 0, 0); border-color: rgba(0, 0, 0, 0);';
@@ -154,19 +154,19 @@ const TwitterModule = (function() {
       e.preventDefault();
       e.stopPropagation();
 
-      // Prevenir múltiples diálogos
+      // Prevent multiple dialogs
       if (document.querySelector('.ai-twitter-dialog')) {
 
         return;
       }
 
-      // Buscar el contenido del tweet para dar contexto
+      // Find the tweet content to provide context
       const toolbarElement = toolbar.closest('[data-testid="toolBar"]');
 
-      // Intentar extraer contexto del tweet
+      // Try to extract context from the tweet
       let tweetContext = null;
       try {
-        // Buscar el tweet container más cercano
+        // Find the closest tweet container
         const tweetArticle = toolbarElement?.closest('article');
 
         if (tweetArticle) {
@@ -181,13 +181,13 @@ const TwitterModule = (function() {
 
       }
 
-      // Crear diálogo directamente
+      // Create dialog directly
 
       const dialog = createTweetDialog(tweetContext, btn);
 
       document.body.appendChild(dialog);
 
-      // Verificar que está en el DOM
+      // Check that it is in the DOM
       setTimeout(() => {
         const dialogInDom = document.querySelector('.ai-twitter-dialog');
 
@@ -202,7 +202,7 @@ const TwitterModule = (function() {
 
   async function handleCreateTweet(composer, buttonElement) {
 
-    // Crear diálogo para crear tweet
+    // Create dialog for creating tweet
     const dialog = createTweetDialog(null, buttonElement);
     document.body.appendChild(dialog);
   }
@@ -211,16 +211,16 @@ const TwitterModule = (function() {
 
 
 
-    // Extraer el contexto del tweet original
+    // Extract the context of the original tweet
     const tweetContent = extractTweetContent(replyBox);
 
     if (!tweetContent) {
 
-      // No mostrar alert, crear diálogo vacío
+      // Do not show alert, create empty dialog
 
     }
 
-    // Crear diálogo para responder
+    // Create dialog for replying
 
     const dialog = createTweetDialog(tweetContent, buttonElement);
 
@@ -229,7 +229,7 @@ const TwitterModule = (function() {
   }
 
   function extractTweetContent(replyBox) {
-    // Intentar extraer el contenido del tweet padre
+    // Try to extract the parent tweet content
     const tweetContainer = replyBox.closest('[data-testid="tweet"]') || 
                           replyBox.closest('article');
 
@@ -240,7 +240,7 @@ const TwitterModule = (function() {
       }
     }
 
-    // Buscar en el timeline
+    // Search in the timeline
     const articles = document.querySelectorAll('article[data-testid="tweet"]');
     if (articles.length > 0) {
       const firstTweet = articles[0].querySelector('[data-testid="tweetText"]');
@@ -259,7 +259,7 @@ const TwitterModule = (function() {
 
     const isReply = tweetContext !== null;
 
-    // Posicionar el diálogo
+    // Position the dialog
     if (buttonElement) {
       const rect = buttonElement.getBoundingClientRect();
       const dialogWidth = 520;
@@ -268,7 +268,7 @@ const TwitterModule = (function() {
       let left = rect.right + 20;
       let top = rect.top + window.scrollY;
 
-      // Ajustar si se sale de la pantalla
+      // Adjust if it goes off screen
       if (left + dialogWidth > window.innerWidth) {
         left = rect.left - dialogWidth - 20;
       }
@@ -301,7 +301,7 @@ const TwitterModule = (function() {
         <div class="ai-avatar" title="Twitter AI">
           <div class="eyes"><span></span><span></span></div>
         </div>
-        <div class="title">${isReply ? 'Respuesta AI' : 'Crear Tweet'}</div>
+        <div class="title">${isReply ? 'AI Response' : 'Create Tweet'}</div>
         <div class="spacer"></div>
         <button class="ai-iconbtn close-panel" aria-label="Cerrar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -313,7 +313,7 @@ const TwitterModule = (function() {
       <div class="ai-result-body">
         ${isReply ? `
         <div class="ai-twitter-context">
-          <div class="ai-twitter-context-label">📌 Tweet original:</div>
+          <div class="ai-twitter-context-label">📌 Original tweet:</div>
           <div class="ai-twitter-context-content">${tweetContext.substring(0, 200)}${tweetContext.length > 200 ? '...' : ''}</div>
         </div>
         ` : ''}
@@ -321,7 +321,7 @@ const TwitterModule = (function() {
         <div class="ai-twitter-input-section">
           <textarea
             class="ai-twitter-textarea"
-            placeholder="${isReply ? '¿Cómo quieres responder?' : '¿Qué quieres tweetear?'}"
+            placeholder="${isReply ? 'How do you want to respond?' : 'What do you want to tweet?'}"
             rows="4"
           ></textarea>
         </div>
@@ -329,26 +329,26 @@ const TwitterModule = (function() {
         <div class="ai-twitter-actions">
           ${isReply ? `
           <button class="ai-twitter-chip" data-tone="support">
-            <span class="emoji">👍</span>Apoyar
+            <span class="emoji">👍</span>Support
           </button>
           <button class="ai-twitter-chip" data-tone="funny">
-            <span class="emoji">😄</span>Gracioso
+            <span class="emoji">😄</span>Funny
           </button>
           <button class="ai-twitter-chip" data-tone="question">
-            <span class="emoji">❓</span>Preguntar
+            <span class="emoji">❓</span>Ask
           </button>
           <button class="ai-twitter-chip" data-tone="disagree">
-            <span class="emoji">🤔</span>Discrepar
+            <span class="emoji">🤔</span>Disagree
           </button>
           ` : `
           <button class="ai-twitter-chip" data-tone="informative">
-            <svg class="doc" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M8 12h8M8 16h8"/></svg>Informativo
+            <svg class="doc" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M8 12h8M8 16h8"/></svg>Informative
           </button>
           <button class="ai-twitter-chip" data-tone="casual">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Casual
           </button>
           <button class="ai-twitter-chip" data-tone="professional">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25zm2.92 2.33h-.5v-.5l9.9-9.9.5.5-9.9 9.9zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z"/></svg>Profesional
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25zm2.92 2.33h-.5v-.5l9.9-9.9.5.5-9.9 9.9zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z"/></svg>Professional
           </button>
           <button class="ai-twitter-chip" data-tone="viral">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Viral
@@ -371,7 +371,7 @@ const TwitterModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <span>Tweet generado</span>
+            <span>Generated tweet</span>
           </div>
           <div class="ai-twitter-response-content" contenteditable="true"></div>
           <div class="ai-twitter-char-count">
@@ -382,20 +382,20 @@ const TwitterModule = (function() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              Insertar
+              Insert
             </button>
             <button class="ai-twitter-copy-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <rect x="9" y="9" width="10" height="10" rx="2"></rect>
                 <rect x="5" y="5" width="10" height="10" rx="2"></rect>
               </svg>
-              Copiar
+              Copy
             </button>
             <button class="ai-twitter-regenerate-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
-              Regenerar
+              Regenerate
             </button>
           </div>
         </div>
@@ -406,12 +406,12 @@ const TwitterModule = (function() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
           </svg>
-          Generar
+          Generate
         </button>
       </div>
     `;
 
-    // Hacer el diálogo arrastrable
+    // Make the dialog draggable
     makeDraggable(dialog);
 
     // Configurar eventos
@@ -475,7 +475,7 @@ const TwitterModule = (function() {
       dialog.remove();
     });
 
-    // Seleccionar tono
+    // Select tone
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         chips.forEach(c => c.classList.remove('active'));
@@ -484,7 +484,7 @@ const TwitterModule = (function() {
       });
     });
 
-    // Generar tweet
+    // Generate tweet
     const generateTweet = async () => {
       const userContent = userInput.value.trim();
 
@@ -512,13 +512,13 @@ const TwitterModule = (function() {
         // Renderizar con markdown
         MarkdownRenderer.renderToElement(responseContent, tweet);
         
-        // Actualizar contador de caracteres
+        // Update character counter
         updateCharCount(responseContent, charCount);
         
         responseSection.style.display = 'block';
         userInput.value = '';
       } catch (error) {
-        alert('Error al generar el tweet: ' + error.message);
+        alert('Error generating the tweet: ' + error.message);
       } finally {
         generateBtn.disabled = false;
         generateBtn.innerHTML = originalHTML;
@@ -539,7 +539,7 @@ const TwitterModule = (function() {
       updateCharCount(responseContent, charCount);
     });
 
-    // Botón copiar
+    // Copy button
     const copyBtn = dialog.querySelector('.ai-twitter-copy-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
@@ -550,7 +550,7 @@ const TwitterModule = (function() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 6L9 17l-5-5"/>
             </svg>
-            Copiado
+            Copied
           `;
           setTimeout(() => {
             copyBtn.innerHTML = originalHTML;
@@ -559,11 +559,11 @@ const TwitterModule = (function() {
       });
     }
 
-    // Botón regenerar
+    // Regenerate button
     const regenerateBtn = dialog.querySelector('.ai-twitter-regenerate-btn');
     if (regenerateBtn) {
       regenerateBtn.addEventListener('click', async () => {
-        const userContent = userInput.value.trim() || 'Genera un tweet interesante';
+        const userContent = userInput.value.trim() || 'Generate an interesting tweet';
         
         regenerateBtn.disabled = true;
         const originalHTML = regenerateBtn.innerHTML;
@@ -582,7 +582,7 @@ const TwitterModule = (function() {
           MarkdownRenderer.renderToElement(responseContent, tweet);
           updateCharCount(responseContent, charCount);
         } catch (error) {
-          alert('Error al regenerar: ' + error.message);
+          alert('Error regenerating: ' + error.message);
         } finally {
           regenerateBtn.disabled = false;
           regenerateBtn.innerHTML = originalHTML;
@@ -590,7 +590,7 @@ const TwitterModule = (function() {
       });
     }
 
-    // Botón insertar
+    // Insert button
     const insertBtn = dialog.querySelector('.ai-twitter-insert-btn');
     if (insertBtn) {
       insertBtn.addEventListener('click', () => {
@@ -621,15 +621,15 @@ const TwitterModule = (function() {
     
     const toneDescriptions = {
       // Para respuestas
-      support: 'apoyando y estando de acuerdo con el tweet',
-      funny: 'con humor y siendo gracioso',
-      question: 'haciendo una pregunta relevante',
-      disagree: 'expresando desacuerdo de forma respetuosa',
+      support: 'supporting and agreeing with the tweet',
+      funny: 'being funny',
+      question: 'asking a relevant question',
+      disagree: 'expressing disagreement respectfully',
       // Para tweets nuevos
       informative: 'informativo y educativo',
       casual: 'casual y relajado',
       professional: 'profesional y formal',
-      viral: 'llamativo y con potencial viral'
+      viral: 'eye-catching and with viral potential'
     };
 
     const languageNames = {
@@ -640,34 +640,34 @@ const TwitterModule = (function() {
     };
 
     if (originalTweet) {
-      // Es una respuesta
-      prompt = `Tweet original:
+      // It is a response
+      prompt = `Original tweet:
 "${originalTweet}"
 
-Genera una respuesta ${tone ? toneDescriptions[tone] : 'apropiada'} basada en estas instrucciones:
+Generate a response ${tone ? toneDescriptions[tone] : 'appropriate'} based on these instructions:
 ${userContent}
 
-Idioma: ${languageNames[language] || 'español'}
+Language: ${languageNames[language] || 'Spanish'}
 
-IMPORTANTE:
-- Máximo 280 caracteres
-- Tono ${tone ? toneDescriptions[tone] : 'natural y conversacional'}
-- NO uses hashtags excesivos
-- Sé conciso y directo
-- Responde al tweet directamente`;
+IMPORTANT:
+- Maximum 280 characters
+- Tone ${tone ? toneDescriptions[tone] : 'natural and conversational'}
+- DO NOT use excessive hashtags
+- Be concise and direct
+- Respond to the tweet directly`;
     } else {
-      // Es un tweet nuevo
-      prompt = `Genera un tweet ${tone ? toneDescriptions[tone] : 'interesante'} sobre:
+      // It is a new tweet
+      prompt = `Generate a tweet ${tone ? toneDescriptions[tone] : 'interesting'} about:
 ${userContent}
 
-Idioma: ${languageNames[language] || 'español'}
+Language: ${languageNames[language] || 'Spanish'}
 
-IMPORTANTE:
-- Máximo 280 caracteres
-- Tono ${tone ? toneDescriptions[tone] : 'natural y atractivo'}
-- Usa 1-2 hashtags relevantes
-- Sé conciso y llamativo
-- Que genere engagement`;
+IMPORTANT:
+- Maximum 280 characters
+- Tone ${tone ? toneDescriptions[tone] : 'natural and attractive'}
+- Use 1-2 relevant hashtags
+- Be concise and catchy
+- Generate engagement`;
     }
 
     const response = await AIModule.aiAnswer(prompt);
@@ -675,34 +675,34 @@ IMPORTANTE:
   }
 
   function insertTextIntoTwitter(text) {
-    // Buscar el textarea activo de Twitter
+    // Find the active Twitter textarea
     const activeTextarea = document.querySelector('[data-testid="tweetTextarea_0"]');
     
     if (activeTextarea) {
-      // Enfocar el textarea
+      // Focus the textarea
       activeTextarea.focus();
       
-      // Método 1: Usar execCommand
+      // Method 1: Use execCommand
       document.execCommand('insertText', false, text);
       
-      // Método 2: Si no funciona, insertar directamente
+      // Method 2: If it doesn't work, insert directly
       if (!activeTextarea.textContent.includes(text.substring(0, 20))) {
         activeTextarea.textContent = text;
       }
       
-      // Disparar eventos para que Twitter detecte el cambio
+      // Trigger events so Twitter detects the change
       activeTextarea.dispatchEvent(new Event('input', { bubbles: true }));
       activeTextarea.dispatchEvent(new Event('change', { bubbles: true }));
 
     } else {
-      // Fallback: copiar al portapapeles
+      // Fallback: copy to clipboard
       navigator.clipboard.writeText(text).then(() => {
-        alert('Texto copiado al portapapeles. Pégalo en Twitter (Ctrl+V).');
+        alert('Text copied to clipboard. Paste it on Twitter (Ctrl+V).');
       });
     }
   }
 
-  // Inicializar cuando el DOM esté listo
+  // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
