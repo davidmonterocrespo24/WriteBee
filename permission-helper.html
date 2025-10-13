@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WriteBee - Permisos de Micrófono</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      background: #ffd400;
+      color: #1a1a1a;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(255, 212, 0, 0.4);
+    }
+
+    .btn:hover {
+      background: #ffb700;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 212, 0, 0.6);
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .instructions {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .instructions h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .instructions ol {
+      padding-left: 20px;
+    }
+
+    .instructions li {
+      margin-bottom: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🎤</div>
+    <h1>Permisos de Micrófono</h1>
+    <p>WriteBee necesita acceso al micrófono para grabar y transcribir tu voz.</p>
+
+    <button id="requestBtn" class="btn">Solicitar Permiso de Micrófono</button>
+
+    <div id="status" style="display: none;"></div>
+
+    <div class="instructions">
+      <h3>Instrucciones:</h3>
+      <ol>
+        <li>Haz clic en el botón "Solicitar Permiso de Micrófono"</li>
+        <li>Cuando aparezca el diálogo del navegador, selecciona <strong>"Permitir"</strong></li>
+        <li>Una vez otorgado el permiso, puedes cerrar esta pestaña</li>
+        <li>Vuelve al panel lateral de WriteBee y usa la función de grabación</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    const requestBtn = document.getElementById('requestBtn');
+    const statusDiv = document.getElementById('status');
+
+    requestBtn.addEventListener('click', async () => {
+      requestBtn.disabled = true;
+      requestBtn.textContent = 'Solicitando permiso...';
+
+      try {
+        // Request microphone permission
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        // Success!
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status success';
+        statusDiv.textContent = '✅ ¡Permiso otorgado! Ahora puedes cerrar esta pestaña y usar la grabación en WriteBee.';
+
+        // Stop the stream immediately
+        stream.getTracks().forEach(track => track.stop());
+
+        requestBtn.textContent = '¡Permiso Otorgado!';
+        requestBtn.style.background = '#28a745';
+        requestBtn.style.color = 'white';
+
+        // Notify the extension that permission was granted
+        chrome.runtime.sendMessage({ type: 'permission-granted' });
+
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+          window.close();
+        }, 3000);
+
+      } catch (error) {
+        console.error('Permission denied:', error);
+
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status error';
+
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          statusDiv.innerHTML = '❌ Permiso denegado. Por favor, haz clic en el botón de nuevo y selecciona "Permitir" cuando el navegador te lo pida.';
+        } else if (error.name === 'NotFoundError') {
+          statusDiv.innerHTML = '❌ No se encontró ningún micrófono. Verifica que tu micrófono esté conectado.';
+        } else {
+          statusDiv.innerHTML = '❌ Error: ' + error.message;
+        }
+
+        requestBtn.disabled = false;
+        requestBtn.textContent = 'Intentar de Nuevo';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,5 +1,17 @@
 
 (function initSidePanel() {
+  console.log('🎯 side_panel.html loaded - inline scripts executing');
+  console.log('📍 Location:', window.location.href);
+  console.log('📂 Base URI:', document.baseURI);
+
+  // Configure PDF.js worker (local)
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'libs/pdf.worker.min.js';
+    console.log('✅ PDF.js loaded and configured (local version)');
+  } else {
+    console.warn('⚠️ PDF.js failed to load');
+  }
+
   try {
 
 
@@ -8,10 +20,12 @@
   let conversationHistory = [];
   let isRecording = false;
   let mediaRecorder = null;
+  let audioChunks = []; // Store audio chunks
   let attachedImageFile = null;
   let attachedPdfFile = null;
   let isWebChatMode = false; // Flag to track if we are in page chat mode
   let lastProcessedDataHash = null; // To avoid processing the same data multiple times
+  let hasShownMicrophoneInstructions = false; // Track if we've shown the instructions
 
   const chatMessages = document.getElementById('chatMessages');
   const chatInput = document.getElementById('chatInput');
@@ -653,26 +667,81 @@
     }
   }
 
-  // Listener to receive data from dialog
+  // Listener to receive data from dialog and background script
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
-
-      
-
     if (request.action === 'chatData' && request.data) {
-
-      // Llamar handleChatData de forma async pero responder inmediatamente
-      handleChatData(request.data).then(() => {
-
-      }).catch(error => {
+      handleChatData(request.data).catch(error => {
         console.error('❌ Error processing chatData:', error);
       });
-      
-      // Responder inmediatamente para que content.js sepa que el mensaje fue recibido
       sendResponse({ success: true });
-      return true; // Mantener el canal abierto para sendResponse async
+      return true;
     }
-    return true;
+
+    // Transcribe audio received from page recording
+    if (request.type === 'transcribe-audio') {
+      console.log('SIDE_PANEL: Received audio for transcription');
+
+      // Reconstruct Blob from array
+      const uint8Array = new Uint8Array(request.audioData);
+      const audioBlob = new Blob([uint8Array], { type: request.mimeType || 'audio/webm' });
+      console.log('SIDE_PANEL: Reconstructed audio blob', audioBlob.size, 'bytes');
+
+      if (audioBlob.size < 100) {
+        console.error('SIDE_PANEL: Audio blob is too small, likely empty');
+        alert('La grabación está vacía. Intenta hablar más tiempo.');
+        isRecording = false;
+        recordingIndicator.style.display = 'none';
+        voiceBtn.style.color = '';
+        sendResponse({ success: false, error: 'Empty audio' });
+        return true;
+      }
+
+      if (typeof MultimodalModule !== 'undefined') {
+        MultimodalModule.transcribeAudio(audioBlob, 'transcribe', () => {})
+          .then(transcription => {
+            console.log('SIDE_PANEL: Transcription successful', transcription);
+
+            // Get fresh reference to input element
+            const inputElement = document.getElementById('chatInput');
+            if (inputElement) {
+              inputElement.value = transcription;
+              inputElement.focus();
+
+              // Trigger input event manually
+              const event = new Event('input', { bubbles: true });
+              inputElement.dispatchEvent(event);
+
+              // Also call handleInputChange directly
+              handleInputChange();
+
+              console.log('SIDE_PANEL: Input value set to:', inputElement.value);
+            } else {
+              console.error('SIDE_PANEL: chatInput element not found!');
+            }
+
+            isRecording = false;
+            recordingIndicator.style.display = 'none';
+            recordingIndicator.innerHTML = `<span class="recording-dot"></span> Recording audio...`;
+            voiceBtn.style.color = '';
+          })
+          .catch(error => {
+            console.error('SIDE_PANEL: Transcription failed', error);
+            alert('Error transcribing audio: ' + error.message);
+            isRecording = false;
+            recordingIndicator.style.display = 'none';
+            recordingIndicator.innerHTML = `<span class="recording-dot"></span> Recording audio...`;
+            voiceBtn.style.color = '';
+          });
+      } else {
+        console.error('MultimodalModule is not available');
+        alert('Transcription module is not loaded.');
+        isRecording = false;
+        recordingIndicator.style.display = 'none';
+        voiceBtn.style.color = '';
+      }
+      sendResponse({ success: true });
+      return true;
+    }
   });
 
   /**
@@ -1325,17 +1394,132 @@
   }
 
   /**
-   * Toggle voice recording
+   * Toggle voice recording - Record in page context
    */
   async function toggleVoiceRecording() {
-
     if (!isRecording) {
+      console.log('SIDE_PANEL: Starting recording in page context...');
+
       try {
-        // Check if getUserMedia is available
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error('Your browser does not support audio recording');
+        // Start recording in page context (where permission works)
+        const response = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage({ type: 'start-recording-in-page' }, (response) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+            } else {
+              resolve(response);
+            }
+          });
+        });
+
+        if (!response.success) {
+          // If it failed due to permission, show overlay
+          if (response.error && (response.error.includes('NotAllowedError') || response.error.includes('PermissionDenied'))) {
+            console.log('SIDE_PANEL: Permission needed, showing overlay...');
+
+            const permResponse = await new Promise((resolve, reject) => {
+              chrome.runtime.sendMessage({ type: 'request-microphone-permission' }, (response) => {
+                if (chrome.runtime.lastError) {
+                  reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                  resolve(response);
+                }
+              });
+            });
+
+            if (!permResponse.success || !permResponse.granted) {
+              console.log('SIDE_PANEL: Permission not granted');
+              return;
+            }
+
+            console.log('SIDE_PANEL: Permission granted, trying to record again...');
+
+            // Try recording again
+            const retryResponse = await new Promise((resolve, reject) => {
+              chrome.runtime.sendMessage({ type: 'start-recording-in-page' }, (response) => {
+                if (chrome.runtime.lastError) {
+                  reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                  resolve(response);
+                }
+              });
+            });
+
+            if (!retryResponse.success) {
+              throw new Error(retryResponse.error || 'Failed to start recording');
+            }
+          } else {
+            throw new Error(response.error || 'Failed to start recording');
+          }
         }
 
+        // Recording started successfully
+        isRecording = true;
+        recordingIndicator.style.display = 'flex';
+        voiceBtn.style.color = '#dc2626';
+
+        console.log('SIDE_PANEL: Recording started successfully');
+
+      } catch (error) {
+        console.error('SIDE_PANEL: Error starting recording', error);
+
+        let errorMessage = 'No se pudo iniciar la grabación.\n\n';
+
+        if (error.message.includes('No active tab')) {
+          errorMessage += 'Asegúrate de estar en una página web normal (no en chrome:// o about:blank).';
+        } else {
+          errorMessage += error.message;
+        }
+
+        alert(errorMessage);
+      }
+    } else {
+      console.log('SIDE_PANEL: Stopping recording in page context...');
+
+      try {
+        // Stop recording in page context
+        const response = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage({ type: 'stop-recording-in-page' }, (response) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+            } else {
+              resolve(response);
+            }
+          });
+        });
+
+        if (!response.success) {
+          console.warn('SIDE_PANEL: Stop recording returned error:', response.error);
+        }
+
+        // Update UI
+        isRecording = false;
+        recordingIndicator.style.display = 'none';
+        voiceBtn.style.color = '';
+
+        // Show transcription indicator
+        recordingIndicator.innerHTML = `
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+          Transcribing...
+        `;
+        recordingIndicator.style.display = 'flex';
+
+      } catch (error) {
+        console.error('SIDE_PANEL: Error stopping recording', error);
+      }
+    }
+  }
+
+  // OLD CODE - kept for reference, delete this later
+  /*
+  async function toggleVoiceRecordingOld() {
+    if (!isRecording) {
+      try {
+        console.log('SIDE_PANEL: Starting recording directly in side panel...');
+
+        // Request microphone access
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
@@ -1344,12 +1528,33 @@
           }
         });
 
-        mediaRecorder = new MediaRecorder(stream);
-        const chunks = [];
+        console.log('SIDE_PANEL: Got media stream');
 
-        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        // Create MediaRecorder
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          console.log('SIDE_PANEL: Data available', event.data.size);
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+        };
+
         mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+          console.log('SIDE_PANEL: Recording stopped, processing audio...');
+
+          // Stop all tracks
+          stream.getTracks().forEach(track => track.stop());
+
+          // Create blob from chunks
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          console.log('SIDE_PANEL: Audio blob created', audioBlob.size, 'bytes');
+
+          // Reset UI
+          isRecording = false;
+          recordingIndicator.style.display = 'none';
+          voiceBtn.style.color = '';
 
           // Show transcription indicator
           recordingIndicator.innerHTML = `
@@ -1360,72 +1565,78 @@
           `;
           recordingIndicator.style.display = 'flex';
 
+          // Transcribe
           try {
-
             if (typeof MultimodalModule !== 'undefined') {
-              const transcription = await MultimodalModule.transcribeAudio(audioBlob, 'transcribe', (progress) => {
-
-              });
+              const transcription = await MultimodalModule.transcribeAudio(audioBlob, 'transcribe', () => {});
+              console.log('SIDE_PANEL: Transcription successful', transcription);
               chatInput.value = transcription;
               handleInputChange();
-
+              recordingIndicator.style.display = 'none';
+              recordingIndicator.innerHTML = `<span class="recording-dot"></span> Recording audio...`;
             } else {
               throw new Error('MultimodalModule is not available');
             }
           } catch (error) {
-            console.error('❌ Error transcribing audio:', error);
+            console.error('SIDE_PANEL: Transcription failed', error);
             alert('Error transcribing audio: ' + error.message);
+            recordingIndicator.style.display = 'none';
+            recordingIndicator.innerHTML = `<span class="recording-dot"></span> Recording audio...`;
           }
-
-          // Ocultar indicador y limpiar
-          recordingIndicator.style.display = 'none';
-          recordingIndicator.innerHTML = `
-            <span class="recording-dot"></span>
-            Recording audio...
-          `;
-          stream.getTracks().forEach(track => track.stop());
         };
 
+        mediaRecorder.onerror = (error) => {
+          console.error('SIDE_PANEL: MediaRecorder error', error);
+          isRecording = false;
+          recordingIndicator.style.display = 'none';
+          voiceBtn.style.color = '';
+          alert('Error durante la grabación: ' + error.message);
+        };
+
+        // Start recording
         mediaRecorder.start();
         isRecording = true;
         recordingIndicator.style.display = 'flex';
         voiceBtn.style.color = '#dc2626';
-      } catch (error) {
-        console.error('❌ Error accessing microphone:', error);
-        console.error('Tipo de error:', error.name);
-        console.error('Mensaje:', error.message);
 
-        let errorMessage = 'Could not access the microphone.\n\n';
+        console.log('SIDE_PANEL: Recording started successfully');
+
+      } catch (error) {
+        console.error('SIDE_PANEL: Error starting recording', error);
+
+        let errorMessage = 'No se pudo acceder al micrófono.\n\n';
 
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-          errorMessage += '❌ Permission denied.\n\n' +
-                         'To enable the microphone:\n' +
-                         '1. Click the 🔒 icon in the address bar\n' +
-                         '2. Find "Microphone" and set to "Allow"\n' +
-                         '3. Reload the side panel';
-        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-          errorMessage += '❌ No microphone found.\n\n' +
-                         'Make sure you have a microphone connected.';
-        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-          errorMessage += '❌ The microphone is being used by another application.\n\n' +
-                         'Close other applications that may be using the microphone.';
+          errorMessage += 'El permiso fue denegado.\n\n';
+          errorMessage += 'SOLUCIÓN:\n';
+          errorMessage += '1. Cierra este panel lateral\n';
+          errorMessage += '2. Visita cualquier página web (ej: google.com)\n';
+          errorMessage += '3. Haz clic derecho → Inspeccionar → Console\n';
+          errorMessage += '4. Escribe: navigator.mediaDevices.getUserMedia({audio:true})\n';
+          errorMessage += '5. Acepta el permiso\n';
+          errorMessage += '6. Vuelve a este panel e intenta grabar';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage += 'No se encontró ningún micrófono conectado.\n\n';
+          errorMessage += 'Por favor, verifica que tu micrófono esté conectado correctamente.';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage += 'El micrófono está siendo usado por otra aplicación.\n\n';
+          errorMessage += 'Cierra otras aplicaciones que puedan estar usando el micrófono e intenta de nuevo.';
         } else {
-          errorMessage += 'Error: ' + error.message + '\n\n' +
-                         'Try:\n' +
-                         '• Check browser permissions\n' +
-                         '• Reload the page\n' +
-                         '• Use another browser';
+          errorMessage += 'Error: ' + error.message;
         }
 
         alert(errorMessage);
       }
     } else {
-      mediaRecorder.stop();
-      isRecording = false;
-      recordingIndicator.style.display = 'none';
-      voiceBtn.style.color = '';
+      console.log('SIDE_PANEL: Stopping recording...');
+      // Stop recording
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
     }
   }
+
+
 
   /**
    * Guardar historial en storage

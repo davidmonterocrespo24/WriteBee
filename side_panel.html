@@ -874,24 +874,7 @@
     </div>
   </div>
 
-  <script>
-    console.log('🎯 side_panel.html loaded - inline scripts executing');
-    console.log('📍 Location:', window.location.href);
-    console.log('📂 Base URI:', document.baseURI);
-  </script>
-  
-  <!-- PDF.js Library for PDF text extraction (local) -->
   <script src="libs/pdf.min.js"></script>
-  <script>
-    // Configure PDF.js worker (local)
-    if (typeof pdfjsLib !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'libs/pdf.worker.min.js';
-      console.log('✅ PDF.js loaded and configured (local version)');
-    } else {
-      console.warn('⚠️ PDF.js failed to load');
-    }
-  </script>
-  
   <script src="modules/markdown.js"></script>
   <script src="modules/aiService.js"></script>
   <script src="modules/ai.js"></script>
@@ -901,19 +884,6 @@
   <script src="modules/pdfModule.js"></script>
   <script src="modules/webChat.js"></script>
   <script src="side_panel.js"></script>
-  <script>
-    console.log('🏁 All scripts loaded');
-    console.log('🔍 Verifying modules after loading scripts:', {
-      MarkdownRenderer: typeof MarkdownRenderer,
-      AIServiceInstance: typeof window.AIServiceInstance,
-      AIModule: typeof AIModule,
-      MultimodalModule: typeof MultimodalModule,
-      PromptLibraryModule: typeof PromptLibraryModule,
-      RAGEngine: typeof RAGEngine,
-      PDFModule: typeof PDFModule,
-      WebChatModule: typeof WebChatModule
-    });
-  </script>
 </body>
 </html>
 

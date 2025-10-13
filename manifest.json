@@ -20,7 +20,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["libs/*"],
+      "resources": ["libs/*", "permission-helper.html"],
       "matches": ["<all_urls>"]
     }
   ],
@@ -57,7 +57,7 @@
       "matches": ["<all_urls>"],
       "match_about_blank": true,
       "match_origin_as_fallback": true,
-      "js": [     
+      "js": [
         "modules/markdown.js",
         "modules/aiService.js",
         "modules/ai.js",
@@ -67,6 +67,8 @@
         "modules/pdf.js",
         "modules/ragEngine.js",
         "modules/webChat.js",
+        "modules/microphonePermission.js",
+        "modules/imageActions.js",
         "modules/dialog.js",
         "modules/actions.js",
         "modules/toolbarConfig.js",

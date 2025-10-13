@@ -113,9 +113,69 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Extract page content and send to side panel
     handleExtractPageContent();
     sendResponse({ success: true });
+  } else if (request.action === 'showMicrophonePermission') {
+    // Show microphone permission overlay
+    handleShowMicrophonePermission(sendResponse);
+    return true; // Keep channel open for async response
+  } else if (request.action === 'startRecordingInPage') {
+    // Start recording in page context
+    handleStartRecordingInPage(sendResponse);
+    return true;
+  } else if (request.action === 'stopRecordingInPage') {
+    // Stop recording in page context
+    handleStopRecordingInPage(sendResponse);
+    return true;
   }
   return true;
 });
+
+// Handle microphone permission request
+async function handleShowMicrophonePermission(sendResponse) {
+  try {
+    if (typeof MicrophonePermissionModule === 'undefined') {
+      sendResponse({ success: false, error: 'MicrophonePermissionModule not loaded' });
+      return;
+    }
+
+    const granted = await MicrophonePermissionModule.requestPermission();
+    sendResponse({ success: true, granted: granted });
+  } catch (error) {
+    console.error('Error showing microphone permission:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+// Handle start recording request
+async function handleStartRecordingInPage(sendResponse) {
+  try {
+    if (typeof MicrophonePermissionModule === 'undefined') {
+      sendResponse({ success: false, error: 'MicrophonePermissionModule not loaded' });
+      return;
+    }
+
+    const result = await MicrophonePermissionModule.startRecording();
+    sendResponse(result);
+  } catch (error) {
+    console.error('Error starting recording:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+// Handle stop recording request
+function handleStopRecordingInPage(sendResponse) {
+  try {
+    if (typeof MicrophonePermissionModule === 'undefined') {
+      sendResponse({ success: false, error: 'MicrophonePermissionModule not loaded' });
+      return;
+    }
+
+    const result = MicrophonePermissionModule.stopRecording();
+    sendResponse(result);
+  } catch (error) {
+    console.error('Error stopping recording:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
 
 // Handle OCR request
 async function handleOCRRequest(imageUrl) {

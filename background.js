@@ -244,6 +244,126 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     pendingChatData = null; // Limpiar después de enviar
     return true;
   }
+
+  // Request microphone permission via content script overlay
+  if (request.type === 'request-microphone-permission') {
+    console.log('BACKGROUND: Requesting microphone permission via content script');
+
+    // Get the active tab
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        // Send message to content script to show permission overlay
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: 'showMicrophonePermission'
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error showing permission overlay:', chrome.runtime.lastError);
+            sendResponse({ success: false, error: chrome.runtime.lastError.message });
+          } else {
+            sendResponse(response);
+          }
+        });
+      } else {
+        sendResponse({ success: false, error: 'No active tab found' });
+      }
+    });
+
+    return true; // Keep channel open for async response
+  }
+
+  // Start recording in page context
+  if (request.type === 'start-recording-in-page') {
+    console.log('BACKGROUND: Starting recording in page context');
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: 'startRecordingInPage'
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error starting recording:', chrome.runtime.lastError);
+            sendResponse({ success: false, error: chrome.runtime.lastError.message });
+          } else {
+            sendResponse(response);
+          }
+        });
+      } else {
+        sendResponse({ success: false, error: 'No active tab found' });
+      }
+    });
+
+    return true;
+  }
+
+  // Stop recording in page context
+  if (request.type === 'stop-recording-in-page') {
+    console.log('BACKGROUND: Stopping recording in page context');
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: 'stopRecordingInPage'
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error stopping recording:', chrome.runtime.lastError);
+            sendResponse({ success: false, error: chrome.runtime.lastError.message });
+          } else {
+            sendResponse(response);
+          }
+        });
+      } else {
+        sendResponse({ success: false, error: 'No active tab found' });
+      }
+    });
+
+    return true;
+  }
+
+  // Audio recorded from page - forward to side panel
+  if (request.type === 'audio-recorded-from-page') {
+    console.log('BACKGROUND: Audio recorded from page, forwarding to side panel');
+    console.log('BACKGROUND: Audio data size:', request.audioData ? request.audioData.length : 0, 'bytes');
+
+    // Forward the audio data to side panel
+    chrome.runtime.sendMessage({
+      type: 'transcribe-audio',
+      audioData: request.audioData,
+      mimeType: request.mimeType || 'audio/webm'
+    });
+    sendResponse({ success: true });
+    return true;
+  }
+
+  // Audio recording using offscreen document
+  if (request.type === 'start-recording' || request.type === 'stop-recording') {
+    forwardToOffscreen(request);
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.type === 'recording-started') {
+    console.log('BACKGROUND: Recording started successfully');
+    chrome.runtime.sendMessage({ type: 'recording-started' });
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.type === 'audio-recorded') {
+    console.log('BACKGROUND: Received audio-recorded, forwarding to side panel');
+    closeOffscreenDocument();
+    // Forward the audio to the side panel
+    chrome.runtime.sendMessage({ type: 'transcribe-audio', data: request.data });
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.type === 'recording-error') {
+    console.log('BACKGROUND: Recording error received', request.error);
+    closeOffscreenDocument();
+    chrome.runtime.sendMessage({ type: 'recording-error', error: request.error });
+    sendResponse({ success: true });
+    return true;
+  }
   
   // Mensaje desde el badge cuando se hace clic en extensión con PDF
   if (request.action === 'pdfToolbarRequest') {
@@ -269,5 +389,41 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error('Error configurando side panel:', error));
+
+let creating;
+async function forwardToOffscreen(request) {
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT']
+  });
+
+  if (existingContexts.length > 0) {
+    chrome.runtime.sendMessage({ ...request, target: 'offscreen' });
+    return;
+  }
+
+  if (creating) {
+    await creating;
+  } else {
+    creating = chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['USER_MEDIA'],
+      justification: 'Audio recording for transcription'
+    });
+    await creating;
+    creating = null;
+  }
+
+  chrome.runtime.sendMessage({ ...request, target: 'offscreen' });
+}
+
+async function closeOffscreenDocument() {
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT']
+  });
+
+  if (existingContexts.length > 0) {
+    chrome.offscreen.closeDocument();
+  }
+}
 
 
