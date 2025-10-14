@@ -31,31 +31,40 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 - Quick reply suggestions
 - Email summarization
 
-#### 📱 WhatsApp Web
-- Message enhancement tools
-- Quick response generation
-- Text formatting assistance
 
 #### 🐦 Twitter / X
+![Twitter](imagenes/X.png)
 - Tweet composition help
 - Thread summarization
 - Engagement optimization
 
 #### 💼 LinkedIn
+
+![LinkedIn Comment](imagenes/linkedin comment.png)
+
+![LinkedIn Post](imagenes/linkedin post.png)
+
+![LinkedIn Template](imagenes/linkedin template.png)
+
 - Professional content assistance
 - Post optimization
 - Message drafting
 
+
 #### 🐙 GitHub
+![GitHub](imagenes/github.png)
 - Repository summary
 - Documentation help
 - Issue and PR summarization
 
 #### 🔍 Google Search
+![Google Search](imagenes/google search.png)
+
 - Search result summarization
 - Content analysis
 
 #### 📄 PDF Support
+![PDF RAG](imagenes/pdf rag.png)
 - Extract and summarize PDF content
 - Chat with PDF documents
 - Translate PDF text
@@ -168,11 +177,10 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 ![Image Description](imagenes/image description.png)
 
 1. **Right-click** on selected text or images
-2. **Choose an AI action** from the menu:
-   - Check Grammar
+2. **Choose an AI action** from the menu:   
    - Explain Image
    - Extract Text (OCR)
-   - And more...
+
 
 ## 🔧 Configuration
 
@@ -217,7 +225,6 @@ For large texts (like long YouTube videos), WriteBee uses a sophisticated hierar
 This ensures videos of any length can be summarized effectively.
 
 ### Smart Text Processing
-- Automatic removal of noise (`[Music]`, `[Applause]`, etc.)
 - Whitespace normalization
 - Language detection and adaptation
 - Context-aware summarization
@@ -316,4 +323,3 @@ For issues, questions, or suggestions:
 
 **Note**: This extension requires Chrome 138+ with the Chrome AI trial enabled. Features may vary based on your system configuration and available resources.
 
-**Made with ❤️ using Chrome's Built-in AI**
