@@ -2,7 +2,7 @@
 
 An intelligent Chrome extension that brings powerful AI capabilities directly to your browser. WriteBee enhances your web experience with on-device AI features for text processing, summarization, translation, and more.
 
-![Toolbar](imagenes/Tool bar.png)
+![Toolbar](imagenes/toolbar.png)
 
 ## ✨ Features
 
@@ -13,6 +13,9 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 - **Explain** - Get clear explanations of complex content
 - **Grammar Check** - Fix grammar and spelling errors
 - **Expand Text** - Add details and examples to your writing
+- **Audio Recording** - Voice input for AI interactions
+
+![Audio Record](imagenes/audio_record.png)
 
 ### 🎯 Platform-Specific Integrations
 
@@ -24,9 +27,9 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 - Copy & Regenerate
 
 #### 📧 Gmail
-![Gmail New Message](imagenes/gmail new messaje.png)
-![Gmail Response](imagenes/gmail response.png)
-![Gmail Summary](imagenes/gmail summary.png)
+![Gmail New Message](imagenes/gmail_new_message.png)
+![Gmail Response](imagenes/gmail_response.png)
+![Gmail Summary](imagenes/gmail_summary.png)
 - Smart email composition assistance
 - Quick reply suggestions
 - Email summarization
@@ -40,11 +43,11 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 
 #### 💼 LinkedIn
 
-![LinkedIn Comment](imagenes/linkedin comment.png)
+![LinkedIn Comment](imagenes/linkedin_comment.png)
 
-![LinkedIn Post](imagenes/linkedin post.png)
+![LinkedIn Post](imagenes/linkedin_post.png)
 
-![LinkedIn Template](imagenes/linkedin template.png)
+![LinkedIn Template](imagenes/linkedin_template.png)
 
 - Professional content assistance
 - Post optimization
@@ -58,13 +61,13 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 - Issue and PR summarization
 
 #### 🔍 Google Search
-![Google Search](imagenes/google search.png)
+![Google Search](imagenes/google_search.png)
 
 - Search result summarization
 - Content analysis
 
 #### 📄 PDF Support
-![PDF RAG](imagenes/pdf rag.png)
+![PDF RAG](imagenes/pdf_rag.png)
 - Extract and summarize PDF content
 - Chat with PDF documents
 - Translate PDF text
@@ -135,7 +138,7 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 
 ### Basic Text Actions
 
-![Page Chat](imagenes/page chat.png)
+![Page Chat](imagenes/page_chat.png)
 
 1. **Select Text** on any webpage
 2. **AI Toolbar appears** with available actions
@@ -152,7 +155,7 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 
 ### Side Panel Chat
 
-![Side Chat](imagenes/side chat.png)
+![Side Chat](imagenes/side_chat.png)
 
 1. **Click the extension icon** to open the side panel
 2. **Type your question or request**
@@ -174,15 +177,19 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 
 ### Context Menu Actions
 
-![Image Description](imagenes/image description.png)
+![Image Description](imagenes/image_description.png)
+![Image Processing](imagenes/image_processing.png)
 
 1. **Right-click** on selected text or images
 2. **Choose an AI action** from the menu:   
    - Explain Image
    - Extract Text (OCR)
+   - Process Image
 
 
 ## 🔧 Configuration
+
+![Language Options](imagenes/language_option.png)
 
 ### Supported Languages
 - English (en)
