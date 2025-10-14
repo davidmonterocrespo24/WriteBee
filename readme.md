@@ -2,6 +2,8 @@
 
 An intelligent Chrome extension that brings powerful AI capabilities directly to your browser. WriteBee enhances your web experience with on-device AI features for text processing, summarization, translation, and more.
 
+![Toolbar](imagenes/Tool bar.png)
+
 ## ✨ Features
 
 ### 🤖 AI-Powered Text Processing
@@ -15,12 +17,16 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 ### 🎯 Platform-Specific Integrations
 
 #### 📺 YouTube
+![YouTube](imagenes/youtube.png)
 - Automatic Video Summarization
 - Hierarchical Chunking
 - Progress Tracking
 - Copy & Regenerate
 
 #### 📧 Gmail
+![Gmail New Message](imagenes/gmail new messaje.png)
+![Gmail Response](imagenes/gmail response.png)
+![Gmail Summary](imagenes/gmail summary.png)
 - Smart email composition assistance
 - Quick reply suggestions
 - Email summarization
@@ -120,6 +126,8 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 
 ### Basic Text Actions
 
+![Page Chat](imagenes/page chat.png)
+
 1. **Select Text** on any webpage
 2. **AI Toolbar appears** with available actions
 3. **Click an action** to process the text
@@ -134,6 +142,8 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 5. **Copy or regenerate** as needed
 
 ### Side Panel Chat
+
+![Side Chat](imagenes/side chat.png)
 
 1. **Click the extension icon** to open the side panel
 2. **Type your question or request**
@@ -154,6 +164,8 @@ An intelligent Chrome extension that brings powerful AI capabilities directly to
 6. **Delete prompts** using the trash icon (appears on hover)
 
 ### Context Menu Actions
+
+![Image Description](imagenes/image description.png)
 
 1. **Right-click** on selected text or images
 2. **Choose an AI action** from the menu:
