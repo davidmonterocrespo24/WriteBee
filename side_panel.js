@@ -993,21 +993,27 @@
       // Show empty state with suggestion chips
       chatMessages.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">💬</div>
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>
+          </div>
           <h2>Start a conversation</h2>
           <p>Type a message or use the "Continue in chat" button from any AI dialog</p>
           <div class="suggestion-chips">
             <button class="suggestion-chip" data-suggestion="Help me write a professional email">
-              ✉️ Write email
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25zm2.92 2.33h-.5v-.5l9.9-9.9.5.5-9.9 9.9zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z"/></svg>
+              Write email
             </button>
             <button class="suggestion-chip" data-suggestion="Summarize this text in 3 key points">
-              📝 Summarize text
+              <svg class="doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M8 12h8M8 16h8"/></svg>
+              Summarize text
             </button>
             <button class="suggestion-chip" data-suggestion="Translate this text to English">
-              🌐 Translate
+              <svg class="translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h9"/><path d="M8 5s.3 5-4 9"/><path d="M12 9h-8"/><path d="M14 19l4-10 4 10"/><path d="M15.5 15h5"/></svg>
+              Translate
             </button>
             <button class="suggestion-chip" data-suggestion="Explain this concept in simple terms">
-              💡 Explain
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Explain
             </button>
           </div>
         </div>

@@ -96,27 +96,27 @@ const DialogModule = (function() {
           </button>
           <div class="ai-mode-dropdown">
             <div class="ai-mode-dropdown-item ${action === 'summarize' ? 'active' : ''}" data-mode="summarize">
-              <span class="icon">📄</span>
+              <span class="icon"><svg class="doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M8 12h8M8 16h8"/></svg></span>
               Summarize
             </div>
             <div class="ai-mode-dropdown-item ${action === 'translate' ? 'active' : ''}" data-mode="translate">
-              <span class="icon">🌐</span>
+              <span class="icon"><svg class="translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h9"/><path d="M8 5s.3 5-4 9"/><path d="M12 9h-8"/><path d="M14 19l4-10 4 10"/><path d="M15.5 15h5"/></svg></span>
               Translate
             </div>
             <div class="ai-mode-dropdown-item ${action === 'explain' ? 'active' : ''}" data-mode="explain">
-              <span class="icon">💡</span>
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
               Explain
             </div>
             <div class="ai-mode-dropdown-item ${action === 'rewrite' ? 'active' : ''}" data-mode="rewrite">
-              <span class="icon">✏️</span>
+              <span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25zm2.92 2.33h-.5v-.5l9.9-9.9.5.5-9.9 9.9zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z"/></svg></span>
               Rewrite
             </div>
             <div class="ai-mode-dropdown-item ${action === 'expand' ? 'active' : ''}" data-mode="expand">
-              <span class="icon">🔍</span>
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span>
               Expand
             </div>
             <div class="ai-mode-dropdown-item ${action === 'answer' ? 'active' : ''}" data-mode="answer">
-              <span class="icon">💬</span>
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
               Answer
             </div>
           </div>
@@ -868,14 +868,14 @@ const DialogModule = (function() {
     }
 
     const actionTitles = {
-      describe: '🖼️ Image Description',
-      summarize: '📄 Summarize Image',
-      translate: '🌐 Translate Text in Image',
-      explain: '💡 Explain Image',
-      alttext: '🏷️ Generate Alt Text'
+      describe: 'Image Description',
+      summarize: 'Summarize Image',
+      translate: 'Translate Text in Image',
+      explain: 'Explain Image',
+      alttext: 'Generate Alt Text'
     };
 
-    const title = actionTitles[action] || '🖼️ Process Image';
+    const title = actionTitles[action] || 'Process Image';
 
     dialog.innerHTML = `
       <header class="ai-result-header ai-draggable">

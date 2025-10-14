@@ -6,32 +6,32 @@ const PDFModule = (function() {
    * Check if current page is a PDF
    */
   function isPDFPage() {
-    // 1. Detectar por URL - el método más confiable
+    // 1. Detect by URL - the most reliable method
     const url = window.location.href.toLowerCase();
     const pathname = window.location.pathname.toLowerCase();
     const isPDFUrl = pathname.endsWith('.pdf') || url.includes('.pdf');
     
-    // 2. Detectar PDF local (file://)
+    // 2. Detect local PDF (file://)
     const isLocalPDF = window.location.protocol === 'file:' && isPDFUrl;
     
-    // 3. Detectar Chrome Extension PDF viewer
-    // La URL será algo como: chrome-extension://xxxxx/file:///C:/path/to/file.pdf
+    // 3. Detect Chrome Extension PDF viewer
+    // The URL will be something like: chrome-extension://xxxxx/file:///C:/path/to/file.pdf
     const isChromeExtensionPDF = window.location.protocol === 'chrome-extension:' && 
                                  (url.includes('file:///') || url.includes('.pdf'));
     
-    // 4. Detectar por content type del documento
+    // 4. Detect by document content type
     const isPDFContentType = document.contentType === 'application/pdf';
     
-    // 5. Detectar visor de PDF embebido en Chrome
+    // 5. Detect embedded PDF viewer in Chrome
     const hasEmbedPDF = document.querySelector('embed[type="application/pdf"]') !== null;
     
-    // 6. Detectar iframe de PDF
+    // 6. Detect PDF iframe
     const hasPDFIframe = document.querySelector('iframe[src*=".pdf"]') !== null;
     
-    // 7. Chrome a veces usa un <embed> como elemento raíz
+    // 7. Chrome sometimes uses an <embed> as the root element
     const isRootEmbed = document.documentElement.tagName === 'EMBED';
     
-    // 8. Detectar PDF.js viewer por URL params
+    // 8. Detect PDF.js viewer by URL params
     const hasPDFParam = url.includes('viewer.html?file=') || url.includes('/pdfjs/');
     
     const result = isPDFUrl || isLocalPDF || isChromeExtensionPDF || isPDFContentType || 
@@ -165,7 +165,7 @@ const PDFModule = (function() {
 
 
 
-    // Asegurarse de que hay un body donde insertar
+    // Make sure there is a body to insert into
     if (!document.body) {
 
       const body = document.createElement('body');
@@ -199,21 +199,21 @@ const PDFModule = (function() {
           <line x1="9" y1="13" x2="15" y2="13"/>
           <line x1="9" y1="17" x2="15" y2="17"/>
         </svg>
-        Resumir
+        Summarize
       </button>
-      <button class="ai-pdf-btn" data-action="translate" title="Traducir PDF" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+      <button class="ai-pdf-btn" data-action="translate" title="Translate PDF" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
           <path d="m5 8 6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14.5 17h6"/>
         </svg>
-        Traducir
+        Translate
       </button>
-      <button class="ai-pdf-btn" data-action="chat" title="Chat con PDF" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+      <button class="ai-pdf-btn" data-action="chat" title="Chat with PDF" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
         Chat
       </button>
-      <button class="ai-pdf-btn" data-action="ocr" title="Extraer Texto (OCR)" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+      <button class="ai-pdf-btn" data-action="ocr" title="Extract Text (OCR)" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
           <line x1="7" y1="10" x2="17" y2="10"/>
@@ -229,11 +229,11 @@ const PDFModule = (function() {
 
 
     } catch (error) {
-      console.error('❌ Error al insertar toolbar:', error);
+      console.error('❌ Error inserting toolbar:', error);
       console.error('❌ Error stack:', error.stack);
     }
 
-    // Agregar efectos hover
+    // Add hover effects
 
     toolbar.querySelectorAll('.ai-pdf-btn').forEach((btn, index) => {
 
@@ -313,7 +313,7 @@ const PDFModule = (function() {
 
         
       
-      // Intentar crear toolbar varias veces porque el DOM del visor puede tardar
+      // Try to create toolbar several times because the viewer DOM may take time
       let attempts = 0;
       const maxAttempts = 10;
       
@@ -329,8 +329,8 @@ const PDFModule = (function() {
 
           setTimeout(tryCreateToolbar, 500);
         } else {
-          console.error('❌ No se pudo crear toolbar después de', maxAttempts, 'intentos');
-          console.error('❌ Estado final del DOM:', {
+          console.error('❌ Could not create toolbar after', maxAttempts, 'attempts');
+          console.error('❌ Final DOM state:', {
             documentElement: document.documentElement,
             children: document.documentElement?.children,
             innerHTML: document.documentElement?.innerHTML?.substring(0, 500)
@@ -338,12 +338,12 @@ const PDFModule = (function() {
         }
       };
       
-      // Empezar a intentar inmediatamente
+      // Start trying immediately
 
       tryCreateToolbar();
     } else {
-      console.log('ℹ️ No es una página PDF, PDFModule no se inicializa');
-      console.log('ℹ️ Detalles de detección:', {
+      console.log('ℹ️ Not a PDF page, PDFModule is not initialized');
+      console.log('ℹ️ Detection details:', {
         url: window.location.href,
         protocol: window.location.protocol,
         pathname: window.location.pathname
@@ -370,7 +370,7 @@ if (typeof window !== 'undefined') {
 
   window.PDFModule = PDFModule;
 
-  // Inicialización inmediata para archivos locales y chrome-extension PDFs
+  // Immediate initialization for local files and chrome-extension PDFs
   const isLocalFile = window.location.protocol === 'file:';
   const isChromeExtPDF = window.location.protocol === 'chrome-extension:' && 
                          (window.location.href.includes('file:///') || window.location.href.includes('.pdf'));
@@ -382,14 +382,14 @@ if (typeof window !== 'undefined') {
 
 
 
-    // Para archivos locales, intentar múltiples veces porque el DOM puede no estar listo
+    // For local files, try multiple times because the DOM may not be ready
     let initAttempts = 0;
     const tryInit = () => {
       initAttempts++;
 
       PDFModule.init();
       
-      // Verificar que el toolbar se creó
+      // Check that the toolbar was created
       setTimeout(() => {
         const toolbarExists = document.querySelector('.ai-pdf-toolbar');
 
@@ -400,7 +400,7 @@ if (typeof window !== 'undefined') {
         } else if (toolbarExists) {
 
         } else {
-          console.error('❌ No se pudo crear el toolbar después de 5 intentos');
+          console.error('❌ Could not create toolbar after 5 attempts');
         }
       }, 200);
     };
@@ -408,7 +408,7 @@ if (typeof window !== 'undefined') {
     tryInit();
   } else {
 
-    // Para URLs web, usar el método estándar
+    // For web URLs, use the standard method
     if (document.readyState === 'loading') {
 
       document.addEventListener('DOMContentLoaded', () => {
@@ -421,7 +421,7 @@ if (typeof window !== 'undefined') {
     }
   }
   
-  // Fallback adicional después de 1 segundo para todos los casos
+  // Additional fallback after 1 second for all cases
   setTimeout(() => {
 
 
@@ -436,7 +436,7 @@ if (typeof window !== 'undefined') {
     }
   }, 1000);
   
-  // Fallback final después de 2 segundos
+  // Final fallback after 2 seconds
   setTimeout(() => {
 
 
