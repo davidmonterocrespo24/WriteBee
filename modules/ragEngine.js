@@ -495,7 +495,13 @@ const RAGEngine = (function() {
       // Filter out chunks with very low scores
       const filteredResults = results.filter(r => r.similarity > 0.05);
 
-      const topResults = filteredResults.slice(0, topK);
+      let topResults = filteredResults.slice(0, topK);
+
+      // If no results found, return top chunks anyway (fallback for generic queries)
+      if (topResults.length === 0 && results.length > 0) {
+        console.warn('⚠️ RAG: No chunks above threshold, returning top chunks anyway');
+        topResults = results.slice(0, topK);
+      }
 
       console.log(`🔍 Hybrid retrieval for "${query}":`);
       topResults.forEach((r, idx) => {

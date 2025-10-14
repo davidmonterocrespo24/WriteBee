@@ -616,10 +616,6 @@ Answer:`;
     pageContent = null;
     pageSummary = null;
     cachedMetadata = null;
-    // Limpiar RAG engine
-    if (typeof RAGEngine !== 'undefined') {
-      RAGEngine.clearContext();
-    }
     // Clear RAG engine instance if exists
     if (ragEngine) {
       ragEngine.clear();

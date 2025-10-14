@@ -73,7 +73,7 @@ const PDFModule = (function() {
       // Método 4: Fallback - informar que no se pudo extraer
       console.error('❌ PDF EXTRACTION: All extraction methods failed');
 
-      throw new Error('No se pudo extraer texto del PDF. El archivo puede estar protegido o ser una imagen escaneada.');
+      throw new Error('Could not extract text from PDF. The file may be protected or a scanned image.');
       
     } catch (error) {
       console.error('❌ PDF EXTRACTION: Error extracting PDF text:', error);
@@ -306,11 +306,14 @@ const PDFModule = (function() {
       }
       
       // Extract text from PDF
-
+      console.log('📄 Starting PDF text extraction...');
       const pdfData = await extractTextFromPDF(pdfFile, onProgress);
 
-
-
+      console.log('📄 PDF extraction complete:');
+      console.log('  - Filename:', pdfData.filename);
+      console.log('  - Pages:', pdfData.pages);
+      console.log('  - Text length:', pdfData.text ? pdfData.text.length : 0, 'characters');
+      console.log('  - First 200 chars:', pdfData.text ? pdfData.text.substring(0, 200) : 'NO TEXT');
 
       // Store current PDF info
       currentPDF = {
@@ -321,7 +324,9 @@ const PDFModule = (function() {
       };
       
       currentPDFContent = pdfData.text;
-      
+
+      console.log('📦 Stored PDF content length:', currentPDFContent ? currentPDFContent.length : 0);
+
       if (onProgress) onProgress('Indexing PDF content...');
       
       // Initialize RAG Engine if not already done
@@ -336,6 +341,8 @@ const PDFModule = (function() {
       ragEngine.clear();
       
       // Index PDF content
+      console.log('📑 Indexing PDF content into RAG...');
+      console.log('  - Content to index:', currentPDFContent.substring(0, 100) + '...');
 
       await ragEngine.indexPage(currentPDFContent, {
         title: currentPDF.filename,
@@ -343,7 +350,10 @@ const PDFModule = (function() {
         source: 'pdf',
         pages: currentPDF.pages
       });
-      
+
+      const indexSize = ragEngine.index ? ragEngine.index.length : 0;
+      console.log(`✅ PDF indexed successfully: ${indexSize} chunks created`);
+
       if (onProgress) onProgress('PDF ready for chat!');
 
 
@@ -385,16 +395,36 @@ const PDFModule = (function() {
       // Retrieve only 3 chunks to keep prompt size manageable
       const relevantChunks = ragEngine.retrieve(question, 3);
 
+      console.log(`📊 Retrieved ${relevantChunks.length} chunks for question: "${question}"`);
+
+      // For small PDFs, use all content if RAG returns nothing
       if (relevantChunks.length === 0) {
-        console.warn('⚠️ PDF CHAT: No relevant chunks found');
-        return 'No pude encontrar información relevante en el PDF para responder tu pregunta. ¿Podrías reformular la pregunta?';
+        console.warn('⚠️ PDF CHAT: No relevant chunks found, using full PDF content');
+
+        // For small PDFs (< 3000 chars), use all content directly
+        if (currentPDFContent && currentPDFContent.length < 3000) {
+          console.log('📄 Using full PDF content (small PDF)');
+          const prompt = `Based on the PDF "${currentPDF.filename}", answer this question:
+
+Content:
+${currentPDFContent}
+
+Question: ${question}
+
+Answer clearly and directly using the information from the PDF.`;
+
+          const answer = await AIModule.aiPrompt(prompt);
+          return answer;
+        }
+
+        return 'I could not find relevant information in the PDF to answer your question. Could you rephrase the question?';
       }
       
       if (onProgress) onProgress('Generating answer...');
       
       // Build context from retrieved chunks with size limit
 
-      let context = 'Información relevante del PDF:\n\n';
+      let context = 'Relevant information from the PDF:\n\n';
       let totalChars = 0;
       const maxContextSize = 3000; // Limit context to 3000 chars
       
@@ -413,13 +443,13 @@ const PDFModule = (function() {
       }
 
       // Build optimized prompt
-      const prompt = `Basándote en el PDF "${currentPDF.filename}", responde esta pregunta:
+      const prompt = `Based on the PDF "${currentPDF.filename}", answer this question:
 
 ${context}
 
-Pregunta: ${question}
+Question: ${question}
 
-Responde de forma clara y directa usando la información del PDF. Si la información no es suficiente, dilo.`;
+Answer clearly and directly using the information from the PDF. If the information is not sufficient, say so.`;
 
 
 
@@ -440,7 +470,7 @@ Responde de forma clara y directa usando la información del PDF. Si la informac
       
       // Better error message for large inputs
       if (error.message && error.message.includes('too larg')) {
-        return '❌ El contenido es demasiado grande. Por favor, haz una pregunta más específica para que pueda buscar información más precisa en el PDF.';
+        return '❌ The content is too large. Please ask a more specific question so I can search for more precise information in the PDF.';
       }
       
       throw error;
@@ -492,15 +522,15 @@ Responde de forma clara y directa usando la información del PDF. Si la informac
         totalChars += chunkText.length;
       }
 
-      const prompt = `Resume este PDF en español de forma clara y concisa:
+      const prompt = `Summarize this PDF clearly and concisely:
 
-Archivo: ${currentPDF.filename}
-Páginas: ${currentPDF.pages}
+File: ${currentPDF.filename}
+Pages: ${currentPDF.pages}
 
-Contenido:
+Content:
 ${context}
 
-Crea un resumen estructurado con los puntos principales.`;
+Create a structured summary with the main points.`;
 
 
 
@@ -513,7 +543,7 @@ Crea un resumen estructurado con los puntos principales.`;
       console.error('❌ PDF SUMMARY: Error in summarizePDF:', error);
       
       if (error.message && error.message.includes('too larg')) {
-        return '❌ El PDF es muy grande para resumir. Intenta hacer preguntas específicas sobre el contenido.';
+        return '❌ The PDF is too large to summarize. Try asking specific questions about the content.';
       }
       
       throw error;
@@ -563,14 +593,14 @@ Crea un resumen estructurado con los puntos principales.`;
         totalChars += chunkText.length;
       }
 
-      const prompt = `Extrae los puntos clave de este PDF como viñetas:
+      const prompt = `Extract the key points from this PDF as bullets:
 
-Archivo: ${currentPDF.filename}
+File: ${currentPDF.filename}
 
-Contenido:
+Content:
 ${context}
 
-Lista los puntos más importantes en formato de viñetas (bullets).`;
+List the most important points in bullet format.`;
 
 
 
@@ -583,7 +613,7 @@ Lista los puntos más importantes en formato de viñetas (bullets).`;
       console.error('❌ PDF KEY POINTS: Error in extractKeyPointsFromPDF:', error);
       
       if (error.message && error.message.includes('too larg')) {
-        return '❌ El PDF es muy grande. Intenta hacer preguntas más específicas.';
+        return '❌ The PDF is too large. Try asking more specific questions.';
       }
       
       throw error;

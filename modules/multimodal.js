@@ -3,11 +3,11 @@ const MultimodalModule = (function() {
   let audioSession = null;
 
   /**
-   * Inicializar sesión multimodal para imágenes
+   * Initialize multimodal session for images
    */
   async function initImageSession() {
     if (!('LanguageModel' in self)) {
-      throw new Error('Este navegador no soporta la API de lenguaje multimodal');
+      throw new Error('This browser does not support the multimodal language API');
     }
 
     const availability = await LanguageModel.availability({
@@ -16,7 +16,7 @@ const MultimodalModule = (function() {
     });
 
     if (availability === "unavailable") {
-      throw new Error("Modelo multimodal no disponible en este dispositivo");
+      throw new Error("Multimodal model not available on this device");
     }
 
     if (!session) {
@@ -41,11 +41,11 @@ const MultimodalModule = (function() {
   }
 
   /**
-   * Inicializar sesión multimodal para audio
+   * Initialize multimodal session for audio
    */
   async function initAudioSession() {
     if (!('LanguageModel' in self)) {
-      throw new Error('Este navegador no soporta la API de lenguaje multimodal');
+      throw new Error('This browser does not support the multimodal language API');
     }
 
     const availability = await LanguageModel.availability({
@@ -54,7 +54,7 @@ const MultimodalModule = (function() {
     });
 
     if (availability === "unavailable") {
-      throw new Error("Modelo de audio no disponible en este dispositivo");
+      throw new Error("Audio model not available on this device");
     }
 
     if (!audioSession) {
@@ -79,16 +79,16 @@ const MultimodalModule = (function() {
   }
 
   /**
-   * Describir una imagen
-   * @param {File|Blob} imageFile - Archivo de imagen
-   * @param {string} prompt - Instrucción opcional (ej: "Describe la imagen", "Genera alt text")
-   * @param {function} onProgress - Callback para streaming
+   * Describe an image
+   * @param {File|Blob} imageFile - Image file
+   * @param {string} prompt - Optional instruction (e.g.: "Describe the image", "Generate alt text")
+   * @param {function} onProgress - Callback for streaming
    */
   async function describeImage(imageFile, prompt = "Describe the image in detail.", onProgress = null) {
     try {
       const sess = await initImageSession();
 
-      // Adjuntar imagen
+      // Attach image
       await sess.append([
         {
           role: "user",
@@ -98,7 +98,7 @@ const MultimodalModule = (function() {
         }
       ]);
 
-      // Hacer streaming del resultado
+      // Stream the result
       if (onProgress) {
         const stream = sess.promptStreaming(prompt);
         let fullText = "";
@@ -111,17 +111,17 @@ const MultimodalModule = (function() {
         return await sess.prompt(prompt);
       }
     } catch (error) {
-      console.error('Error al describir imagen:', error);
+      console.error('Error describing image:', error);
       throw error;
     }
   }
 
   /**
-   * Procesar imagen con contexto (para acciones como resumir, traducir, etc.)
-   * @param {File|Blob} imageFile - Archivo de imagen
-   * @param {string} action - Acción a realizar (summarize, translate, explain, answer, etc.)
-   * @param {string} context - Contexto adicional
-   * @param {function} onProgress - Callback para streaming
+   * Process image with context (for actions like summarize, translate, etc.)
+   * @param {File|Blob} imageFile - Image file
+   * @param {string} action - Action to perform (summarize, translate, explain, answer, etc.)
+   * @param {string} context - Additional context
+   * @param {function} onProgress - Callback for streaming
    */
   async function processImageWithAction(imageFile, action, context = "", onProgress = null) {
     const prompts = {
@@ -140,10 +140,10 @@ const MultimodalModule = (function() {
   }
 
   /**
-   * Transcribir audio
-   * @param {Blob} audioBlob - Audio en formato blob
-   * @param {string} mode - Modo: 'transcribe' o 'summary'
-   * @param {function} onProgress - Callback para streaming
+   * Transcribe audio
+   * @param {Blob} audioBlob - Audio in blob format
+   * @param {string} mode - Mode: 'transcribe' or 'summary'
+   * @param {function} onProgress - Callback for streaming
    */
   async function transcribeAudio(audioBlob, mode = 'transcribe', onProgress = null) {
     try {
@@ -153,12 +153,12 @@ const MultimodalModule = (function() {
         ? "Summarize the spoken content in a clear and concise paragraph."
         : "Transcribe the audio faithfully to English, correcting filler words and unnecessary pauses.";
 
-      // Adjuntar audio
+      // Attach audio
       await sess.append([
         {
           role: "user",
           content: [
-            { type: "text", value: `Instrucción: ${instruction}` },
+            { type: "text", value: `Instruction: ${instruction}` },
             { type: "audio", value: audioBlob }
           ]
         }
@@ -168,7 +168,7 @@ const MultimodalModule = (function() {
         ? "Return only the summary."
         : "Return only the transcription.";
 
-      // Hacer streaming del resultado
+      // Stream the result
       if (onProgress) {
         const stream = sess.promptStreaming(question);
         let fullText = "";
@@ -181,17 +181,17 @@ const MultimodalModule = (function() {
         return await sess.prompt(question);
       }
     } catch (error) {
-      console.error('Error al transcribir audio:', error);
+      console.error('Error transcribing audio:', error);
       throw error;
     }
   }
 
   /**
-   * Procesar audio con acción específica
-   * @param {Blob} audioBlob - Audio en formato blob
-   * @param {string} action - Acción a realizar
-   * @param {string} context - Contexto adicional
-   * @param {function} onProgress - Callback para streaming
+   * Process audio with specific action
+   * @param {Blob} audioBlob - Audio in blob format
+   * @param {string} action - Action to perform
+   * @param {string} context - Additional context
+   * @param {function} onProgress - Callback for streaming
    */
   async function processAudioWithAction(audioBlob, action, context = "", onProgress = null) {
     try {
@@ -213,13 +213,13 @@ const MultimodalModule = (function() {
         {
           role: "user",
           content: [
-            { type: "text", value: `Instrucción: ${instruction}` },
+            { type: "text", value: `Instruction: ${instruction}` },
             { type: "audio", value: audioBlob }
           ]
         }
       ]);
 
-      // Hacer streaming del resultado
+      // Stream the result
       if (onProgress) {
         const stream = sess.promptStreaming("Process the audio according to the instruction.");
         let fullText = "";
@@ -232,13 +232,13 @@ const MultimodalModule = (function() {
         return await sess.prompt("Process the audio according to the instruction.");
       }
     } catch (error) {
-      console.error('Error al procesar audio:', error);
+      console.error('Error processing audio:', error);
       throw error;
     }
   }
 
   /**
-   * Verificar si el navegador soporta multimodal
+   * Check if browser supports multimodal
    */
   async function checkSupport() {
     if (!('LanguageModel' in self)) {
@@ -246,7 +246,7 @@ const MultimodalModule = (function() {
         supported: false,
         image: false,
         audio: false,
-        message: 'API de lenguaje no disponible'
+        message: 'Language API not available'
       };
     }
 
@@ -279,8 +279,8 @@ const MultimodalModule = (function() {
   }
 
   /**
-   * Grabar audio del micrófono
-   * @param {number} maxDuration - Duración máxima en ms (default: 60000 = 1 min)
+   * Record audio from microphone
+   * @param {number} maxDuration - Maximum duration in ms (default: 60000 = 1 min)
    */
   async function recordAudio(maxDuration = 60000) {
     return new Promise(async (resolve, reject) => {
@@ -301,14 +301,14 @@ const MultimodalModule = (function() {
 
         mediaRecorder.start(100);
 
-        // Auto-stop después de maxDuration
+        // Auto-stop after maxDuration
         setTimeout(() => {
           if (mediaRecorder.state !== "inactive") {
             mediaRecorder.stop();
           }
         }, maxDuration);
 
-        // Retornar función para detener manualmente
+        // Return function to stop manually
         return {
           stop: () => mediaRecorder.stop(),
           mediaRecorder
@@ -331,7 +331,7 @@ const MultimodalModule = (function() {
   };
 })();
 
-// Exponer globalmente
+// Expose globally
 window.MultimodalModule = MultimodalModule;
 
 

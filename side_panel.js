@@ -468,7 +468,7 @@
         });
       }
 
-      // Renderizar historial
+      // Render chat history
 
       renderChatHistory();
 
@@ -508,11 +508,11 @@
           });
 
 
-          // Renderizar historial
+          // Render chat history
           renderChatHistory();
           saveHistory();
 
-          // Hacer scroll al final
+          // Scroll to bottom
           setTimeout(() => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }, 100);
@@ -794,7 +794,7 @@
     // Agregar mensaje del usuario
     const userMessage = {
       role: 'user',
-      content: text || (attachedImageFile ? `Imagen adjunta (${imageAction})` : 'PDF adjunto'),
+      content: text || (attachedImageFile ? `Attached image (${imageAction})` : 'Attached PDF'),
       timestamp: Date.now(),
       image: attachedImageFile ? URL.createObjectURL(attachedImageFile) : null,
       imageFile: attachedImageFile,
@@ -983,10 +983,10 @@
   }
 
   /**
-   * Renderizar historial de chat
+   * Render chat history
    */
   function renderChatHistory() {
-    // Limpiar mensajes
+    // Clear messages
     chatMessages.innerHTML = '';
 
     if (conversationHistory.length === 0) {
@@ -1052,7 +1052,7 @@
           <span>${msg.pdfFile.name}</span>
           <span class="pdf-size">${(msg.pdfFile.size / 1024).toFixed(1)} KB</span>
         </div>` : ''}
-        ${msg.image ? `<img src="${msg.image}" class="message-image" alt="Imagen adjunta">` : ''}
+        ${msg.image ? `<img src="${msg.image}" class="message-image" alt="Attached image">` : ''}
       `;
 
       chatMessages.appendChild(messageEl);
@@ -1117,14 +1117,14 @@
    * Regenerar mensaje
    */
   async function regenerateMessage(index) {
-    // Obtener el mensaje del usuario anterior
+    // Get the previous user message
     const userMessage = conversationHistory[index - 1];
     if (!userMessage || userMessage.role !== 'user') return;
 
-    // Eliminar el mensaje actual del asistente
+    // Remove the current assistant message
     conversationHistory.splice(index, 1);
 
-    // Volver a procesar
+    // Reprocess
     await processMessage(userMessage.content, null, userMessage.imageFile);
   }
 
@@ -1643,10 +1643,10 @@
 
 
   /**
-   * Guardar historial en storage
+   * Save history to storage
    */
   function saveHistory() {
-    // Crear copia sin imageFile para poder serializar
+    // Create copy without imageFile to be able to serialize
     const historyToSave = conversationHistory.map(msg => ({
       role: msg.role,
       content: msg.content,
@@ -1661,7 +1661,7 @@
   }
 
   /**
-   * Cargar historial desde storage
+   * Load history from storage
    */
   function loadHistory() {
     chrome.storage.local.get(['chatHistory'], (result) => {
@@ -1681,7 +1681,7 @@
   }
 
   /**
-   * Agregar mensaje al historial
+   * Add message to history
    */
   function addMessageToHistory(role, content) {
     conversationHistory.push({
