@@ -1,7 +1,16 @@
+/**
+ * AI Module - Core AI functionality using Chrome's Built-in AI API for text processing
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 const AIModule = (function() {
   // Get AI service instance
   const getAIService = () => window.AIServiceInstance;
 
+  /**
+   * Summarizes text using AI with automatic chunking for large texts
+   * @author David Montero Crespo
+   */
   async function aiSummarize(text, onProgress = null) {
     try {
       console.log('🤖 AI INPUT SENT TO API (aiSummarize):');
@@ -325,4 +334,4 @@ if (typeof window !== 'undefined') {
   window.AIModule = AIModule;
 }
 
-
+// Creado por David Montero Crespo para WriteBee

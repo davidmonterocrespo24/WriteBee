@@ -505,10 +505,25 @@
   position: absolute;
   z-index: 999999;
   width: min(680px, 92vw);
-  background: #2a2a2f;
-  border: 1px solid #3a3a40;
+  background-color: #2a2a2f;
+  background-image:
+    linear-gradient(135deg,
+      rgba(255, 212, 0, 0.15) 0%,
+      rgba(255, 180, 0, 0.08) 15%,
+      rgba(42, 42, 47, 0.95) 40%,
+      rgba(42, 42, 47, 0.95) 60%,
+      rgba(255, 180, 0, 0.08) 85%,
+      rgba(255, 212, 0, 0.15) 100%
+    ),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="100" viewBox="0 0 56 100"><g fill="none" stroke="%23ffd400" stroke-width="1" opacity="0.15"><path d="M28 1 L51 14 L51 39 L28 52 L5 39 L5 14 Z"/><path d="M28 49 L51 62 L51 87 L28 100 L5 87 L5 62 Z"/></g></svg>');
+  background-size: 100% 100%, 56px 100px;
+  background-position: 0 0, 0 0;
+  border: 2px solid rgba(255, 212, 0, 0.25);
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 212, 0, 0.1) inset,
+    0 0 40px rgba(255, 212, 0, 0.08);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
   color: #eaeaf0;
   overflow: hidden;
@@ -519,8 +534,9 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-bottom: 1px solid #3a3a40;
-  background: linear-gradient(to bottom, #2d2d33, #2a2a2f);
+  border-bottom: 1px solid rgba(255, 212, 0, 0.3);
+  background: linear-gradient(135deg, rgba(45, 45, 51, 0.95), rgba(42, 42, 47, 0.95));
+  backdrop-filter: blur(10px);
 }
 
 .ai-draggable {
@@ -699,9 +715,10 @@
 }
 
 .ai-preview {
-  background: #1f1f23;
+  background: rgba(31, 31, 35, 0.7);
+  backdrop-filter: blur(8px);
   color: #a5a7b1;
-  border: 1px dashed #3a3a40;
+  border: 1px dashed rgba(255, 212, 0, 0.3);
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 14px;
@@ -710,8 +727,9 @@
 
 .ai-answer {
   font-size: 15px;
-  background: #242428;
-  border: 1px solid #3a3a40;
+  background: rgba(36, 36, 40, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 212, 0, 0.2);
   border-radius: 8px;
   padding: 12px;
   line-height: 1.5;
@@ -5242,5 +5260,4 @@
   }
 }
 
-
-
+/* Creado por David Montero Crespo para WriteBee */

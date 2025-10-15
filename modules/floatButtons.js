@@ -1,3 +1,8 @@
+/**
+ * Float Buttons Module - Manages floating action buttons that appear on text selection and context-specific features
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 const FloatButtonsModule = (function() {
   let buttonsContainer = null;
   let buttons = [];
@@ -1706,3 +1711,5 @@ function resetTranslateButton(btn) {
 })();
 
 
+
+// Creado por David Montero Crespo para WriteBee

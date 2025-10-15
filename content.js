@@ -1,8 +1,19 @@
+/**
+ * Content Script principal para WriteBee
+ * Maneja la selección de texto y la inyección de la interfaz de usuario
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
+
 let ignoreNextMouseUp = false;
 
 document.addEventListener('mouseup', handleTextSelection);
 document.addEventListener('mousedown', handleClickOutside);
 
+/**
+ * Maneja la selección de texto y muestra el toolbar
+ * @author David Montero Crespo
+ */
 function handleTextSelection(e) {
 
   if (ignoreNextMouseUp) {
@@ -56,6 +67,10 @@ function setIgnoreNextMouseUp() {
 
 window.setIgnoreNextMouseUp = setIgnoreNextMouseUp;
 
+/**
+ * Maneja clics fuera de los elementos de la UI para ocultarlos
+ * @author David Montero Crespo
+ */
 function handleClickOutside(e) {
   const toolbar = ToolbarModule.getToolbar();
   const menu = MenusModule.getMenu();
@@ -181,7 +196,10 @@ function handleStopRecordingInPage(sendResponse) {
   }
 }
 
-// Handle OCR request
+/**
+ * Maneja solicitudes de OCR para extraer texto de imágenes
+ * @author David Montero Crespo
+ */
 async function handleOCRRequest(imageUrl) {
   try {
     const imageData = {
@@ -217,7 +235,10 @@ async function handleOCRRequest(imageUrl) {
   }
 }
 
-// Handle explain image request
+/**
+ * Maneja solicitudes para explicar imágenes
+ * @author David Montero Crespo
+ */
 async function handleExplainImage(imageUrl) {
   try {
     const imageData = {
@@ -253,7 +274,10 @@ async function handleExplainImage(imageUrl) {
   }
 }
 
-// Handle describe image request
+/**
+ * Maneja solicitudes para describir imágenes
+ * @author David Montero Crespo
+ */
 async function handleDescribeImage(imageUrl) {
   try {
     const imageData = {
@@ -289,7 +313,10 @@ async function handleDescribeImage(imageUrl) {
   }
 }
 
-// Handle extract page content for chat (from context menu)
+/**
+ * Extrae el contenido de la página para chatear con ella
+ * @author David Montero Crespo
+ */
 async function handleExtractPageContent() {
   try {
 
@@ -332,7 +359,10 @@ async function handleExtractPageContent() {
   }
 }
 
-// Handle generate text in textarea/contenteditable
+/**
+ * Genera texto en campos de texto usando IA
+ * @author David Montero Crespo
+ */
 async function handleGenerateText() {
   try {
     // Get the focused element
@@ -436,4 +466,4 @@ async function handleGenerateText() {
   }
 }
 
-
+// Creado por David Montero Crespo para WriteBee

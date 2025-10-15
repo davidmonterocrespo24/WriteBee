@@ -1,4 +1,8 @@
-// Background Service Worker para manejar el side panel
+/**
+ * Background Service Worker para manejar el side panel
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 
 // Variable temporal para almacenar datos para el side panel
 let pendingChatData = null;
@@ -356,6 +360,10 @@ chrome.sidePanel
   .catch((error) => console.error('Error configurando side panel:', error));
 
 let creating;
+/**
+ * Reenvía mensajes al documento offscreen
+ * @author David Montero Crespo
+ */
 async function forwardToOffscreen(request) {
   const existingContexts = await chrome.runtime.getContexts({
     contextTypes: ['OFFSCREEN_DOCUMENT']
@@ -381,6 +389,10 @@ async function forwardToOffscreen(request) {
   chrome.runtime.sendMessage({ ...request, target: 'offscreen' });
 }
 
+/**
+ * Cierra el documento offscreen si existe
+ * @author David Montero Crespo
+ */
 async function closeOffscreenDocument() {
   const existingContexts = await chrome.runtime.getContexts({
     contextTypes: ['OFFSCREEN_DOCUMENT']
@@ -391,4 +403,4 @@ async function closeOffscreenDocument() {
   }
 }
 
-
+// Creado por David Montero Crespo para WriteBee

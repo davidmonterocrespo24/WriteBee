@@ -1,5 +1,7 @@
 /**
- * AIService - Class to interact with Chrome AI APIs
+ * AI Service - Manages Chrome Built-in AI sessions with prompt API and streaming capabilities
+ * @author David Montero Crespo
+ * @project WriteBee
  */
 class AIService {
   constructor() {
@@ -721,4 +723,4 @@ class AIService {
 const aiServiceInstance = new AIService();
 window.AIServiceInstance = aiServiceInstance;
 
-
+// Creado por David Montero Crespo para WriteBee

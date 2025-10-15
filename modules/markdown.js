@@ -508,3 +508,5 @@ const MarkdownRenderer = (function() {
 
 window.MarkdownRenderer = MarkdownRenderer;
 
+
+// Creado por David Montero Crespo para WriteBee

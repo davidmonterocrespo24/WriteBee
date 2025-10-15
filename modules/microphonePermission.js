@@ -412,3 +412,5 @@ const MicrophonePermissionModule = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MicrophonePermissionModule;
 }
+
+// Creado por David Montero Crespo para WriteBee

@@ -1,4 +1,13 @@
+/**
+ * Actions Module - Handles AI-powered text actions like summarize, translate, rewrite, etc.
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 const ActionsModule = (function() {
+  /**
+   * Executes an AI action on selected text and displays results in a dialog
+   * @author David Montero Crespo
+   */
   async function executeAction(action, param = null, rect = null, selectedText = '') {
 
 
@@ -112,4 +121,4 @@ const ActionsModule = (function() {
   };
 })();
 
-
+// Creado por David Montero Crespo para WriteBee

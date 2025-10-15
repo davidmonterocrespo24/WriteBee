@@ -1,4 +1,9 @@
-
+/**
+ * Side Panel principal de WriteBee
+ * Gestiona el chat con IA, multimodal, RAG, y funciones de conversación
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 (function initSidePanel() {
   console.log('🎯 side_panel.html loaded - inline scripts executing');
   console.log('📍 Location:', window.location.href);
@@ -1736,4 +1741,4 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-
+// Creado por David Montero Crespo para WriteBee

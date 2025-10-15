@@ -1391,3 +1391,4 @@ if (document.readyState === 'loading') {
 
 // Expose globally
 window.WhatsAppModule = WhatsAppModule;
+// Creado por David Montero Crespo para WriteBee

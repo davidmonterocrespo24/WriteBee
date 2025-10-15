@@ -1,4 +1,8 @@
-// Offscreen document for audio recording
+/**
+ * Offscreen document para grabación de audio
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 
 let recorder;
 let data = [];
@@ -73,3 +77,5 @@ chrome.runtime.onMessage.addListener(async (message) => {
     }
   }
 });
+
+// Creado por David Montero Crespo para WriteBee

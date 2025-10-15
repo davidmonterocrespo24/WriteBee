@@ -324,3 +324,5 @@ if (document.readyState === 'loading') {
 } else {
   ImageActionsModule.init();
 }
+
+// Creado por David Montero Crespo para WriteBee

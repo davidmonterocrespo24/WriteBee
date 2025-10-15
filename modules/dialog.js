@@ -1,6 +1,15 @@
+/**
+ * Dialog Module - Creates and manages draggable result dialogs for AI responses
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 const DialogModule = (function() {
   const pinnedDialogs = [];
 
+  /**
+   * Adjusts dialog position to keep it within viewport boundaries
+   * @author David Montero Crespo
+   */
   function adjustDialogPosition(dialog, initialLeft, initialTop) {
     const rect = dialog.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
@@ -979,4 +988,4 @@ const DialogModule = (function() {
   };
 })();
 
-
+// Creado por David Montero Crespo para WriteBee

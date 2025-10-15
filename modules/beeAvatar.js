@@ -1,7 +1,14 @@
-// Módulo para generar el avatar de abeja (WriteBee)
+/**
+ * Módulo para generar el avatar de abeja (WriteBee)
+ * @author David Montero Crespo
+ * @project WriteBee
+ */
 const BeeAvatar = (function() {
-  
-  // Genera el SVG del avatar de abeja
+
+  /**
+   * Genera el SVG del avatar de abeja
+   * @author David Montero Crespo
+   */
   function generateSVG(size = 32) {
     const center = size / 2;
     const radius = size / 2;
@@ -50,7 +57,10 @@ const BeeAvatar = (function() {
     `.trim();
   }
   
-  // Genera el HTML completo del avatar con el div contenedor
+  /**
+   * Genera el HTML completo del avatar con el div contenedor
+   * @author David Montero Crespo
+   */
   function generateHTML(size = 32) {
     return `<div class="ai-avatar-bee" style="width: ${size}px; height: ${size}px;">${generateSVG(size)}</div>`;
   }
@@ -67,4 +77,4 @@ if (typeof window !== 'undefined') {
   window.BeeAvatar = BeeAvatar;
 }
 
-
+// Creado por David Montero Crespo para WriteBee

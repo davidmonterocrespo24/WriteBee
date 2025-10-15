@@ -134,3 +134,5 @@ const ToolbarConfigModule = (function() {
 })();
 
 
+
+// Creado por David Montero Crespo para WriteBee
