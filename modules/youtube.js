@@ -30,14 +30,15 @@ const YoutubeModule = (function() {
 
   function onUrlChange() {
     const videoId = getVideoId();
-    
-    if (videoId && videoId !== currentVideoId) {
-      currentVideoId = videoId;
 
+    // Always remove the panel first on any URL change
+    removeYoutubePanel();
+    currentVideoId = null;
+
+    // If there's a video ID, insert a fresh panel
+    if (videoId) {
+      currentVideoId = videoId;
       insertYoutubePanel();
-    } else if (!videoId && youtubePanel) {
-      removeYoutubePanel();
-      currentVideoId = null;
     }
   }
 
@@ -46,15 +47,48 @@ const YoutubeModule = (function() {
     return urlParams.get('v');
   }
 
-  function insertYoutubePanel() {
+  function waitForElement(selector, timeout = 10000) {
+    return new Promise((resolve) => {
+      // Check if element already exists and is visible
+      const element = document.querySelector(selector);
+      if (element && element.offsetParent !== null) {
+        resolve(element);
+        return;
+      }
+
+      // Set up a MutationObserver to watch for the element
+      const observer = new MutationObserver(() => {
+        const element = document.querySelector(selector);
+        if (element && element.offsetParent !== null) {
+          observer.disconnect();
+          clearTimeout(timeoutId);
+          resolve(element);
+        }
+      });
+
+      // Start observing
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      // Set timeout to stop waiting after specified time
+      const timeoutId = setTimeout(() => {
+        observer.disconnect();
+        resolve(null);
+      }, timeout);
+    });
+  }
+
+  async function insertYoutubePanel() {
     // Remove previous panel if it exists
     removeYoutubePanel();
 
-    // Find the related videos container (secondary)
-    const secondary = document.querySelector('#secondary');
+    // Wait for the secondary element to be ready and visible
+    const secondary = await waitForElement('#secondary');
 
     if (!secondary) {
-
+      console.warn('YouTube secondary panel not found after waiting');
       return;
     }
 
