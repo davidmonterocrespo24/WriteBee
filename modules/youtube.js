@@ -85,7 +85,7 @@ const YoutubeModule = (function() {
     removeYoutubePanel();
 
     // Wait for the secondary element to be ready and visible
-    const secondary = await waitForElement('#secondary');
+    const secondary = await waitForElement('#secondary.style-scope.ytd-watch-flexy',2000);
 
     if (!secondary) {
       console.warn('YouTube secondary panel not found after waiting');
