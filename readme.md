@@ -86,30 +86,34 @@ WriteBee integrates seamlessly with popular platforms to enhance your workflow:
 - **Progress Tracking** - Visual feedback during summarization
 - **Copy & Regenerate** - Easily copy or regenerate summaries
 
-#### 📧 Gmail
+#### 📧 Gmail & Outlook
 
 <table>
   <tr>
     <td align="center">
       <img src="imagenes/create mail on gmail.png" alt="Gmail AI Composer"/>
-      <br/><em>AI Email Composer Dialog</em>
+      <br/><em>Gmail AI Email Composer</em>
     </td>
     <td align="center">
-      <img src="imagenes/email templates.png" alt="Gmail Email Templates"/>
+      <img src="imagenes/create mail on oulook.png" alt="Outlook AI Composer"/>
+      <br/><em>Outlook AI Email Composer</em>
+    </td>
+    <td align="center">
+      <img src="imagenes/email templates.png" alt="Email Templates"/>
       <br/><em>15+ Professional Templates</em>
-    </td>
-    <td align="center">
-      <img src="imagenes/gmail_response.png" alt="Gmail Response"/>
-      <br/><em>Generated Email Content</em>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="imagenes/gmail_new_message.png" alt="Gmail New Message"/>
-      <br/><em>Compose Window Integration</em>
+      <img src="imagenes/gmail_response.png" alt="Generated Email"/>
+      <br/><em>Generated Email Content</em>
     </td>
-    <td colspan="2" align="center">
-      <img src="imagenes/gmail_summary.png" alt="Gmail Summary" style="max-width: 100%;"/>
+    <td align="center">
+      <img src="imagenes/gmail_new_message.png" alt="Gmail Integration"/>
+      <br/><em>Gmail Compose Integration</em>
+    </td>
+    <td align="center">
+      <img src="imagenes/gmail_summary.png" alt="Email Summary" style="max-width: 100%;"/>
       <br/><em>Email Summary & Analysis</em>
     </td>
   </tr>
@@ -441,11 +445,11 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
 ### 8. Platform-Specific Features
 
-**Gmail - AI Email Composer:**
+**Gmail & Outlook - AI Email Composer:**
 
 1. **Access the Composer:**
-   - Open Gmail and click "Compose" to start a new email
-   - Look for the **"AI WriteBee"** button in the compose toolbar
+   - **Gmail**: Open Gmail and click "Compose" → Look for the **"AI WriteBee"** button in the compose toolbar
+   - **Outlook**: Open Outlook and click "New email" → Look for the **"AI WriteBee"** button next to the Discard button
    - Click it to open the AI Email Composer dialog
 
 2. **Choose a Template:**
@@ -472,7 +476,7 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
    - Edit the generated content directly
 
 6. **Insert or Copy:**
-   - **Insert into Gmail**: Automatically paste into compose window
+   - **Insert into Gmail/Outlook**: Automatically paste into compose window
    - **Copy**: Copy to clipboard for later use
    - **Regenerate**: Generate a new version with different wording
 

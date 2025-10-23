@@ -1976,6 +1976,552 @@
 }
 
 /* ========================================
+   OUTLOOK MODULE STYLES - Email Composer
+   ======================================== */
+
+/* Outlook Compose Button (next to Discard) */
+.ai-outlook-compose-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px !important;
+  margin-right: 8px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+}
+
+.ai-outlook-compose-button:hover {
+  background: rgba(255, 212, 0, 0.1) !important;
+  border-color: rgba(255, 212, 0, 0.3) !important;
+}
+
+.ai-outlook-compose-button:active {
+  background: rgba(255, 212, 0, 0.2) !important;
+  border-color: #ffd400 !important;
+}
+
+.ai-outlook-compose-button .fui-Button__icon {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Outlook Ribbon Button */
+.ai-outlook-ribbon-button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  min-height: 60px !important;
+  min-width: 60px !important;
+}
+
+.ai-outlook-ribbon-button:hover {
+  background: rgba(255, 212, 0, 0.1) !important;
+  border-color: #ffd400 !important;
+}
+
+.ai-outlook-ribbon-button:active {
+  background: rgba(255, 212, 0, 0.2) !important;
+}
+
+.ai-outlook-ribbon-button .fui-Button__icon {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ai-outlook-ribbon-button .fui-Button__text {
+  color: currentColor !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  white-space: nowrap !important;
+}
+
+.ai-outlook-toolbar {
+  padding: 12px 16px 10px 16px;
+  border-bottom: 1px solid #2a2d3a;
+}
+
+.ai-outlook-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.ai-outlook-dropdown-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  color: #e4e6eb;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-outlook-dropdown-trigger:hover {
+  border-color: #ffd400;
+}
+
+.ai-outlook-dropdown-trigger svg {
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+}
+
+.ai-outlook-dropdown.open .ai-outlook-dropdown-trigger svg {
+  transform: rotate(180deg);
+}
+
+.ai-outlook-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ai-outlook-dropdown.open .ai-outlook-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.ai-outlook-template-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #e4e6eb;
+}
+
+.ai-outlook-template-item:hover {
+  background: rgba(255, 212, 0, 0.15);
+}
+
+.ai-outlook-template-item.active {
+  background: rgba(255, 212, 0, 0.25);
+  color: #ffd400;
+}
+
+.ai-outlook-template-item .template-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 212, 0, 0.2);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.ai-outlook-template-item .template-icon svg {
+  width: 18px;
+  height: 18px;
+  color: #ffd400;
+}
+
+.ai-outlook-template-item .template-name {
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.ai-outlook-template-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 212, 0, 0.1);
+  border-left: 3px solid #ffd400;
+  border-radius: 6px;
+}
+
+.ai-outlook-tip-icon {
+  flex-shrink: 0;
+  color: #ffd400;
+  margin-top: 2px;
+}
+
+.ai-outlook-tip-content {
+  flex: 1;
+  color: #e4e6eb;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ai-outlook-tip-content strong {
+  color: #ffd400;
+  font-weight: 600;
+}
+
+.ai-outlook-tip-text {
+  color: #c5c7d0;
+}
+
+.ai-outlook-input-section {
+  margin-bottom: 0;
+}
+
+.ai-outlook-compose-textarea {
+  width: 95%;
+  height: 80px;
+  padding: 10px 12px;
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  color: #e4e6eb;
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  transition: border-color 0.2s ease;
+}
+
+.ai-outlook-compose-textarea::placeholder {
+  color: #8b8f9b;
+}
+
+.ai-outlook-compose-textarea:focus {
+  outline: none;
+  border-color: #ffd400;
+}
+
+.ai-outlook-compose-response {
+  margin-top: 12px;
+}
+
+.ai-outlook-compose-response-content {
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 8px;
+  padding: 12px;
+  color: #eaeaf0;
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.ai-outlook-compose-response-content:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.ai-outlook-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid #2a2d3a;
+  gap: 10px;
+}
+
+.ai-outlook-lang {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.ai-outlook-lang span {
+  color: #a5a7b1;
+}
+
+.ai-outlook-lang:hover {
+  border-color: #ffd400;
+}
+
+.ai-outlook-lang-select {
+  background: transparent;
+  border: none;
+  color: #e4e6eb;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+
+.ai-outlook-lang-select option {
+  background: #242428;
+  color: #e4e6eb;
+  padding: 8px;
+}
+
+.ai-outlook-generate-compose-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  min-width: 44px;
+  background: #1e1e1e;
+  color: #ffd400;
+  border: 1px solid #ffd400;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 212, 0, 0.2);
+}
+
+.ai-outlook-generate-compose-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(255, 212, 0, 0.4);
+  background: #2a2a2a;
+  border-color: #ffcc00;
+}
+
+.ai-outlook-generate-compose-btn:active {
+  transform: translateY(0);
+}
+
+.ai-outlook-generate-compose-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.ai-outlook-generate-compose-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.ai-outlook-generate-compose-btn .spinner-animation {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.ai-outlook-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-outlook-options-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  color: #a5a7b1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-outlook-options-btn:hover {
+  border-color: #ffd400;
+  color: #e4e6eb;
+}
+
+.ai-outlook-options-btn.active {
+  background: rgba(255, 212, 0, 0.15);
+  border-color: #ffd400;
+  color: #ffd400;
+}
+
+.ai-outlook-options-panel {
+  position: fixed;
+  padding: 16px 20px;
+  border: 2px solid #ffd400;
+  border-radius: 8px;
+  background: #1a1a1e !important;
+  box-shadow: 0 -4px 20px rgba(255, 212, 0, 0.4);
+  max-height: 400px;
+  max-width: 520px;
+  overflow-y: auto;
+  z-index: 10001 !important;
+}
+
+.ai-outlook-options-content h3 {
+  color: #e4e6eb;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ai-outlook-options-content h3:not(:first-child) {
+  margin-top: 16px;
+}
+
+.ai-outlook-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ai-outlook-option-btn {
+  padding: 6px 12px;
+  background: #242428;
+  border: 1px solid #3a3a40;
+  border-radius: 6px;
+  color: #a5a7b1;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ai-outlook-option-btn:hover {
+  border-color: #ffd400;
+  color: #e4e6eb;
+}
+
+.ai-outlook-option-btn.selected {
+  background: rgba(255, 212, 0, 0.2);
+  border-color: #ffd400;
+  color: #ffd400;
+}
+
+.ai-outlook-option-btn.add {
+  border-style: dashed;
+  color: #8b8f9b;
+}
+
+.ai-outlook-option-btn.add:hover {
+  background: rgba(255, 212, 0, 0.1);
+}
+
+.ai-outlook-section {
+  margin-bottom: 16px;
+}
+
+.ai-outlook-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  color: #e4e6eb;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.ai-outlook-section-header svg {
+  width: 18px;
+  height: 18px;
+  color: #ffd400;
+}
+
+.ai-outlook-response-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.ai-outlook-insert-compose-btn,
+.ai-outlook-copy-btn,
+.ai-outlook-regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.ai-outlook-insert-compose-btn {
+  background: #ffd400;
+  color: #1a1a1e;
+  flex: 1;
+  min-width: 140px;
+}
+
+.ai-outlook-insert-compose-btn:hover {
+  background: #ffcc00;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 212, 0, 0.3);
+}
+
+.ai-outlook-insert-compose-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ai-outlook-copy-btn {
+  background: #35353c;
+  color: #e4e6eb;
+  border: 1px solid #4a4a50;
+}
+
+.ai-outlook-copy-btn:hover {
+  background: #3f3f46;
+  border-color: #ffd400;
+}
+
+.ai-outlook-copy-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ai-outlook-regenerate-btn {
+  background: #35353c;
+  color: #e4e6eb;
+  border: 1px solid #4a4a50;
+}
+
+.ai-outlook-regenerate-btn:hover {
+  background: #3f3f46;
+  border-color: #ffd400;
+}
+
+.ai-outlook-regenerate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ========================================
    YOUTUBE MODULE STYLES
    ======================================== */
 
