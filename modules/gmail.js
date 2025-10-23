@@ -169,15 +169,16 @@ const GmailModule = (function() {
     dialog.className = 'ai-result-panel ai-gmail-compose-dialog';
     dialog.dataset.pinned = 'true';
 
-    // Position the dialog near the button
+    // Position the dialog near the top of the screen
     if (buttonElement) {
       const rect = buttonElement.getBoundingClientRect();
       const dialogWidth = 560;
       const dialogHeight = 600;
 
-      // Position to the right of the button, vertically aligned
+      // Position to the right of the button
       let left = rect.right + 20;
-      let top = rect.top + window.scrollY;
+      // Start near the top of the viewport (40px from top)
+      let top = window.scrollY + 40;
 
       // If it goes off screen to the right, position to the left of the button
       if (left + dialogWidth > window.innerWidth) {
@@ -187,11 +188,6 @@ const GmailModule = (function() {
       // If it still goes off to the left, center on screen
       if (left < 20) {
         left = (window.innerWidth - dialogWidth) / 2;
-      }
-
-      // Ensure it doesn't go off the top
-      if (top < window.scrollY + 20) {
-        top = window.scrollY + 20;
       }
 
       // Ensure it doesn't go off the bottom
@@ -447,7 +443,6 @@ const GmailModule = (function() {
     const closeBtn = dialog.querySelector('.close-panel');
     const textarea = dialog.querySelector('.ai-gmail-compose-textarea');
     const generateBtn = dialog.querySelector('.ai-gmail-generate-compose-btn');
-    const footer = dialog.querySelector('.ai-gmail-footer');
     const dropdown = dialog.querySelector('.ai-gmail-dropdown');
     const dropdownTrigger = dialog.querySelector('.ai-gmail-dropdown-trigger');
     const dropdownMenu = dialog.querySelector('.ai-gmail-dropdown-menu');
@@ -606,6 +601,9 @@ const GmailModule = (function() {
         await generateEmailContentStream(userInput, selectedTemplate, language, contentOptions, responseContent);
 
         textarea.value = '';
+
+        // Hide only the generate button when generation completes successfully
+        generateBtn.style.display = 'none';
 
         // Adjust dialog position to keep it visible
         const dialogRect = dialog.getBoundingClientRect();
