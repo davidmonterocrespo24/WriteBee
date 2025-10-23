@@ -18,7 +18,10 @@
 
 WriteBee is an advanced Chrome extension that brings cutting-edge AI capabilities directly to your browser using Chrome's built-in AI APIs. Process text, analyze images, transcribe audio, chat with web pages and PDFs - all running locally on your device with complete privacy.
 
-![Toolbar Interface](imagenes/toolbar.png)
+<div align="center">
+  <img src="imagenes/toolbar.png" alt="Toolbar Interface"/>
+  <br/><em>WriteBee Floating Toolbar with AI Actions</em>
+</div>
 
 ---
 
@@ -36,11 +39,12 @@ Transform any text on the web with intelligent AI actions:
 - **Expand Text** - Add details, examples, and depth to your writing
 - **Generate Text** - AI-powered content creation in editable fields
 
-![Toolbar Actions](imagenes/toolbar.png)
-
 ### 🎙️ Audio & Voice Processing
 
-![Audio Recording](imagenes/audio_record.png)
+<div align="center">
+  <img src="imagenes/audio_record.png" alt="Audio Recording"/>
+  <br/><em>Voice Recording & Transcription Interface</em>
+</div>
 
 - **Voice Input** - Record audio directly in the browser
 - **Transcription** - Convert speech to text with high accuracy
@@ -49,7 +53,10 @@ Transform any text on the web with intelligent AI actions:
 
 ### 🖼️ Image Understanding & OCR
 
-![Image Processing](imagenes/image_processing.png)
+<div align="center">
+  <img src="imagenes/image_processing.png" alt="Image Processing"/>
+  <br/><em>AI Image Analysis & Text Extraction</em>
+</div>
 
 WriteBee can analyze and extract information from images:
 
@@ -58,7 +65,10 @@ WriteBee can analyze and extract information from images:
 - **Explain Images** - Understand complex diagrams and visual content
 - **Context-Aware Actions** - Floating action buttons on medium/large images
 
-![Image Description Example](imagenes/image_description.png)
+<div align="center">
+  <img src="imagenes/image_description.png" alt="Image Description Example"/>
+  <br/><em>Detailed Image Description & OCR Results</em>
+</div>
 
 ### 🎯 Platform-Specific Integrations
 
@@ -66,7 +76,10 @@ WriteBee integrates seamlessly with popular platforms to enhance your workflow:
 
 #### 📺 YouTube
 
-![YouTube Integration](imagenes/youtube.png)
+<div align="center">
+  <img src="imagenes/youtube.png" alt="YouTube Integration"/>
+  <br/><em>Automatic Video Summarization Panel</em>
+</div>
 
 - **Automatic Video Summarization** - Get instant summaries of any video with captions
 - **Hierarchical Chunking** - Efficiently process videos of any length
@@ -77,20 +90,62 @@ WriteBee integrates seamlessly with popular platforms to enhance your workflow:
 
 <table>
   <tr>
-    <td><img src="imagenes/gmail_new_message.png" alt="Gmail New Message"/></td>
-    <td><img src="imagenes/gmail_response.png" alt="Gmail Response"/></td>
-    <td><img src="imagenes/gmail_summary.png" alt="Gmail Summary"/></td>
+    <td align="center">
+      <img src="imagenes/create mail on gmail.png" alt="Gmail AI Composer"/>
+      <br/><em>AI Email Composer Dialog</em>
+    </td>
+    <td align="center">
+      <img src="imagenes/email templates.png" alt="Gmail Email Templates"/>
+      <br/><em>15+ Professional Templates</em>
+    </td>
+    <td align="center">
+      <img src="imagenes/gmail_response.png" alt="Gmail Response"/>
+      <br/><em>Generated Email Content</em>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="imagenes/gmail_new_message.png" alt="Gmail New Message"/>
+      <br/><em>Compose Window Integration</em>
+    </td>
+    <td colspan="2" align="center">
+      <img src="imagenes/gmail_summary.png" alt="Gmail Summary" style="max-width: 100%;"/>
+      <br/><em>Email Summary & Analysis</em>
+    </td>
   </tr>
 </table>
 
-- **Smart Composition** - AI-powered email writing assistance
-- **Quick Reply Suggestions** - Generate appropriate responses instantly
+**AI Email Composer with Templates:**
+- **15+ Professional Templates** - Pre-built templates for common email scenarios:
+  - Professional Business Email
+  - Follow-up Email
+  - Thank You Email
+  - Introduction Email
+  - Team Member Introduction
+  - Meeting Request
+  - Feedback Email
+  - Apology Email
+  - Announcement Email
+  - Request Email
+  - Proposal Email
+  - Reminder Email
+  - Congratulations Email
+  - Welcome Email
+  - Status Update Email
+- **Smart Template Tips** - Contextual advice for each template type
+- **Customizable Options** - Control Length, Formality, Format, and Tone
+- **Real-time Streaming** - Watch your email being generated progressively
+- **Multi-language Support** - Generate emails in English, Spanish, French, German, Portuguese, and Italian
+- **Quick Actions** - Insert into Gmail, Copy, or Regenerate with one click
 - **Email Summarization** - Get the key points from long email threads
-- **Professional Tone** - Adjust writing style for business communication
+- **Smart Reply Suggestions** - Generate appropriate responses instantly
 
 #### 🐦 Twitter / X
 
-![Twitter Integration](imagenes/X.png)
+<div align="center">
+  <img src="imagenes/X.png" alt="Twitter Integration"/>
+  <br/><em>Tweet Composition & Thread Analysis</em>
+</div>
 
 - **Tweet Composition** - Craft engaging tweets with AI assistance
 - **Thread Summarization** - Understand long Twitter threads quickly
@@ -100,9 +155,18 @@ WriteBee integrates seamlessly with popular platforms to enhance your workflow:
 
 <table>
   <tr>
-    <td><img src="imagenes/linkedin_post.png" alt="LinkedIn Post"/></td>
-    <td><img src="imagenes/linkedin_comment.png" alt="LinkedIn Comment"/></td>
-    <td><img src="imagenes/linkedin_template.png" alt="LinkedIn Template"/></td>
+    <td align="center">
+      <img src="imagenes/linkedin_post.png" alt="LinkedIn Post"/>
+      <br/><em>Professional Post Creation</em>
+    </td>
+    <td align="center">
+      <img src="imagenes/linkedin_comment.png" alt="LinkedIn Comment"/>
+      <br/><em>Comment Assistant</em>
+    </td>
+    <td align="center">
+      <img src="imagenes/linkedin_template.png" alt="LinkedIn Template"/>
+      <br/><em>Template Library</em>
+    </td>
   </tr>
 </table>
 
@@ -113,7 +177,10 @@ WriteBee integrates seamlessly with popular platforms to enhance your workflow:
 
 #### 🐙 GitHub
 
-![GitHub Integration](imagenes/github.png)
+<div align="center">
+  <img src="imagenes/github.png" alt="GitHub Integration"/>
+  <br/><em>Repository Analysis & Code Understanding</em>
+</div>
 
 - **Repository Summary** - Quickly understand any GitHub repository
 - **Documentation Help** - Generate and improve documentation
@@ -122,7 +189,10 @@ WriteBee integrates seamlessly with popular platforms to enhance your workflow:
 
 #### 🔍 Google Search
 
-![Google Search Integration](imagenes/google_search.png)
+<div align="center">
+  <img src="imagenes/google_search.png" alt="Google Search Integration"/>
+  <br/><em>Search Result Summarization & Analysis</em>
+</div>
 
 - **Search Result Summarization** - Get quick overviews of search results
 - **Content Analysis** - Deeper understanding of web pages
@@ -130,7 +200,10 @@ WriteBee integrates seamlessly with popular platforms to enhance your workflow:
 
 #### 📄 PDF Support with RAG
 
-![PDF RAG System](imagenes/pdf_rag.png)
+<div align="center">
+  <img src="imagenes/pdf_rag.png" alt="PDF RAG System"/>
+  <br/><em>PDF Chat with RAG-Powered Question Answering</em>
+</div>
 
 Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
@@ -143,7 +216,10 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
 ### 💬 Intelligent Chat & Web Analysis
 
-![Page Chat](imagenes/page_chat.png)
+<div align="center">
+  <img src="imagenes/page_chat.png" alt="Page Chat"/>
+  <br/><em>Interactive Page Chat with Context-Aware Responses</em>
+</div>
 
 **Chat with Any Webpage or PDF** using advanced RAG (Retrieval-Augmented Generation):
 
@@ -153,7 +229,10 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 - **Link Analysis** - Automatically indexes relevant linked pages
 - **Context Building** - Intelligent chunking (300 words with 50-word overlap)
 
-![Side Chat](imagenes/side_chat.png)
+<div align="center">
+  <img src="imagenes/side_chat.png" alt="Side Chat"/>
+  <br/><em>Side Panel AI Assistant with Conversation History</em>
+</div>
 
 ### 🎨 User Interface
 
@@ -164,7 +243,10 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 - **Markdown Support** - Beautiful formatted output with code highlighting
 - **Language Options** - Customize output language for translations
 
-![Language Options](imagenes/language_option.png)
+<div align="center">
+  <img src="imagenes/language_option.png" alt="Language Options"/>
+  <br/><em>Multi-Language Translation Options</em>
+</div>
 
 ---
 
@@ -256,8 +338,6 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
 ### 2. Side Panel Chat
 
-![Side Panel Chat Interface](imagenes/side_chat.png)
-
 **Full-Featured AI Assistant:**
 
 - **Open**: Click the WriteBee extension icon or use keyboard shortcut
@@ -275,8 +355,6 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
 ### 3. Chat with Web Pages
 
-![Page Chat Example](imagenes/page_chat.png)
-
 **Ask Questions About Any Webpage:**
 
 1. Navigate to any webpage
@@ -292,8 +370,6 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 - Semantic search with keyword matching
 
 ### 4. PDF Chat & Analysis
-
-![PDF RAG in Action](imagenes/pdf_rag.png)
 
 **Upload and Interact with PDFs:**
 
@@ -312,8 +388,6 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
 ### 5. YouTube Video Summaries
 
-![YouTube Integration](imagenes/youtube.png)
-
 **Get Instant Video Summaries:**
 
 1. Open any YouTube video with captions
@@ -329,8 +403,6 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 - Key points and timestamps
 
 ### 6. Image Actions
-
-![Image Actions Menu](imagenes/image_description.png)
 
 **AI-Powered Image Analysis:**
 
@@ -369,10 +441,40 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
 ### 8. Platform-Specific Features
 
-**Gmail:**
-- Compose emails with AI assistance
-- Generate reply suggestions
-- Summarize long email threads
+**Gmail - AI Email Composer:**
+
+1. **Access the Composer:**
+   - Open Gmail and click "Compose" to start a new email
+   - Look for the **"AI WriteBee"** button in the compose toolbar
+   - Click it to open the AI Email Composer dialog
+
+2. **Choose a Template:**
+   - Click the template dropdown to see 15+ professional email templates
+   - Select a template that matches your email purpose
+   - View helpful tips for each template type
+
+3. **Describe Your Email:**
+   - Write a brief description of what you want to say
+   - Be specific about key points, recipients, or desired outcome
+   - Keep it concise (the AI will expand it)
+
+4. **Customize Options (Optional):**
+   - Click the options button (sliders icon) to adjust:
+     - **Length**: Auto, Short, Medium, Long
+     - **Formality**: Auto, Informal, Neutral, Formal
+     - **Format**: Email, Message, Comment, etc.
+     - **Tone**: Auto, Enthusiastic, Humorous, Professional, etc.
+   - Select your preferred language
+
+5. **Generate Email:**
+   - Click the plane icon to generate
+   - Watch the email being written in real-time (streaming)
+   - Edit the generated content directly
+
+6. **Insert or Copy:**
+   - **Insert into Gmail**: Automatically paste into compose window
+   - **Copy**: Copy to clipboard for later use
+   - **Regenerate**: Generate a new version with different wording
 
 **LinkedIn:**
 - Write professional posts
@@ -387,7 +489,6 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 **GitHub:**
 - Summarize repositories
 
-
 **Google Search:**
 - Summarize search results
 - Compare information from multiple sources
@@ -399,8 +500,6 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 ## 🔧 Configuration & Customization
 
 ### Language Support
-
-![Language Options](imagenes/language_option.png)
 
 **Supported Languages for Translation:**
 
