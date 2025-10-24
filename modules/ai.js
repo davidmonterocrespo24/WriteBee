@@ -309,6 +309,96 @@ const AIModule = (function() {
     }
   }
 
+  async function aiGrammarCheckStream(text, onChunk, signal = null) {
+    try {
+      console.log('🔍 GRAMMAR CHECK (aiGrammarCheckStream):');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('Text length:', text.length, 'characters, ~' + Math.ceil(text.length / 4) + ' tokens');
+      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+      // Show spinner
+      if (onChunk) {
+        onChunk('__GRAMMAR_ANALYZING__');
+      }
+
+      // Call ProofreaderService directly
+      const result = await ProofreaderService.proofread(text, null, signal);
+
+      // Format result as compact markdown
+      let output = '';
+
+      if (!result.hasErrors) {
+        output = '✅ **No errors found!**\n\nYour text is correct.';
+      } else {
+        // Compact header with stats
+        const statsText = Object.entries(result.stats.byType)
+          .filter(([type, count]) => count > 0)
+          .map(([type, count]) => `${count} ${ProofreaderService.getTypeName(type).toLowerCase()}`)
+          .join(', ');
+
+        output = `**${result.stats.total} issue${result.stats.total !== 1 ? 's' : ''} found**: ${statsText}\n\n`;
+
+        // Corrected text in compact format
+        output += `**Corrected text:**\n\n${result.corrected}\n\n`;
+
+        // Compact corrections list
+        if (result.corrections.length > 0 && result.corrections.length <= 10) {
+          output += `**Changes:**\n\n`;
+          result.corrections.forEach((correction, idx) => {
+            const originalText = text.substring(correction.startIndex, correction.endIndex);
+            const typeName = ProofreaderService.getTypeName(correction.type);
+
+            output += `${idx + 1}. `;
+            if (correction.correction) {
+              output += `"${originalText}" → "${correction.correction}" *(${typeName})*`;
+            } else {
+              output += `Remove "${originalText}" *(${typeName})*`;
+            }
+            output += '\n';
+          });
+        } else if (result.corrections.length > 10) {
+          output += `*${result.corrections.length} corrections - too many to list individually*\n\n`;
+        }
+      }
+
+      // Stream final output with result data
+      if (onChunk) {
+        onChunk(output);
+      }
+
+      console.log('✅ Grammar check completed successfully');
+
+      // Return both output and result for Replace All button
+      return {
+        output: output,
+        correctedText: result.corrected,
+        hasErrors: result.hasErrors,
+        originalText: text
+      };
+
+    } catch (error) {
+      console.error('Error in aiGrammarCheckStream:', error);
+
+      let errorMessage = '❌ **Grammar Check Error**\n\n';
+
+      if (error.message.includes('not available')) {
+        errorMessage += 'Requires Chrome 141+ with Proofreader API.\n\n';
+        errorMessage += 'Alternative: Use **Rewrite** action.';
+      } else if (error.message.includes('cancel')) {
+        errorMessage += 'Cancelled.';
+      } else {
+        errorMessage += `${error.message}`;
+      }
+
+      if (onChunk) {
+        onChunk(errorMessage);
+      }
+
+      throw error;
+    }
+  }
+
   return {
     aiSummarize,
     aiTranslate,
@@ -325,7 +415,8 @@ const AIModule = (function() {
     aiTranslateStream,
     aiExplainStream,
     aiExpandStream,
-    aiAnswerStream
+    aiAnswerStream,
+    aiGrammarCheckStream
   };
 })();
 

@@ -10,7 +10,9 @@ const ActionsModule = (function() {
    */
   async function executeAction(action, param = null, rect = null, selectedText = '') {
 
-
+    // Save the active element and selection BEFORE doing anything else (for grammar check)
+    const originalActiveElement = document.activeElement;
+    const originalSelection = window.getSelection().rangeCount > 0 ? window.getSelection().getRangeAt(0).cloneRange() : null;
 
     MenusModule.hideMenus();
 
@@ -63,9 +65,19 @@ const ActionsModule = (function() {
 
     try {
       let result = '';
+      let grammarResult = null;
 
       const onChunk = (chunk) => {
         if (answerDiv) {
+          // Check for grammar check spinner keyword
+          if (chunk === '__GRAMMAR_ANALYZING__') {
+            answerDiv.innerHTML = `
+              <div class="ai-typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            `;
+            return;
+          }
           MarkdownRenderer.renderToElement(answerDiv, chunk);
         }
       };
@@ -102,6 +114,87 @@ const ActionsModule = (function() {
           break;
         case 'answer':
           result = await AIModule.aiAnswerStream(selectedText, onChunk, abortController.signal);
+          break;
+        case 'grammar-check':
+          // Save the active element and selection BEFORE opening dialog
+          const activeElement = document.activeElement;
+          const savedSelection = window.getSelection().rangeCount > 0 ? window.getSelection().getRangeAt(0).cloneRange() : null;
+
+          grammarResult = await AIModule.aiGrammarCheckStream(selectedText, onChunk, abortController.signal);
+          result = grammarResult.output;
+
+          // Add Replace All button if there are errors
+          if (grammarResult.hasErrors) {
+            const replaceAllBtn = document.createElement('button');
+            replaceAllBtn.className = 'ai-replace-all-btn';
+            replaceAllBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:4px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Replace All
+            `;
+            replaceAllBtn.addEventListener('click', () => {
+              let replaced = false;
+
+              // Try to replace in the original element
+              try {
+                // For input/textarea elements
+                if (activeElement && (activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'INPUT')) {
+                  const start = activeElement.selectionStart;
+                  const end = activeElement.selectionEnd;
+                  const currentValue = activeElement.value;
+
+                  activeElement.value = currentValue.substring(0, start) + grammarResult.correctedText + currentValue.substring(end);
+                  activeElement.selectionStart = activeElement.selectionEnd = start + grammarResult.correctedText.length;
+
+                  // Trigger input event
+                  activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+                  replaced = true;
+                }
+                // For contenteditable elements
+                else if (savedSelection) {
+                  const selection = window.getSelection();
+                  selection.removeAllRanges();
+                  selection.addRange(savedSelection);
+
+                  savedSelection.deleteContents();
+                  const textNode = document.createTextNode(grammarResult.correctedText);
+                  savedSelection.insertNode(textNode);
+
+                  savedSelection.setStartAfter(textNode);
+                  savedSelection.setEndAfter(textNode);
+                  selection.removeAllRanges();
+                  selection.addRange(savedSelection);
+
+                  replaced = true;
+                }
+              } catch (error) {
+                console.log('Could not replace text:', error);
+              }
+
+              // Copy to clipboard
+              navigator.clipboard.writeText(grammarResult.correctedText).then(() => {
+                replaceAllBtn.innerHTML = `
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:4px;">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  ${replaced ? 'Replaced!' : 'Copied!'}
+                `;
+                replaceAllBtn.disabled = true;
+
+                setTimeout(() => {
+                  dialog.remove();
+                }, 1500);
+              });
+            });
+
+            // Insert button in header after spacer
+            const header = dialog.querySelector('.ai-result-header');
+            const spacer = header.querySelector('.spacer');
+            if (spacer) {
+              spacer.insertAdjacentElement('afterend', replaceAllBtn);
+            }
+          }
           break;
       }
 

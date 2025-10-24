@@ -6228,4 +6228,402 @@
   }
 }
 
+/* ========================================
+   GRAMMAR CHECK STYLES
+   ======================================== */
+
+/* Grammar check button icon */
+.ai-tool.grammar-check svg {
+  stroke: var(--icon);
+}
+
+.ai-tool.grammar-check:hover {
+  background: #2a2a2a;
+}
+
+/* Grammar check highlighting using CSS Highlights API */
+::highlight(grammar-spelling) {
+  background-color: rgba(239, 68, 68, 0.2);
+  text-decoration: underline wavy #ef4444;
+}
+
+::highlight(grammar-grammar) {
+  background-color: rgba(245, 158, 11, 0.2);
+  text-decoration: underline wavy #f59e0b;
+}
+
+::highlight(grammar-punctuation) {
+  background-color: rgba(59, 130, 246, 0.2);
+  text-decoration: underline wavy #3b82f6;
+}
+
+::highlight(grammar-capitalization) {
+  background-color: rgba(16, 185, 129, 0.2);
+  text-decoration: underline wavy #10b981;
+}
+
+::highlight(grammar-preposition) {
+  background-color: rgba(139, 92, 246, 0.2);
+  text-decoration: underline wavy #8b5cf6;
+}
+
+::highlight(grammar-missing-words) {
+  background-color: rgba(236, 72, 153, 0.2);
+  text-decoration: underline wavy #ec4899;
+}
+
+::highlight(grammar-other) {
+  background-color: rgba(107, 114, 128, 0.2);
+  text-decoration: underline wavy #6b7280;
+}
+
+/* Grammar check results styling */
+.ai-grammar-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.ai-grammar-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.ai-grammar-stat-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.ai-grammar-stat-icon.spelling {
+  background-color: #ef4444;
+}
+
+.ai-grammar-stat-icon.grammar {
+  background-color: #f59e0b;
+}
+
+.ai-grammar-stat-icon.punctuation {
+  background-color: #3b82f6;
+}
+
+.ai-grammar-stat-icon.capitalization {
+  background-color: #10b981;
+}
+
+.ai-grammar-stat-icon.preposition {
+  background-color: #8b5cf6;
+}
+
+.ai-grammar-stat-icon.missing-words {
+  background-color: #ec4899;
+}
+
+.ai-grammar-stat-icon.other {
+  background-color: #6b7280;
+}
+
+/* Grammar correction popover */
+.ai-grammar-popover {
+  position: fixed;
+  z-index: 1000000;
+  background: #1f1f23;
+  border: 1px solid #3a3a40;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  min-width: 200px;
+  max-width: 350px;
+}
+
+.ai-grammar-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #3a3a40;
+}
+
+.ai-grammar-popover-type {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  flex: 1;
+}
+
+.ai-grammar-popover-correction {
+  margin: 8px 0;
+  padding: 8px;
+  background: rgba(255, 212, 0, 0.1);
+  border-left: 3px solid #ffd400;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #eaeaf0;
+}
+
+.ai-grammar-popover-explanation {
+  font-size: 12px;
+  color: #b3b3b3;
+  line-height: 1.4;
+  margin: 8px 0;
+}
+
+.ai-grammar-popover-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ai-grammar-popover-btn {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-grammar-popover-btn.accept {
+  background: #ffd400;
+  color: #000;
+}
+
+.ai-grammar-popover-btn.accept:hover {
+  background: #ffdd33;
+  transform: translateY(-1px);
+}
+
+.ai-grammar-popover-btn.dismiss {
+  background: transparent;
+  color: #b3b3b3;
+  border: 1px solid #3a3a40;
+}
+
+.ai-grammar-popover-btn.dismiss:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+/* Grammar check legend */
+.ai-grammar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.ai-grammar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-grammar-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Responsive adjustments for grammar check */
+@media (max-width: 768px) {
+  .ai-grammar-popover {
+    max-width: 280px;
+  }
+
+  .ai-grammar-stats {
+    flex-direction: column;
+  }
+}
+
+/* ========================================
+   REAL-TIME GRAMMAR CHECKER STYLES
+   ======================================== */
+
+/* Wrapper for positioned elements */
+.ai-grammar-wrapper {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+/* Overlay for error highlighting */
+.ai-grammar-overlay {
+  position: absolute !important;
+  pointer-events: none !important;
+  color: transparent !important;
+  user-select: none !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Error highlighting in overlay */
+.ai-grammar-error {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  color: transparent !important;
+}
+
+/* Checking indicator */
+.ai-grammar-checking {
+  position: absolute !important;
+  bottom: 5px !important;
+  right: 10px !important;
+  font-size: 11px !important;
+  color: #888 !important;
+  font-style: italic !important;
+  pointer-events: none !important;
+}
+
+/* Interactive suggestion popover */
+.ai-grammar-suggestion-popover {
+  position: fixed !important;
+  z-index: 1000000 !important;
+  background: #1f1f23 !important;
+  border: 1px solid #3a3a40 !important;
+  border-radius: 10px !important;
+  padding: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  min-width: 180px !important;
+  max-width: 320px !important;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif !important;
+}
+
+.ai-grammar-popover-header {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 10px !important;
+}
+
+.ai-grammar-type-badge {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.ai-grammar-explanation {
+  font-size: 13px !important;
+  color: #b3b3b3 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 10px !important;
+}
+
+.ai-grammar-suggestions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  margin: 10px 0 !important;
+}
+
+.ai-grammar-suggestion-btn {
+  padding: 8px 12px !important;
+  background: rgba(255, 212, 0, 0.1) !important;
+  border: 1px solid rgba(255, 212, 0, 0.3) !important;
+  border-radius: 6px !important;
+  color: #ffd400 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-align: left !important;
+  font-family: inherit !important;
+}
+
+.ai-grammar-suggestion-btn:hover {
+  background: rgba(255, 212, 0, 0.2) !important;
+  border-color: rgba(255, 212, 0, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ai-grammar-no-suggestion {
+  font-size: 13px !important;
+  color: #ef4444 !important;
+  font-style: italic !important;
+  margin: 8px 0 !important;
+}
+
+.ai-grammar-popover-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid #3a3a40 !important;
+}
+
+.ai-grammar-dismiss-btn {
+  padding: 6px 12px !important;
+  background: transparent !important;
+  border: 1px solid #3a3a40 !important;
+  border-radius: 6px !important;
+  color: #b3b3b3 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  font-family: inherit !important;
+}
+
+.ai-grammar-dismiss-btn:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+}
+
+/* ========================================
+   REPLACE ALL BUTTON STYLES
+   ======================================== */
+
+.ai-replace-all-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 6px 12px !important;
+  background: linear-gradient(135deg, #ffd400 0%, #ffb700 100%) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  color: #000 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  margin-left: 8px !important;
+  font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif !important;
+  box-shadow: 0 2px 6px rgba(255, 212, 0, 0.3) !important;
+}
+
+.ai-replace-all-btn:hover {
+  background: linear-gradient(135deg, #ffdd33 0%, #ffc400 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(255, 212, 0, 0.4) !important;
+}
+
+.ai-replace-all-btn:active {
+  transform: translateY(0) !important;
+}
+
+.ai-replace-all-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.ai-replace-all-btn svg {
+  flex-shrink: 0 !important;
+}
+
 
