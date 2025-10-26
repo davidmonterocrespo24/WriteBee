@@ -1,6 +1,10 @@
 const ToolbarModule = (function() {
   let toolbar = null;
   let selectedText = '';
+  let savedActiveElement = null;
+  let savedSelection = null;
+  let savedSelectionStart = null;
+  let savedSelectionEnd = null;
 
   function getSelectedText() {
     return selectedText;
@@ -14,10 +18,32 @@ const ToolbarModule = (function() {
     return toolbar;
   }
 
+  function getSavedSelectionInfo() {
+    return {
+      activeElement: savedActiveElement,
+      selection: savedSelection,
+      selectionStart: savedSelectionStart,
+      selectionEnd: savedSelectionEnd
+    };
+  }
+
   async function showToolbar(pageX, pageY, clientX, clientY, text) {
     if (toolbar) toolbar.remove();
 
     selectedText = text;
+
+    // Save the active element and selection info BEFORE creating toolbar
+    savedActiveElement = document.activeElement;
+    savedSelection = window.getSelection().rangeCount > 0 ? window.getSelection().getRangeAt(0).cloneRange() : null;
+
+    // Save selection positions for input/textarea elements
+    savedSelectionStart = null;
+    savedSelectionEnd = null;
+    if (savedActiveElement && (savedActiveElement.tagName === 'TEXTAREA' || savedActiveElement.tagName === 'INPUT')) {
+      savedSelectionStart = savedActiveElement.selectionStart;
+      savedSelectionEnd = savedActiveElement.selectionEnd;
+    }
+
     toolbar = document.createElement('div');
     toolbar.className = 'ai-toolbar';
 
@@ -267,6 +293,7 @@ const ToolbarModule = (function() {
     getSelectedText,
     setSelectedText,
     getToolbar,
+    getSavedSelectionInfo,
     showToolbar,
     hideToolbar,
     refreshToolbar

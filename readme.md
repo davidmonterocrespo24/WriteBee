@@ -35,7 +35,11 @@ Transform any text on the web with intelligent AI actions:
 - **Translate** - Multi-language translation with automatic language detection
 - **Rewrite** - Improve clarity and professionalism of your text
 - **Explain** - Get clear explanations of complex concepts
-- **Grammar Check** - Fix grammar and spelling errors
+- **Grammar Check** - Advanced grammar and spelling correction using Chrome's Proofreader API
+  - Real-time error detection with colored underlines
+  - Click-to-fix suggestions with explanations
+  - Replace All button to apply corrections instantly
+  - Detailed error statistics and grouped corrections
 - **Expand Text** - Add details, examples, and depth to your writing
 - **Generate Text** - AI-powered content creation in editable fields
 
@@ -337,8 +341,38 @@ Advanced PDF processing using Retrieval-Augmented Generation (RAG):
 
 1. **Select any text** on a webpage
 2. **Floating toolbar appears** automatically with contextual actions
-3. **Choose an action**: Summarize, Translate, Rewrite, Explain, etc.
+3. **Choose an action**: Summarize, Translate, Rewrite, Explain, Grammar Check, etc.
 4. **View results** instantly in the side panel with markdown formatting
+
+**Grammar Check - Advanced Error Correction:**
+
+WriteBee includes a powerful grammar checker powered by Chrome's on-device Proofreader API:
+
+1. **Basic Usage:**
+   - Select text containing grammar or spelling errors
+   - Click the **Grammar Check** button in the floating toolbar
+   - View detailed corrections with error statistics
+
+2. **Features:**
+   - **Error Types Detected**: Spelling, punctuation, capitalization, preposition errors, missing words, and general grammar issues
+   - **Compact Results**: Shows total errors found with a breakdown by type
+   - **Corrected Text**: See the fully corrected version instantly
+   - **Changes List**: Review all corrections made (shows first 10)
+   - **Replace All**: One-click button to replace selected text with corrections
+
+3. **Real-time Checking** (for input/textarea elements):
+   - Type in any text field
+   - Errors are highlighted with colored wavy underlines
+   - Click on underlined text to see suggestions
+   - Apply fixes individually or dismiss
+
+4. **Replace All Button:**
+   - Automatically replaces the original selected text with corrected version
+   - Works in textareas, input fields, and contenteditable elements
+   - Shows "Replaced!" confirmation when successful
+   - Copies to clipboard as backup
+
+**Note:** Grammar Check requires Chrome 141+ and an active Origin Trial for the Proofreader API. Currently supports English language.
 
 ### 2. Side Panel Chat
 

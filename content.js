@@ -466,4 +466,49 @@ async function handleGenerateText() {
   }
 }
 
+// Initialize Grammar Checker for real-time checking
+console.log('🚀 [Content] Initializing GrammarChecker...');
+if (typeof GrammarChecker !== 'undefined') {
+  // Wait for DOM to be fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('📄 [Content] DOM loaded, calling initializeAll()');
+      GrammarChecker.initializeAll();
+    });
+  } else {
+    console.log('📄 [Content] DOM already loaded, calling initializeAll() immediately');
+    GrammarChecker.initializeAll();
+  }
+
+  // Also reinitialize when new elements are added dynamically
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === 1) { // Element node
+          // Check if it's a textarea or has textareas inside
+          if (node.tagName === 'TEXTAREA') {
+            console.log('➕ [Content] New textarea detected, attaching grammar checker');
+            GrammarChecker.attachToElement(node);
+          } else if (node.querySelectorAll) {
+            const textareas = node.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+              console.log('➕ [Content] New textarea found in added node, attaching');
+              GrammarChecker.attachToElement(textarea);
+            });
+          }
+        }
+      });
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  console.log('✅ [Content] GrammarChecker observer set up');
+} else {
+  console.error('❌ [Content] GrammarChecker module not loaded!');
+}
+
 // Creado por David Montero Crespo para WriteBee

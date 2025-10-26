@@ -4,7 +4,11 @@
  * @project WriteBee
  * @description Provides inline grammar checking with interactive corrections
  */
+console.log('🔧 [GrammarChecker] Module loading...');
+
 const GrammarChecker = (function() {
+  console.log('✅ [GrammarChecker] Module initialized');
+
   let activePopover = null;
   let currentCorrections = new Map(); // Map of element -> corrections
   let debounceTimers = new Map();
@@ -14,18 +18,24 @@ const GrammarChecker = (function() {
    * Initialize grammar checking for an input/textarea element
    */
   function attachToElement(element) {
+    console.log('🔧 [GrammarChecker] attachToElement called:', element);
+
     if (!element || element.dataset.grammarCheckerAttached === 'true') {
+      console.log('⚠️ [GrammarChecker] Element already attached or null');
       return;
     }
 
+    console.log('✅ [GrammarChecker] Attaching to element:', element.tagName, element);
     element.dataset.grammarCheckerAttached = 'true';
 
     // Create wrapper for positioning
     const wrapper = createWrapper(element);
+    console.log('✅ [GrammarChecker] Wrapper created');
 
     // Create overlay for highlighting
     const overlay = createOverlay(element);
     wrapper.appendChild(overlay);
+    console.log('✅ [GrammarChecker] Overlay created and appended');
 
     // Store references
     element.dataset.grammarOverlay = overlay.id;
@@ -105,14 +115,18 @@ const GrammarChecker = (function() {
    * Handle input changes with debounce
    */
   function handleInput(element, overlay) {
+    console.log('⌨️ [GrammarChecker] Input detected, starting debounce timer');
+
     // Clear existing timer
     const existingTimer = debounceTimers.get(element);
     if (existingTimer) {
       clearTimeout(existingTimer);
+      console.log('⏱️ [GrammarChecker] Cleared existing timer');
     }
 
     // Set new timer
     const timer = setTimeout(async () => {
+      console.log('✅ [GrammarChecker] Debounce complete, checking grammar...');
       await checkGrammar(element, overlay);
       debounceTimers.delete(element);
     }, DEBOUNCE_DELAY);
@@ -136,8 +150,10 @@ const GrammarChecker = (function() {
    */
   async function checkGrammar(element, overlay) {
     const text = element.value || element.textContent;
+    console.log('📝 [GrammarChecker] checkGrammar called, text length:', text?.length);
 
     if (!text || text.trim().length < 3) {
+      console.log('⚠️ [GrammarChecker] Text too short, skipping check');
       overlay.innerHTML = '';
       currentCorrections.delete(element);
       return;
@@ -146,24 +162,30 @@ const GrammarChecker = (function() {
     try {
       // Show subtle loading indicator
       overlay.innerHTML = '<div class="ai-grammar-checking">Checking...</div>';
+      console.log('🔄 [GrammarChecker] Calling ProofreaderService...');
 
       // Get corrections from ProofreaderService
       const result = await ProofreaderService.proofread(text, null, null);
+      console.log('✅ [GrammarChecker] ProofreaderService result:', result);
 
       if (!result || !result.corrections || result.corrections.length === 0) {
+        console.log('✅ [GrammarChecker] No errors found');
         overlay.innerHTML = '';
         currentCorrections.delete(element);
         return;
       }
+
+      console.log('🔍 [GrammarChecker] Found', result.corrections.length, 'errors');
 
       // Store corrections
       currentCorrections.set(element, result.corrections);
 
       // Render highlights
       renderHighlights(element, overlay, text, result.corrections);
+      console.log('✅ [GrammarChecker] Highlights rendered');
 
     } catch (error) {
-      console.error('Grammar check error:', error);
+      console.error('❌ [GrammarChecker] Grammar check error:', error);
       overlay.innerHTML = '';
       currentCorrections.delete(element);
     }
@@ -392,16 +414,26 @@ const GrammarChecker = (function() {
    * Initialize on all editable fields (optional auto-attach)
    */
   function initializeAll() {
+    console.log('🚀 [GrammarChecker] initializeAll() called');
+
     // Find all textareas and contenteditable elements
     const editables = document.querySelectorAll('textarea, [contenteditable="true"]');
+    console.log('🔍 [GrammarChecker] Found', editables.length, 'editable elements');
 
     editables.forEach(element => {
+      console.log('📋 [GrammarChecker] Checking element:', element.tagName, 'height:', element.offsetHeight);
+
       // Only attach to large text fields (not single-line inputs)
       if (element.tagName === 'TEXTAREA' ||
           (element.getAttribute('contenteditable') === 'true' && element.offsetHeight > 100)) {
+        console.log('✅ [GrammarChecker] Attaching to:', element);
         attachToElement(element);
+      } else {
+        console.log('⏭️ [GrammarChecker] Skipping (too small or wrong type)');
       }
     });
+
+    console.log('✅ [GrammarChecker] initializeAll() complete');
   }
 
   // Public API
@@ -415,5 +447,6 @@ const GrammarChecker = (function() {
 
 // Make globally available
 window.GrammarChecker = GrammarChecker;
+console.log('✅ [GrammarChecker] Module exported to window.GrammarChecker');
 
 // Creado por David Montero Crespo para WriteBee

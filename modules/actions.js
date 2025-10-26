@@ -10,9 +10,12 @@ const ActionsModule = (function() {
    */
   async function executeAction(action, param = null, rect = null, selectedText = '') {
 
-    // Save the active element and selection BEFORE doing anything else (for grammar check)
-    const originalActiveElement = document.activeElement;
-    const originalSelection = window.getSelection().rangeCount > 0 ? window.getSelection().getRangeAt(0).cloneRange() : null;
+    // Get the saved selection info from ToolbarModule (captured when toolbar was shown)
+    const selectionInfo = ToolbarModule.getSavedSelectionInfo();
+    const originalActiveElement = selectionInfo.activeElement;
+    const originalSelection = selectionInfo.selection;
+    const savedSelectionStart = selectionInfo.selectionStart;
+    const savedSelectionEnd = selectionInfo.selectionEnd;
 
     MenusModule.hideMenus();
 
@@ -116,10 +119,6 @@ const ActionsModule = (function() {
           result = await AIModule.aiAnswerStream(selectedText, onChunk, abortController.signal);
           break;
         case 'grammar-check':
-          // Save the active element and selection BEFORE opening dialog
-          const activeElement = document.activeElement;
-          const savedSelection = window.getSelection().rangeCount > 0 ? window.getSelection().getRangeAt(0).cloneRange() : null;
-
           grammarResult = await AIModule.aiGrammarCheckStream(selectedText, onChunk, abortController.signal);
           result = grammarResult.output;
 
@@ -139,32 +138,38 @@ const ActionsModule = (function() {
               // Try to replace in the original element
               try {
                 // For input/textarea elements
-                if (activeElement && (activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'INPUT')) {
-                  const start = activeElement.selectionStart;
-                  const end = activeElement.selectionEnd;
-                  const currentValue = activeElement.value;
+                if (originalActiveElement && (originalActiveElement.tagName === 'TEXTAREA' || originalActiveElement.tagName === 'INPUT')) {
+                  const currentValue = originalActiveElement.value;
 
-                  activeElement.value = currentValue.substring(0, start) + grammarResult.correctedText + currentValue.substring(end);
-                  activeElement.selectionStart = activeElement.selectionEnd = start + grammarResult.correctedText.length;
+                  // Use saved selection positions
+                  originalActiveElement.value = currentValue.substring(0, savedSelectionStart) + grammarResult.correctedText + currentValue.substring(savedSelectionEnd);
+
+                  // Set cursor position after replaced text
+                  const newPosition = savedSelectionStart + grammarResult.correctedText.length;
+                  originalActiveElement.selectionStart = newPosition;
+                  originalActiveElement.selectionEnd = newPosition;
+
+                  // Focus the element
+                  originalActiveElement.focus();
 
                   // Trigger input event
-                  activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+                  originalActiveElement.dispatchEvent(new Event('input', { bubbles: true }));
                   replaced = true;
                 }
                 // For contenteditable elements
-                else if (savedSelection) {
+                else if (originalSelection) {
                   const selection = window.getSelection();
                   selection.removeAllRanges();
-                  selection.addRange(savedSelection);
+                  selection.addRange(originalSelection);
 
-                  savedSelection.deleteContents();
+                  originalSelection.deleteContents();
                   const textNode = document.createTextNode(grammarResult.correctedText);
-                  savedSelection.insertNode(textNode);
+                  originalSelection.insertNode(textNode);
 
-                  savedSelection.setStartAfter(textNode);
-                  savedSelection.setEndAfter(textNode);
+                  originalSelection.setStartAfter(textNode);
+                  originalSelection.setEndAfter(textNode);
                   selection.removeAllRanges();
-                  selection.addRange(savedSelection);
+                  selection.addRange(originalSelection);
 
                   replaced = true;
                 }
