@@ -231,7 +231,6 @@ const YoutubeModule = (function() {
         .replace(/\[Laughter\]/gi, '')
         .trim();
 
-      console.log(`Prepared transcript: ${subtitleText.length} characters`);
 
       // Generate the summary using AI
       const summary = await AIModule.aiSummarize(subtitleText, (percent) => {
@@ -270,7 +269,6 @@ const YoutubeModule = (function() {
       }
 
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      console.log(`Fetching transcript for video: ${videoId}`);
 
       // Call background script directly to fetch transcript via API
       const response = await chrome.runtime.sendMessage({
@@ -289,7 +287,6 @@ const YoutubeModule = (function() {
         throw new Error('No transcript available for this video');
       }
 
-      console.log(`Successfully fetched ${data.transcript.length} subtitle entries`);
 
       // Transform to our expected format (start, duration, text)
       return data.transcript.map(item => ({

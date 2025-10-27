@@ -149,11 +149,6 @@ const WebChatModule = (function() {
       // Final trim
       .trim();
 
-    console.log('📄 EXTRACTION DETAILS:');
-    console.log('  - Navigation sections:', navs.length);
-    console.log('  - Total sections:', sections.length);
-    console.log('  - Individual elements:', content.length);
-    console.log('  - Final content length:', allContent.length, 'characters');
 
     return allContent;
   }
@@ -164,7 +159,6 @@ const WebChatModule = (function() {
   function getPageMetadata() {
     // If metadata was cached (from side panel), use it
     if (cachedMetadata) {
-      console.log('📋 Using cached metadata:', cachedMetadata);
       return cachedMetadata;
     }
 
@@ -227,14 +221,9 @@ const WebChatModule = (function() {
       // If pageContent was already set manually (e.g., from side panel), use it
       // Otherwise, extract fresh content from current document
       if (!pageContent || pageContent.length === 0) {
-        console.log('📄 Extracting fresh page content from current document...');
         pageContent = extractPageContent();
-      } else {
-        console.log('📄 Using pre-set page content (from side panel or other source)');
-      }
+      } 
 
-      console.log('📄 Page content length:', pageContent.length, 'characters');
-      console.log('📄 First 200 chars:', pageContent.substring(0, 200));
 
       if (onProgress) onProgress('Indexing current page...');
 
@@ -247,8 +236,6 @@ const WebChatModule = (function() {
 
       // Log indexing statistics
       const indexSize = ragEngine.index ? ragEngine.index.length : 0;
-      console.log('✅ RAG Engine initialized and indexed');
-      console.log(`📊 Index statistics: ${indexSize} chunks created`);
 
       return true;
     } catch (error) {
@@ -386,7 +373,6 @@ Include all the main points, important information and content structure.`;
 
       const relevantChunks = ragEngine.retrieve(question, 8);
 
-      console.log(`🔍 Retrieved ${relevantChunks.length} relevant chunks for question: "${question}"`);
 
       // Build context from retrieved chunks
       const context = ragEngine.buildContext(relevantChunks);
@@ -611,7 +597,6 @@ Answer:`;
    * Clear page content and reset RAG
    */
   function clearPageContent() {
-    console.log('🧹 Clearing page content and RAG cache...');
     isIndexed = false;
     pageContent = null;
     pageSummary = null;
@@ -626,7 +611,6 @@ Answer:`;
    * Force re-index of current page (useful after page changes)
    */
   async function forceReindex(onProgress = null) {
-    console.log('🔄 Forcing page re-index...');
     clearPageContent();
     return await initializeRAG(onProgress);
   }
@@ -635,14 +619,10 @@ Answer:`;
    * Set page content manually (para cuando viene del side panel)
    */
   function setPageContent(content, metadata = null) {
-    console.log('📝 Setting page content manually');
-    console.log('  - Content length:', content ? content.length : 0, 'characters');
-    console.log('  - Metadata:', metadata);
 
     pageContent = content;
     if (metadata) {
       cachedMetadata = metadata;
-      console.log('  - Cached metadata:', cachedMetadata);
     }
     // Reset indexing flag to force re-indexing
     isIndexed = false;

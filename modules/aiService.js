@@ -106,10 +106,6 @@ class AIService {
         chunks.push(currentChunk.trim());
       }
 
-      console.log(`📊 Hierarchical Summarization Strategy:`);
-      console.log(`   - Original text: ${text.length} characters`);
-      console.log(`   - Split into ${chunks.length} chunks of ~${MAX_CHUNK_SIZE} chars each`);
-      console.log(`   - Strategy: Summarize each → Combine → Final summary`);
 
       // Level 1: Summarize each small chunk
       const level1Summaries = [];
@@ -119,7 +115,6 @@ class AIService {
           onProgress(percent);
         }
 
-        console.log(`   📝 Level 1: Chunk ${i + 1}/${chunks.length} (${chunks[i].length} chars)`);
 
         try {
           const summary = await this.summarize(chunks[i], null, {
@@ -131,7 +126,6 @@ class AIService {
           });
 
           level1Summaries.push(summary);
-          console.log(`   ✓ Chunk ${i + 1} summarized (${summary.length} chars)`);
         } catch (error) {
           console.error(`   ✗ Error summarizing chunk ${i + 1}:`, error.message);
           // Try to use a smaller portion of the chunk
@@ -144,9 +138,7 @@ class AIService {
               outputLanguage: 'en'
             });
             level1Summaries.push(summary);
-            console.log(`   ✓ Chunk ${i + 1} (half) summarized`);
           } catch (retryError) {
-            console.log(`   ⚠ Skipping chunk ${i + 1}`);
           }
         }
 
@@ -158,17 +150,14 @@ class AIService {
         throw new Error('Could not summarize any chunks');
       }
 
-      console.log(`   ✓ Level 1 complete: ${level1Summaries.length} summaries created`);
 
       // Level 2: Combine all summaries
       const combinedText = level1Summaries.join(' ');
-      console.log(`   📝 Level 2: Creating final summary (${combinedText.length} chars)`);
 
       if (onProgress) onProgress(90);
 
       // If combined is still too large, recursively summarize
       if (combinedText.length > MAX_CHUNK_SIZE) {
-        console.log(`   ⚠ Combined summaries too large, applying recursive summarization`);
         return await this.summarizeLargeText(combinedText, onProgress, {
           type: 'key-points',
           format: 'markdown',
@@ -188,7 +177,6 @@ class AIService {
       });
 
       if (onProgress) onProgress(100);
-      console.log(`   ✓ Final summary created (${finalSummary.length} chars)`);
 
       return finalSummary;
 
@@ -207,11 +195,6 @@ class AIService {
   throw new Error('The Summarizer API is not available in this browser.');
       }
 
-      console.log('🤖 AI TEXT SENT TO API (summarizeStream):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('Text length:', text.length, 'characters');
-      console.log('First 500 chars:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const summarizer = await self.Summarizer.create({
         type: 'key-points',
@@ -302,10 +285,6 @@ class AIService {
 
   const prompt = `Explain the following text clearly and concisely:\n\n${text}`;
 
-      console.log('🤖 AI PROMPT SENT TO API:');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const result = await session.prompt(prompt);
 
@@ -359,10 +338,6 @@ class AIService {
 
   const prompt = `Expand the following text with more details and examples:\n\n${text}`;
 
-      console.log('🤖 AI PROMPT SENT TO API (expand):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const result = await writer.write(prompt);
       writer.destroy();
@@ -389,10 +364,6 @@ class AIService {
 
   const prompt = `Answer the following question clearly and precisely:\n\n${text}`;
 
-      console.log('🤖 AI PROMPT SENT TO API (answer):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const result = await session.prompt(prompt);
 
@@ -424,10 +395,6 @@ class AIService {
 
       const fullPrompt = context + '\n\nAssistant:';
 
-      console.log('🤖 AI PROMPT SENT TO API (chat):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(fullPrompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const result = await session.prompt(fullPrompt);
 
@@ -496,11 +463,6 @@ class AIService {
         detector.destroy();
       }
 
-      console.log('🤖 AI TEXT SENT TO API (translateStream):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('Translation:', sourceLang, '→', targetLang);
-      console.log('Text:', text);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const translator = await self.Translator.create({
         sourceLanguage: sourceLang,
@@ -538,10 +500,6 @@ class AIService {
       const session = await self.LanguageModel.create();
       const prompt = `Explain the following text clearly and concisely in 3 key points:\n\n${text}`;
 
-      console.log('🤖 AI PROMPT SENT TO API (explainStream):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const stream = session.promptStreaming(prompt, signal ? { signal } : {});
       let fullText = '';
@@ -578,10 +536,6 @@ class AIService {
 
   const prompt = `Expand the following text with more details and examples:\n\n${text}`;
 
-      console.log('🤖 AI PROMPT SENT TO API (expandStream):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const stream = writer.writeStreaming(prompt, signal ? { signal } : {});
       let fullText = '';
@@ -614,10 +568,6 @@ class AIService {
       const session = await self.LanguageModel.create();
       const prompt = `Answer the following question briefly and precisely:\n\n${text}`;
 
-      console.log('🤖 AI PROMPT SENT TO API (answerStream):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const stream = session.promptStreaming(prompt, signal ? { signal } : {});
       let fullText = '';
@@ -647,10 +597,6 @@ class AIService {
   throw new Error('The Rewriter API is not available in this browser.');
       }
 
-      console.log('🤖 AI TEXT SENT TO API (rewriteStream):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(text);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const rewriter = await self.Rewriter.create();
       const stream = rewriter.rewriteStreaming(text, signal ? { signal } : {});
@@ -681,10 +627,6 @@ class AIService {
   throw new Error('The Writer API is not available in this browser.');
       }
 
-      console.log('🤖 AI PROMPT SENT TO API (writeStream):');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       const writer = await self.Writer.create();
       const stream = writer.writeStreaming(prompt, signal ? { signal } : {});

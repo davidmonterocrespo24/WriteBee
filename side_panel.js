@@ -5,14 +5,10 @@
  * @project WriteBee
  */
 (function initSidePanel() {
-  console.log('🎯 side_panel.html loaded - inline scripts executing');
-  console.log('📍 Location:', window.location.href);
-  console.log('📂 Base URI:', document.baseURI);
 
   // Configure PDF.js worker (local)
   if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'libs/pdf.worker.min.js';
-    console.log('✅ PDF.js loaded and configured (local version)');
   } else {
     console.warn('⚠️ PDF.js failed to load');
   }
@@ -688,12 +684,10 @@
 
     // Transcribe audio received from page recording
     if (request.type === 'transcribe-audio') {
-      console.log('SIDE_PANEL: Received audio for transcription');
 
       // Reconstruct Blob from array
       const uint8Array = new Uint8Array(request.audioData);
       const audioBlob = new Blob([uint8Array], { type: request.mimeType || 'audio/webm' });
-      console.log('SIDE_PANEL: Reconstructed audio blob', audioBlob.size, 'bytes');
 
       if (audioBlob.size < 100) {
         console.error('SIDE_PANEL: Audio blob is too small, likely empty');
@@ -708,7 +702,6 @@
       if (typeof MultimodalModule !== 'undefined') {
         MultimodalModule.transcribeAudio(audioBlob, 'transcribe', () => {})
           .then(transcription => {
-            console.log('SIDE_PANEL: Transcription successful', transcription);
 
             // Get fresh reference to input element
             const inputElement = document.getElementById('chatInput');
@@ -723,7 +716,6 @@
               // Also call handleInputChange directly
               handleInputChange();
 
-              console.log('SIDE_PANEL: Input value set to:', inputElement.value);
             } else {
               console.error('SIDE_PANEL: chatInput element not found!');
             }
@@ -1413,7 +1405,6 @@
    */
   async function toggleVoiceRecording() {
     if (!isRecording) {
-      console.log('SIDE_PANEL: Starting recording in page context...');
 
       try {
         // Start recording in page context (where permission works)
@@ -1430,7 +1421,6 @@
         if (!response.success) {
           // If it failed due to permission, show overlay
           if (response.error && (response.error.includes('NotAllowedError') || response.error.includes('PermissionDenied'))) {
-            console.log('SIDE_PANEL: Permission needed, showing overlay...');
 
             const permResponse = await new Promise((resolve, reject) => {
               chrome.runtime.sendMessage({ type: 'request-microphone-permission' }, (response) => {
@@ -1443,11 +1433,9 @@
             });
 
             if (!permResponse.success || !permResponse.granted) {
-              console.log('SIDE_PANEL: Permission not granted');
               return;
             }
 
-            console.log('SIDE_PANEL: Permission granted, trying to record again...');
 
             // Try recording again
             const retryResponse = await new Promise((resolve, reject) => {
@@ -1473,7 +1461,6 @@
         recordingIndicator.style.display = 'flex';
         voiceBtn.style.color = '#dc2626';
 
-        console.log('SIDE_PANEL: Recording started successfully');
 
       } catch (error) {
         console.error('SIDE_PANEL: Error starting recording', error);
@@ -1489,7 +1476,6 @@
         alert(errorMessage);
       }
     } else {
-      console.log('SIDE_PANEL: Stopping recording in page context...');
 
       try {
         // Stop recording in page context
@@ -1532,7 +1518,6 @@
   async function toggleVoiceRecordingOld() {
     if (!isRecording) {
       try {
-        console.log('SIDE_PANEL: Starting recording directly in side panel...');
 
         // Request microphone access
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -1543,28 +1528,24 @@
           }
         });
 
-        console.log('SIDE_PANEL: Got media stream');
 
         // Create MediaRecorder
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         audioChunks = [];
 
         mediaRecorder.ondataavailable = (event) => {
-          console.log('SIDE_PANEL: Data available', event.data.size);
           if (event.data.size > 0) {
             audioChunks.push(event.data);
           }
         };
 
         mediaRecorder.onstop = async () => {
-          console.log('SIDE_PANEL: Recording stopped, processing audio...');
 
           // Stop all tracks
           stream.getTracks().forEach(track => track.stop());
 
           // Create blob from chunks
           const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          console.log('SIDE_PANEL: Audio blob created', audioBlob.size, 'bytes');
 
           // Reset UI
           isRecording = false;
@@ -1584,7 +1565,6 @@
           try {
             if (typeof MultimodalModule !== 'undefined') {
               const transcription = await MultimodalModule.transcribeAudio(audioBlob, 'transcribe', () => {});
-              console.log('SIDE_PANEL: Transcription successful', transcription);
               chatInput.value = transcription;
               handleInputChange();
               recordingIndicator.style.display = 'none';
@@ -1614,7 +1594,6 @@
         recordingIndicator.style.display = 'flex';
         voiceBtn.style.color = '#dc2626';
 
-        console.log('SIDE_PANEL: Recording started successfully');
 
       } catch (error) {
         console.error('SIDE_PANEL: Error starting recording', error);
@@ -1643,7 +1622,6 @@
         alert(errorMessage);
       }
     } else {
-      console.log('SIDE_PANEL: Stopping recording...');
       // Stop recording
       if (mediaRecorder && mediaRecorder.state === 'recording') {
         mediaRecorder.stop();

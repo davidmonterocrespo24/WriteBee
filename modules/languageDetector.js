@@ -37,13 +37,11 @@ const LanguageDetectorService = (function() {
     }
 
     try {
-      console.log('Creating Language Detector instance...');
 
       detectorInstance = await self.LanguageDetector.create({
         monitor(m) {
           m.addEventListener('downloadprogress', (e) => {
             const progress = e.loaded || 0;
-            console.log(`Language Detector model download: ${Math.round(progress * 100)}%`);
             if (onDownloadProgress) {
               onDownloadProgress(progress);
             }
@@ -51,7 +49,6 @@ const LanguageDetectorService = (function() {
         }
       });
 
-      console.log('Language Detector instance created successfully');
       return detectorInstance;
     } catch (error) {
       console.error('Error creating Language Detector:', error);
@@ -193,7 +190,6 @@ const LanguageDetectorService = (function() {
   function destroy() {
     if (detectorInstance) {
       detectorInstance = null;
-      console.log('Language Detector instance destroyed');
     }
   }
 

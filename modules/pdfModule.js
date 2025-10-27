@@ -306,14 +306,8 @@ const PDFModule = (function() {
       }
       
       // Extract text from PDF
-      console.log('📄 Starting PDF text extraction...');
       const pdfData = await extractTextFromPDF(pdfFile, onProgress);
 
-      console.log('📄 PDF extraction complete:');
-      console.log('  - Filename:', pdfData.filename);
-      console.log('  - Pages:', pdfData.pages);
-      console.log('  - Text length:', pdfData.text ? pdfData.text.length : 0, 'characters');
-      console.log('  - First 200 chars:', pdfData.text ? pdfData.text.substring(0, 200) : 'NO TEXT');
 
       // Store current PDF info
       currentPDF = {
@@ -325,7 +319,6 @@ const PDFModule = (function() {
       
       currentPDFContent = pdfData.text;
 
-      console.log('📦 Stored PDF content length:', currentPDFContent ? currentPDFContent.length : 0);
 
       if (onProgress) onProgress('Indexing PDF content...');
       
@@ -341,8 +334,6 @@ const PDFModule = (function() {
       ragEngine.clear();
       
       // Index PDF content
-      console.log('📑 Indexing PDF content into RAG...');
-      console.log('  - Content to index:', currentPDFContent.substring(0, 100) + '...');
 
       await ragEngine.indexPage(currentPDFContent, {
         title: currentPDF.filename,
@@ -352,7 +343,6 @@ const PDFModule = (function() {
       });
 
       const indexSize = ragEngine.index ? ragEngine.index.length : 0;
-      console.log(`✅ PDF indexed successfully: ${indexSize} chunks created`);
 
       if (onProgress) onProgress('PDF ready for chat!');
 
@@ -395,7 +385,6 @@ const PDFModule = (function() {
       // Retrieve only 3 chunks to keep prompt size manageable
       const relevantChunks = ragEngine.retrieve(question, 3);
 
-      console.log(`📊 Retrieved ${relevantChunks.length} chunks for question: "${question}"`);
 
       // For small PDFs, use all content if RAG returns nothing
       if (relevantChunks.length === 0) {
@@ -403,7 +392,6 @@ const PDFModule = (function() {
 
         // For small PDFs (< 3000 chars), use all content directly
         if (currentPDFContent && currentPDFContent.length < 3000) {
-          console.log('📄 Using full PDF content (small PDF)');
           const prompt = `Based on the PDF "${currentPDF.filename}", answer this question:
 
 Content:

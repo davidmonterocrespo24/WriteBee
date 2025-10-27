@@ -216,7 +216,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // Request microphone permission via content script overlay
   if (request.type === 'request-microphone-permission') {
-    console.log('BACKGROUND: Requesting microphone permission via content script');
 
     // Get the active tab
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -242,7 +241,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // Start recording in page context
   if (request.type === 'start-recording-in-page') {
-    console.log('BACKGROUND: Starting recording in page context');
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
@@ -266,7 +264,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // Stop recording in page context
   if (request.type === 'stop-recording-in-page') {
-    console.log('BACKGROUND: Stopping recording in page context');
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
@@ -290,8 +287,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // Audio recorded from page - forward to side panel
   if (request.type === 'audio-recorded-from-page') {
-    console.log('BACKGROUND: Audio recorded from page, forwarding to side panel');
-    console.log('BACKGROUND: Audio data size:', request.audioData ? request.audioData.length : 0, 'bytes');
 
     // Forward the audio data to side panel
     chrome.runtime.sendMessage({
@@ -311,14 +306,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === 'recording-started') {
-    console.log('BACKGROUND: Recording started successfully');
     chrome.runtime.sendMessage({ type: 'recording-started' });
     sendResponse({ success: true });
     return true;
   }
 
   if (request.type === 'audio-recorded') {
-    console.log('BACKGROUND: Received audio-recorded, forwarding to side panel');
     closeOffscreenDocument();
     // Forward the audio to the side panel
     chrome.runtime.sendMessage({ type: 'transcribe-audio', data: request.data });
@@ -327,7 +320,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === 'recording-error') {
-    console.log('BACKGROUND: Recording error received', request.error);
     closeOffscreenDocument();
     chrome.runtime.sendMessage({ type: 'recording-error', error: request.error });
     sendResponse({ success: true });
@@ -343,7 +335,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         chrome.runtime.sendMessage({
           action: 'chatData',
           data: { pdfMode: true, pdfUrl: request.pdfUrl }
-        }).catch(err => console.log('⚠️ Error:', err));
       }, 500);
       sendResponse({ success: true });
     }).catch(error => {

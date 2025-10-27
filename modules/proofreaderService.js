@@ -20,7 +20,6 @@ const ProofreaderService = (function() {
       }
 
       const availability = await self.Proofreader.availability();
-      console.log('Proofreader availability:', availability);
       return availability;
     } catch (error) {
       console.error('Error checking Proofreader availability:', error);
@@ -48,14 +47,12 @@ const ProofreaderService = (function() {
     try {
       isDownloading = availability === 'downloadable';
 
-      console.log('Creating Proofreader instance...');
 
       proofreaderInstance = await self.Proofreader.create({
         expectedInputLanguages: ['en'],
         monitor(m) {
           m.addEventListener('downloadprogress', (e) => {
             const progress = e.loaded || 0;
-            console.log(`Proofreader model download: ${Math.round(progress * 100)}%`);
 
             if (onDownloadProgress) {
               onDownloadProgress(progress);
@@ -68,7 +65,6 @@ const ProofreaderService = (function() {
         }
       });
 
-      console.log('Proofreader instance created successfully');
       return proofreaderInstance;
     } catch (error) {
       console.error('Error creating Proofreader:', error);
@@ -141,8 +137,6 @@ const ProofreaderService = (function() {
         throw new Error('No text provided for proofreading');
       }
 
-      console.log('🔍 Starting grammar check...');
-      console.log('Text length:', text.length, 'characters');
 
       // Check for abort
       if (signal && signal.aborted) {
@@ -186,8 +180,6 @@ const ProofreaderService = (function() {
       // Perform proofreading
       const result = await proofreader.proofread(text);
 
-      console.log('✅ Grammar check completed');
-      console.log('Corrections found:', result.corrections?.length || 0);
 
       // Update progress - Complete
       if (onProgress) {
@@ -262,7 +254,6 @@ const ProofreaderService = (function() {
   function destroy() {
     if (proofreaderInstance) {
       proofreaderInstance = null;
-      console.log('Proofreader instance destroyed');
     }
   }
 

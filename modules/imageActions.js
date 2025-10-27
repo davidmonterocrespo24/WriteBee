@@ -192,7 +192,6 @@ const ImageActionsModule = (function() {
         const action = item.dataset.action;
         const imageUrl = img.src || img.currentSrc;
 
-        console.log('IMAGE_ACTIONS: Action triggered:', action, 'for image:', imageUrl);
 
         // Close menu
         menu.classList.remove('show');
@@ -251,7 +250,6 @@ const ImageActionsModule = (function() {
    * Initialize the module
    */
   function init() {
-    console.log('IMAGE_ACTIONS: Initializing...');
 
     // Process existing images
     if (document.readyState === 'loading') {
@@ -289,7 +287,6 @@ const ImageActionsModule = (function() {
       subtree: true
     });
 
-    console.log('IMAGE_ACTIONS: Initialized successfully');
   }
 
   /**

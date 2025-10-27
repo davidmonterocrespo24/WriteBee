@@ -441,7 +441,6 @@ const GithubModule = (function() {
 
     // If no repository is detected, summarize the current page instead
     if (!currentRepo) {
-      console.log('No GitHub repository detected. Summarizing current page instead...');
 
       // Call the page summarization from FloatButtons module
       if (typeof FloatButtonsModule !== 'undefined') {

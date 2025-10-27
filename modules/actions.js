@@ -174,7 +174,6 @@ const ActionsModule = (function() {
                   replaced = true;
                 }
               } catch (error) {
-                console.log('Could not replace text:', error);
               }
 
               // Copy to clipboard

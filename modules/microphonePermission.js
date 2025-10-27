@@ -292,7 +292,6 @@ const MicrophonePermissionModule = (function() {
     }
 
     try {
-      console.log('MIC_MODULE: Starting recording...');
 
       // Request microphone access
       recordingStream = await navigator.mediaDevices.getUserMedia({
@@ -303,21 +302,18 @@ const MicrophonePermissionModule = (function() {
         }
       });
 
-      console.log('MIC_MODULE: Got media stream');
 
       // Create MediaRecorder
       mediaRecorder = new MediaRecorder(recordingStream, { mimeType: 'audio/webm' });
       audioChunks = [];
 
       mediaRecorder.ondataavailable = (event) => {
-        console.log('MIC_MODULE: Data available', event.data.size);
         if (event.data.size > 0) {
           audioChunks.push(event.data);
         }
       };
 
       mediaRecorder.onstop = async () => {
-        console.log('MIC_MODULE: Recording stopped');
 
         // Stop all tracks
         if (recordingStream) {
@@ -327,12 +323,10 @@ const MicrophonePermissionModule = (function() {
 
         // Create blob from chunks
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        console.log('MIC_MODULE: Audio blob created', audioBlob.size, 'bytes');
 
         // Convert blob to ArrayBuffer for transmission
         try {
           const arrayBuffer = await audioBlob.arrayBuffer();
-          console.log('MIC_MODULE: Converted to ArrayBuffer', arrayBuffer.byteLength, 'bytes');
 
           // Send to background script
           chrome.runtime.sendMessage({
@@ -362,7 +356,6 @@ const MicrophonePermissionModule = (function() {
       mediaRecorder.start();
       isRecording = true;
 
-      console.log('MIC_MODULE: Recording started successfully');
       return { success: true };
 
     } catch (error) {
@@ -379,7 +372,6 @@ const MicrophonePermissionModule = (function() {
    * Stop recording audio
    */
   function stopRecording() {
-    console.log('MIC_MODULE: Stopping recording...');
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
       return { success: true };

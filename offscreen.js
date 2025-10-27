@@ -22,7 +22,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
       return;
     }
 
-    console.log('OFFSCREEN: Starting recording...');
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -33,16 +32,13 @@ chrome.runtime.onMessage.addListener(async (message) => {
         }
       });
 
-      console.log('OFFSCREEN: Got media stream', stream);
 
       recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       recorder.ondataavailable = (e) => {
-        console.log('OFFSCREEN: Data available', e.data.size);
         data.push(e.data);
       };
       recorder.onstop = () => {
         const blob = new Blob(data, { type: 'audio/webm' });
-        console.log('OFFSCREEN: Audio blob created', blob.size, 'bytes');
         chrome.runtime.sendMessage({ type: 'audio-recorded', data: blob });
         data = [];
         stream.getTracks().forEach(t => t.stop());
@@ -56,7 +52,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
         });
       };
       recorder.start();
-      console.log('OFFSCREEN: Recorder started');
 
       // Notify that recording started successfully
       chrome.runtime.sendMessage({ type: 'recording-started' });
@@ -68,10 +63,8 @@ chrome.runtime.onMessage.addListener(async (message) => {
       });
     }
   } else if (message.type === 'stop-recording') {
-    console.log('OFFSCREEN: Stop recording requested');
     if (recorder?.state === 'recording') {
       recorder.stop();
-      console.log('OFFSCREEN: Recorder stopped');
     } else {
       console.warn('OFFSCREEN: No active recording to stop');
     }

@@ -485,16 +485,11 @@ const GmailModule = (function() {
           optionsPanel.style.left = `${btnRect.left}px`;
           optionsPanel.style.display = 'block';
 
-          console.log('Panel positioned at:', {
-            bottom: optionsPanel.style.bottom,
-            left: optionsPanel.style.left
-          });
         } else {
           optionsPanel.style.display = 'none';
         }
 
         optionsBtn.classList.toggle('active', !isVisible);
-        console.log('Options panel toggled:', optionsPanel.style.display);
       });
     } else {
       console.error('Options button or panel not found', { optionsBtn, optionsPanel });
